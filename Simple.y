@@ -68,9 +68,12 @@ SEMANTIC RECORDS
 TOKENS
 =========================================================================*/
 %start program
-%token <intval> NUMBER /* Simple integer */
-%token <id> IDENTIFIER /* Simple identifier */
+%token <intval> INT /* Simple integer */
+%token <id> ID /* Simple identifier */
 %token <lbls> IF WHILE /* For backpatching labels */
+%token SEMI
+%token COMMA
+%token TYPE
 %token SKIP THEN ELSE FI DO END
 %token INTEGER READ WRITE LET IN
 %token ASSGNOP
