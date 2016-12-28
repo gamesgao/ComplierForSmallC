@@ -53,10 +53,10 @@ context_check(enum code_ops operation, char *sym_name) {
   } else
     gen_code(operation, identifier->offset);
 }
+%}
 /*=========================================================================
 SEMANTIC RECORDS
 =========================================================================*/
-%}
 
 % union semrec /* The Semantic Records */
 {
@@ -73,6 +73,7 @@ TOKENS
 %token SEMI
 %token COMMA
 
+%token DOT
 %token BINARYOP_MUL
 %token BINARYOP_DIV
 %token BINARYOP_MOD
@@ -92,7 +93,7 @@ TOKENS
 %token BINARYOP_LAND
 %token BINARYOP_LOR
 %token BINARYOP_ASSIGN
-%token BINARYOP_ADDA
+%token BINARYOP_MULA
 %token BINARYOP_DIVA
 %token BINARYOP_MODA
 %token BINARYOP_ADDA
@@ -138,11 +139,141 @@ OPERATOR PRECEDENCE
 %left BINARYOP_MIN BINARYOP_ADD
 %left BINARYOP_MOD BINARYOP_DIV BINARYOP_MUL
 %right UNARYOP_BNOT UNARYOP_DERE UNARYOP_INCR UNARYOP_LNOT UNARYOP_NEG
-%left COMMA LP RP LB RB
+%left DOT LP RP LB RB
 /*=========================================================================
 GRAMMAR RULES for the Simple language
 =========================================================================*/
+
 %%
+
+program   : extdefs
+;
+
+extdefs   : /* empty */
+          | extdef extdefs
+;
+
+extdef    : TYPE extvars SEMI
+          | stspec sextvars SEMI
+          | TYPE func stmtblock
+;
+
+extvars   : /* empty */
+          | ID
+          | ID COMMA sextvars
+;
+
+stspec    : STRUCT ID LC sdefs RC
+          | STRUCT LC sdefs RC
+          | STRUCT ID
+;
+
+func      : ID LP paras RP
+;
+
+paras     : /* empty */
+          | TYPE ID COMMA paras
+          | TYPE ID
+;
+
+stmtblock : LC defs stmts RC
+;
+
+stmts     : /* empty */
+          | stmt stmts
+;
+
+stmt      : exp SEMI
+          | stmtblock
+          | RETURN exp SEMI
+          | IF LP exp RP stmt
+          | IF LP exp RP stmt ELSE stmt
+          | FOR LP exp SEMI exp SEMI exp RP stmt
+          | CONT SEMI
+          | BREAK SEMI
+;
+
+defs      : /* empty */
+          | TYPE decs SEMI defs
+          | stspec sdecs SEMI defs
+;
+
+sdefs     : /* empty */
+          | TYPE sdecs SEMI sdefs
+;
+
+sdecs     : ID COMMA sdecs
+          | ID
+;
+
+decs      : var
+          | var COMMA decs
+          | var BINARYOP_ASSIGN init COMMA decs
+          | var BINARYOP_ASSIGN init
+;
+
+var       : ID
+          | var LB INT RB
+;
+
+init      : exp
+          | LC args RC
+;
+
+exp       : exps BINARYOP_MUL exps
+          | exps BINARYOP_DIV exps
+          | exps BINARYOP_MOD exps
+          | exps BINARYOP_ADD exps
+          | exps BINARYOP_MIN exps
+          | exps BINARYOP_SHL exps
+          | exps BINARYOP_SHR exps
+          | exps BINARYOP_GT exps
+          | exps BINARYOP_NLT exps
+          | exps BINARYOP_LT exps
+          | exps BINARYOP_NGT exps
+          | exps BINARYOP_EQ exps
+          | exps BINARYOP_NEQ exps
+          | exps BINARYOP_BAND exps
+          | exps BINARYOP_BXOR exps
+          | exps BINARYOP_BOR exps
+          | exps BINARYOP_LAND exps
+          | exps BINARYOP_LOR exps
+          | exps BINARYOP_ASSIGN exps
+          | exps BINARYOP_MULA exps
+          | exps BINARYOP_DIVA exps
+          | exps BINARYOP_MODA exps
+          | exps BINARYOP_ADDA exps
+          | exps BINARYOP_MINA exps
+          | exps BINARYOP_BANDA exps
+          | exps BINARYOP_BXORA exps
+          | exps BINARYOP_BORA exps
+          | exps BINARYOP_SHLA exps
+          | exps BINARYOP_SHRA exps
+          | UNARYOP_NEG exps
+          | UNARYOP_LNOT exps
+          | UNARYOP_INCR exps
+          | UNARYOP_DECR exps
+          | UNARYOP_BNOT exps
+          | LP exps RP
+          | ID LP args RP
+          | ID arrs
+          | ID DOT ID
+          | INT
+;
+
+arrs      : /* empty */
+          | LB exp RB arrs
+;
+
+args      : exp COMMA args
+          | exp
+;
+
+
+
+
+
+
 program : LET
 declarations
 IN { gen_code( DATA, data_location() - 1 ); }
@@ -192,6 +323,7 @@ exp : NUMBER { gen_code( LD_INT, $1 ); }
 | exp '^' exp { gen_code( PWR, 0 ); }
 | '(' exp ')'
 ;
+
 %%
 /*=========================================================================
 MAIN

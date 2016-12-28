@@ -40,8 +40,12 @@ IDENTIFIER  {
     return SEMI;
 }
 
-\.          {
+,          {
     return COMMA;
+}
+
+\.          {
+    return DOT;
 }
 
 \*          {
