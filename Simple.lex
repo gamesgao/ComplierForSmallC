@@ -61,10 +61,12 @@ int         {
 }
 
 {INTEGER}     {
+    yylval.intval = atoi(yytext);
     return INT;
 }
 
 {IDENTIFIER}  {
+    yylval.id = (char *) strdup(yytext);
     return ID;
 }
 

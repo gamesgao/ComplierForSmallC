@@ -30,11 +30,11 @@ struct lbs *newlblrec() /* Allocate space for the labels */
 Install identifier & check if previously defined.
 -------------------------------------------------------------------------*/
 
-install(char *sym_name) {
+void registerId(char *sym_name, char *type) {
   symrec *s;
   s = getsym(sym_name);
   if (s == 0)
-    s = putsym(sym_name);
+    s = putsym(sym_name, type);
   else {
     errors++;
     printf("%s is already defined\n", sym_name);
@@ -53,6 +53,17 @@ context_check(enum code_ops operation, char *sym_name) {
   } else
     gen_code(operation, identifier->offset);
 }
+
+/*-------------------------------------------------------------------------
+define the return type for each terminal and nonterminal
+-------------------------------------------------------------------------*/
+struct name{
+
+};
+
+
+
+
 %}
 /*=========================================================================
 SEMANTIC RECORDS
@@ -63,13 +74,14 @@ SEMANTIC RECORDS
   int intval;       /* Integer values */
   char *id;         /* Identifiers */
   struct lbs *lbls; /* For backpatching */
+
 }
 /*=========================================================================
 TOKENS
 =========================================================================*/
 %start program
 %token INT
-%token ID
+%token<id> ID
 %token SEMI
 %token COMMA
 
@@ -140,6 +152,14 @@ OPERATOR PRECEDENCE
 %right UNARYOP_BNOT UNARYOP_DERE UNARYOP_INCR UNARYOP_LNOT
 %left DOT LP RP LB RB
 /*=========================================================================
+Return type for the terminal and non-terminal
+=========================================================================*/
+%type<id> var
+%type<id> decs
+%type<id> extvars
+
+
+/*=========================================================================
 GRAMMAR RULES for the Simple language
 =========================================================================*/
 
@@ -152,7 +172,9 @@ extdefs   : /* empty */
           | extdef extdefs
 ;
 
-extdef    : TYPE extvars SEMI
+extdef    : TYPE extvars SEMI{
+            registerId($2, "int");
+          }
           | stspec sextvars SEMI
           | TYPE func stmtblock
 ;
@@ -163,7 +185,9 @@ sextvars  : /* empty */
 ;
 
 extvars   : /* empty */
-          | var
+          | var {
+            $$ = $1;
+          }
           | var BINARYOP_ASSIGN init
           | var COMMA extvars
           | var BINARYOP_ASSIGN init COMMA extvars
@@ -200,7 +224,9 @@ stmt      : exp SEMI
 ;
 
 defs      : /* empty */
-          | TYPE decs SEMI defs
+          | TYPE decs SEMI defs {
+            registerId($2, "int");
+          }
           | stspec sdecs SEMI defs
 ;
 
@@ -212,14 +238,20 @@ sdecs     : ID COMMA sdecs
           | ID
 ;
 
-decs      : var
+decs      : var {
+            $$ = $1;
+          }
           | var COMMA decs
           | var BINARYOP_ASSIGN init COMMA decs
           | var BINARYOP_ASSIGN init
 ;
 
-var       : ID
-          | var LB INT RB
+var       : ID {
+            $$ = $1;
+          }
+          | var LB INT RB {
+            //TODO
+          }
 ;
 
 init      : exp
@@ -289,7 +321,7 @@ main( int argc, char *argv[] )
   ++argv;
   --argc;
   yyin = fopen(argv[0], "r");
-  // yydebug = 1;
+  yydebug = 1;
   errors = 0;
   yyparse();
   printf("Parse Completed\n");

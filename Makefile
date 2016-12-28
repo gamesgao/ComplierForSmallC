@@ -1,4 +1,4 @@
-make:Simple.tab.o lex.yy.o
+edit:Simple.tab.o lex.yy.o
 	gcc -o Simple Simple.tab.o lex.yy.o -lm
 
 Simple.tab.o:Simple.tab.c SM.h ST.h CG.h
