@@ -14,7 +14,7 @@ struct symrec {
   // int level;
   struct symrec *next; /* link field */
 };
-// typedef struct symrec symrec;
+typedef struct symrec symrec;
 /*-------------------------------------------------------------------------
 SYMBOL TABLE ENTRY
 -------------------------------------------------------------------------*/
@@ -40,10 +40,12 @@ void addLevel(){
 struct symrec * subLevel(){
   struct symrec *scope = sym_table;
   struct symrec *ptr;
-  for (ptr = sym_table; ptr != (struct symrec *)0; ptr = (struct symrec *)ptr->next)
-    if (ptr->name == (char *) 0)
+  for (ptr = sym_table; ptr != (struct symrec *)0; ptr = (struct symrec *)ptr->next){
+    if (ptr->name == (char *) 0){
       sym_table = ptr->next;
       break;
+    }    
+  }
   return scope;
 }
 

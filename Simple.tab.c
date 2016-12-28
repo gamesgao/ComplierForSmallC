@@ -73,8 +73,8 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include <stdlib.h> /* For malloc here and in symbol table */
 #include <string.h> /* For strcmp in symbol table */
 #include "ST.h" /* Symbol Table */
-#include "SM.h" /* Stack Machine */
-#include "CG.h" /* Code Generator */
+// #include "SM.h" /* Stack Machine */
+// #include "CG.h" /* Code Generator */
 #define YYDEBUG 1 /* For Debugging */
 int errors; /* Error Count */
 /*-------------------------------------------------------------------------
@@ -95,11 +95,11 @@ struct lbs *newlblrec() /* Allocate space for the labels */
 Install identifier & check if previously defined.
 -------------------------------------------------------------------------*/
 
-install(char *sym_name) {
+void registerId(char *sym_name, char *type) {
   symrec *s;
   s = getsym(sym_name);
   if (s == 0)
-    s = putsym(sym_name);
+    s = putsym(sym_name, type);
   else {
     errors++;
     printf("%s is already defined\n", sym_name);
@@ -108,18 +108,29 @@ install(char *sym_name) {
 /*-------------------------------------------------------------------------
 If identifier is defined, generate code
 -------------------------------------------------------------------------*/
-context_check(enum code_ops operation, char *sym_name) {
-  symrec *identifier;
-  identifier = getsym(sym_name);
-  if (identifier == 0) {
-    errors++;
-    printf("%s", sym_name);
-    printf("%s\n", " is an undeclared identifier");
-  } else
-    gen_code(operation, identifier->offset);
-}
+// context_check(enum code_ops operation, char *sym_name) {
+//   symrec *identifier;
+//   identifier = getsym(sym_name);
+//   if (identifier == 0) {
+//     errors++;
+//     printf("%s", sym_name);
+//     printf("%s\n", " is an undeclared identifier");
+//   } else
+//     gen_code(operation, identifier->offset);
+// }
 
-#line 123 "Simple.tab.c" /* yacc.c:339  */
+/*-------------------------------------------------------------------------
+define the return type for each terminal and nonterminal
+-------------------------------------------------------------------------*/
+struct name{
+
+};
+
+
+
+
+
+#line 134 "Simple.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -212,18 +223,19 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-#line 61 "Simple.y" /* yacc.c:355  */
+#line 72 "Simple.y" /* yacc.c:355  */
 union semrec
 {
-#line 62 "Simple.y" /* yacc.c:355  */
+#line 73 "Simple.y" /* yacc.c:355  */
 
   int intval;       /* Integer values */
   char *id;         /* Identifiers */
   struct lbs *lbls; /* For backpatching */
 
-#line 225 "Simple.tab.c" /* yacc.c:355  */
+
+#line 237 "Simple.tab.c" /* yacc.c:355  */
 };
-#line 61 "Simple.y" /* yacc.c:355  */
+#line 72 "Simple.y" /* yacc.c:355  */
 typedef union semrec YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -238,7 +250,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 242 "Simple.tab.c" /* yacc.c:358  */
+#line 254 "Simple.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -541,16 +553,16 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   148,   148,   151,   152,   155,   156,   157,   160,   161,
-     162,   165,   166,   167,   168,   169,   172,   173,   174,   177,
-     180,   181,   182,   185,   188,   189,   192,   193,   194,   195,
-     196,   197,   198,   199,   202,   203,   204,   207,   208,   211,
-     212,   215,   216,   217,   218,   221,   222,   225,   226,   229,
-     230,   233,   234,   235,   236,   237,   238,   239,   240,   241,
-     242,   243,   244,   245,   246,   247,   248,   249,   250,   251,
-     252,   253,   254,   255,   256,   257,   258,   259,   260,   261,
-     262,   263,   264,   265,   266,   267,   268,   269,   270,   271,
-     274,   275,   278,   279
+       0,   168,   168,   171,   172,   175,   178,   179,   182,   183,
+     184,   187,   188,   191,   192,   193,   196,   197,   198,   201,
+     204,   205,   206,   209,   212,   213,   216,   217,   218,   219,
+     220,   221,   222,   223,   226,   227,   230,   233,   234,   237,
+     238,   241,   244,   245,   246,   249,   252,   257,   258,   261,
+     262,   265,   266,   267,   268,   269,   270,   271,   272,   273,
+     274,   275,   276,   277,   278,   279,   280,   281,   282,   283,
+     284,   285,   286,   287,   288,   289,   290,   291,   292,   293,
+     294,   295,   296,   297,   298,   299,   300,   301,   302,   303,
+     306,   307,   310,   311
 };
 #endif
 
@@ -1474,8 +1486,56 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-      
-#line 1479 "Simple.tab.c" /* yacc.c:1646  */
+        case 5:
+#line 175 "Simple.y" /* yacc.c:1646  */
+    {
+            registerId((yyvsp[-1].id), "int");
+          }
+#line 1495 "Simple.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 12:
+#line 188 "Simple.y" /* yacc.c:1646  */
+    {
+            (yyval.id) = (yyvsp[0].id);
+          }
+#line 1503 "Simple.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 227 "Simple.y" /* yacc.c:1646  */
+    {
+            registerId((yyvsp[-2].id), "int");
+          }
+#line 1511 "Simple.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 41:
+#line 241 "Simple.y" /* yacc.c:1646  */
+    {
+            (yyval.id) = (yyvsp[0].id);
+          }
+#line 1519 "Simple.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 249 "Simple.y" /* yacc.c:1646  */
+    {
+            (yyval.id) = (yyvsp[0].id);
+          }
+#line 1527 "Simple.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 46:
+#line 252 "Simple.y" /* yacc.c:1646  */
+    {
+            //TODO
+          }
+#line 1535 "Simple.tab.c" /* yacc.c:1646  */
+    break;
+
+
+#line 1539 "Simple.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1703,7 +1763,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 282 "Simple.y" /* yacc.c:1906  */
+#line 314 "Simple.y" /* yacc.c:1906  */
 
 /*=========================================================================
 MAIN
@@ -1717,6 +1777,7 @@ main( int argc, char *argv[] )
   // yydebug = 1;
   errors = 0;
   yyparse();
+  printf("%s\n", getsym("x")->type);
   printf("Parse Completed\n");
   // if (errors == 0) {
   //   print_code();

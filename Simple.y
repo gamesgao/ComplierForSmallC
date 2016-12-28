@@ -8,8 +8,8 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include <stdlib.h> /* For malloc here and in symbol table */
 #include <string.h> /* For strcmp in symbol table */
 #include "ST.h" /* Symbol Table */
-#include "SM.h" /* Stack Machine */
-#include "CG.h" /* Code Generator */
+// #include "SM.h" /* Stack Machine */
+// #include "CG.h" /* Code Generator */
 #define YYDEBUG 1 /* For Debugging */
 int errors; /* Error Count */
 /*-------------------------------------------------------------------------
@@ -43,16 +43,16 @@ void registerId(char *sym_name, char *type) {
 /*-------------------------------------------------------------------------
 If identifier is defined, generate code
 -------------------------------------------------------------------------*/
-context_check(enum code_ops operation, char *sym_name) {
-  symrec *identifier;
-  identifier = getsym(sym_name);
-  if (identifier == 0) {
-    errors++;
-    printf("%s", sym_name);
-    printf("%s\n", " is an undeclared identifier");
-  } else
-    gen_code(operation, identifier->offset);
-}
+// context_check(enum code_ops operation, char *sym_name) {
+//   symrec *identifier;
+//   identifier = getsym(sym_name);
+//   if (identifier == 0) {
+//     errors++;
+//     printf("%s", sym_name);
+//     printf("%s\n", " is an undeclared identifier");
+//   } else
+//     gen_code(operation, identifier->offset);
+// }
 
 /*-------------------------------------------------------------------------
 define the return type for each terminal and nonterminal
@@ -296,11 +296,15 @@ exps      : exps BINARYOP_MUL exps
           | UNARYOP_INCR exps
           | UNARYOP_DECR exps
           | UNARYOP_BNOT exps
-          | LP exps RP
+          | LP exps RP  {
+            $$ = $2;
+          }
           | ID LP args RP
           | ID arrs
           | ID DOT ID
-          | INT
+          | INT {
+            $$ = $1;
+          }
 ;
 
 arrs      : /* empty */
@@ -321,9 +325,10 @@ main( int argc, char *argv[] )
   ++argv;
   --argc;
   yyin = fopen(argv[0], "r");
-  yydebug = 1;
+  // yydebug = 1;
   errors = 0;
   yyparse();
+  printf("%s\n", getsym("x")->type);
   printf("Parse Completed\n");
   // if (errors == 0) {
   //   print_code();

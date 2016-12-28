@@ -885,299 +885,301 @@ case 9:
 YY_RULE_SETUP
 #line 63 "Simple.lex"
 {
+    yylval.intval = atoi(yytext);
     return INT;
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 67 "Simple.lex"
+#line 68 "Simple.lex"
 {
+    yylval.id = (char *) strdup(yytext);
     return ID;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 71 "Simple.lex"
+#line 73 "Simple.lex"
 {
     return SEMI;
 }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 75 "Simple.lex"
+#line 77 "Simple.lex"
 {
     return COMMA;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 79 "Simple.lex"
+#line 81 "Simple.lex"
 {
     return DOT;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 83 "Simple.lex"
+#line 85 "Simple.lex"
 {
     return BINARYOP_MUL;
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 87 "Simple.lex"
+#line 89 "Simple.lex"
 {
     return BINARYOP_DIV;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 91 "Simple.lex"
+#line 93 "Simple.lex"
 {
     return BINARYOP_MOD;
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 95 "Simple.lex"
+#line 97 "Simple.lex"
 {
     return BINARYOP_ADD;
 }              
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 99 "Simple.lex"
+#line 101 "Simple.lex"
 {
     return MIN;
 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 103 "Simple.lex"
+#line 105 "Simple.lex"
 {
     return BINARYOP_SHL;
 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 107 "Simple.lex"
+#line 109 "Simple.lex"
 {
     return BINARYOP_SHR;
 }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 111 "Simple.lex"
+#line 113 "Simple.lex"
 {
     return BINARYOP_GT;
 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 115 "Simple.lex"
+#line 117 "Simple.lex"
 {
     return BINARYOP_NLT;
 }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 119 "Simple.lex"
+#line 121 "Simple.lex"
 {
     return BINARYOP_LT;
 }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 123 "Simple.lex"
+#line 125 "Simple.lex"
 {
     return BINARYOP_NGT;
 }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 127 "Simple.lex"
+#line 129 "Simple.lex"
 {
     return BINARYOP_EQ;
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 131 "Simple.lex"
+#line 133 "Simple.lex"
 {
     return BINARYOP_NEQ;
 }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 135 "Simple.lex"
+#line 137 "Simple.lex"
 {
     return BINARYOP_BAND;
 }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 139 "Simple.lex"
+#line 141 "Simple.lex"
 {
     return BINARYOP_BXOR;
 }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 143 "Simple.lex"
+#line 145 "Simple.lex"
 {
     return BINARYOP_BOR;
 }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 147 "Simple.lex"
+#line 149 "Simple.lex"
 {
     return BINARYOP_LAND;
 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 151 "Simple.lex"
+#line 153 "Simple.lex"
 {
     return BINARYOP_LOR;
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 155 "Simple.lex"
+#line 157 "Simple.lex"
 {
     return BINARYOP_ASSIGN;
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 159 "Simple.lex"
+#line 161 "Simple.lex"
 {
     return BINARYOP_ADDA;
 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 163 "Simple.lex"
+#line 165 "Simple.lex"
 {
     return BINARYOP_MINA;
 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 167 "Simple.lex"
+#line 169 "Simple.lex"
 {
     return BINARYOP_MULA;
 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 171 "Simple.lex"
+#line 173 "Simple.lex"
 {
     return BINARYOP_DIVA;
 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 175 "Simple.lex"
+#line 177 "Simple.lex"
 {
     return BINARYOP_BANDA;
 }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 179 "Simple.lex"
+#line 181 "Simple.lex"
 {
     return BINARYOP_BXORA;
 }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 183 "Simple.lex"
+#line 185 "Simple.lex"
 {
     return BINARYOP_BORA;
 }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 187 "Simple.lex"
+#line 189 "Simple.lex"
 {
     return BINARYOP_SHLA;
 }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 191 "Simple.lex"
+#line 193 "Simple.lex"
 {
     return BINARYOP_SHRA;
 }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 195 "Simple.lex"
+#line 197 "Simple.lex"
 {
     return UNARYOP_LNOT;
 }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 199 "Simple.lex"
+#line 201 "Simple.lex"
 {
     return UNARYOP_INCR;
 }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 203 "Simple.lex"
+#line 205 "Simple.lex"
 {
     return UNARYOP_DECR;
 }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 207 "Simple.lex"
+#line 209 "Simple.lex"
 {
     return UNARYOP_BNOT;
 }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 211 "Simple.lex"
+#line 213 "Simple.lex"
 {
     return LP;
 }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 215 "Simple.lex"
+#line 217 "Simple.lex"
 {
     return RP;
 }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 219 "Simple.lex"
+#line 221 "Simple.lex"
 {
     return LB;
 }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 223 "Simple.lex"
+#line 225 "Simple.lex"
 {
     return RB;
 }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 227 "Simple.lex"
+#line 229 "Simple.lex"
 {
     return LC;
 }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 231 "Simple.lex"
+#line 233 "Simple.lex"
 {
     return RC;
 }
@@ -1185,20 +1187,20 @@ YY_RULE_SETUP
 case 52:
 /* rule 52 can match eol */
 YY_RULE_SETUP
-#line 235 "Simple.lex"
+#line 237 "Simple.lex"
 /* eat up whitespace */
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 236 "Simple.lex"
+#line 238 "Simple.lex"
 { return(yytext[0]);}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 237 "Simple.lex"
+#line 239 "Simple.lex"
 ECHO;
 	YY_BREAK
-#line 1202 "lex.yy.c"
+#line 1204 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2199,7 +2201,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 237 "Simple.lex"
+#line 239 "Simple.lex"
 
 
 int yywrap(void){}
