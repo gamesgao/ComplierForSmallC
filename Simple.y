@@ -58,7 +58,7 @@ context_check(enum code_ops operation, char *sym_name) {
 SEMANTIC RECORDS
 =========================================================================*/
 
-% union semrec /* The Semantic Records */
+%union semrec /* The Semantic Records */
 {
   int intval;       /* Integer values */
   char *id;         /* Identifiers */
@@ -68,8 +68,8 @@ SEMANTIC RECORDS
 TOKENS
 =========================================================================*/
 %start program
-%token <intval> INT /* Simple integer */
-%token <id> ID /* Simple identifier */
+%token INT
+%token ID
 %token SEMI
 %token COMMA
 
@@ -78,7 +78,7 @@ TOKENS
 %token BINARYOP_DIV
 %token BINARYOP_MOD
 %token BINARYOP_ADD
-%token BINARYOP_MIN
+%token MIN
 %token BINARYOP_SHL
 %token BINARYOP_SHR
 %token BINARYOP_GT
@@ -104,7 +104,6 @@ TOKENS
 %token BINARYOP_SHLA
 %token BINARYOP_SHRA
 
-%token UNARYOP_NEG
 %token UNARYOP_LNOT
 %token UNARYOP_INCR
 %token UNARYOP_DECR
@@ -127,7 +126,7 @@ TOKENS
 /*=========================================================================
 OPERATOR PRECEDENCE
 =========================================================================*/
-%right BINARYOP_ASSIGN BINARYOP_ADDA BINARYOP_DIVA BINARYOP_MODA BINARYOP_ADDA BINARYOP_MINA BINARYOP_BANDA BINARYOP_BXORA BINARYOP_BORA BINARYOP_SHLA BINARYOP_SHRA
+%right BINARYOP_ASSIGN BINARYOP_MULA BINARYOP_DIVA BINARYOP_MODA BINARYOP_ADDA BINARYOP_MINA BINARYOP_BANDA BINARYOP_BXORA BINARYOP_BORA BINARYOP_SHLA BINARYOP_SHRA
 %left BINARYOP_LOR
 %left BINARYOP_LAND
 %left BINARYOP_BOR
@@ -136,9 +135,9 @@ OPERATOR PRECEDENCE
 %left BINARYOP_NEQ BINARYOP_EQ
 %left BINARYOP_NGT BINARYOP_LT BINARYOP_NLT BINARYOP_GT
 %left BINARYOP_SHL BINARYOP_SHR
-%left BINARYOP_MIN BINARYOP_ADD
+%left MIN BINARYOP_ADD
 %left BINARYOP_MOD BINARYOP_DIV BINARYOP_MUL
-%right UNARYOP_BNOT UNARYOP_DERE UNARYOP_INCR UNARYOP_LNOT UNARYOP_NEG
+%right UNARYOP_BNOT UNARYOP_DERE UNARYOP_INCR UNARYOP_LNOT
 %left DOT LP RP LB RB
 /*=========================================================================
 GRAMMAR RULES for the Simple language
@@ -158,9 +157,16 @@ extdef    : TYPE extvars SEMI
           | TYPE func stmtblock
 ;
 
-extvars   : /* empty */
+sextvars  : /* empty */
           | ID
           | ID COMMA sextvars
+;
+
+extvars   : /* empty */
+          | var
+          | var BINARYOP_ASSIGN init
+          | var COMMA extvars
+          | var BINARYOP_ASSIGN init COMMA extvars
 ;
 
 stspec    : STRUCT ID LC sdefs RC
@@ -220,11 +226,15 @@ init      : exp
           | LC args RC
 ;
 
-exp       : exps BINARYOP_MUL exps
+exp       : /* empty */
+          | exps
+;
+
+exps      : exps BINARYOP_MUL exps
           | exps BINARYOP_DIV exps
           | exps BINARYOP_MOD exps
           | exps BINARYOP_ADD exps
-          | exps BINARYOP_MIN exps
+          | exps MIN exps
           | exps BINARYOP_SHL exps
           | exps BINARYOP_SHR exps
           | exps BINARYOP_GT exps
@@ -249,7 +259,7 @@ exp       : exps BINARYOP_MUL exps
           | exps BINARYOP_BORA exps
           | exps BINARYOP_SHLA exps
           | exps BINARYOP_SHRA exps
-          | UNARYOP_NEG exps
+          | MIN exps %prec UNARYOP_LNOT
           | UNARYOP_LNOT exps
           | UNARYOP_INCR exps
           | UNARYOP_DECR exps
@@ -279,7 +289,7 @@ main( int argc, char *argv[] )
   ++argv;
   --argc;
   yyin = fopen(argv[0], "r");
-  /*yydebug = 1;*/
+  // yydebug = 1;
   errors = 0;
   yyparse();
   printf("Parse Completed\n");
@@ -294,6 +304,8 @@ YYERROR
 yyerror ( char *s ) /* Called by yyparse on error */
 {
   errors++;
+  printf("%s\n", "=========================================================================");
   printf("%s\n", s);
+  printf("%d\n", yychar);
 }
 /**************************** End Grammar File ***************************/

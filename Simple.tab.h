@@ -45,39 +45,76 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    NUMBER = 258,
-    IDENTIFIER = 259,
-    IF = 260,
-    WHILE = 261,
-    SKIP = 262,
-    THEN = 263,
-    ELSE = 264,
-    FI = 265,
-    DO = 266,
-    END = 267,
-    INTEGER = 268,
-    READ = 269,
-    WRITE = 270,
-    LET = 271,
-    IN = 272,
-    ASSGNOP = 273
+    INT = 258,
+    ID = 259,
+    SEMI = 260,
+    COMMA = 261,
+    DOT = 262,
+    BINARYOP_MUL = 263,
+    BINARYOP_DIV = 264,
+    BINARYOP_MOD = 265,
+    BINARYOP_ADD = 266,
+    MIN = 267,
+    BINARYOP_SHL = 268,
+    BINARYOP_SHR = 269,
+    BINARYOP_GT = 270,
+    BINARYOP_NLT = 271,
+    BINARYOP_LT = 272,
+    BINARYOP_NGT = 273,
+    BINARYOP_EQ = 274,
+    BINARYOP_NEQ = 275,
+    BINARYOP_BAND = 276,
+    BINARYOP_BXOR = 277,
+    BINARYOP_BOR = 278,
+    BINARYOP_LAND = 279,
+    BINARYOP_LOR = 280,
+    BINARYOP_ASSIGN = 281,
+    BINARYOP_MULA = 282,
+    BINARYOP_DIVA = 283,
+    BINARYOP_MODA = 284,
+    BINARYOP_ADDA = 285,
+    BINARYOP_MINA = 286,
+    BINARYOP_BANDA = 287,
+    BINARYOP_BXORA = 288,
+    BINARYOP_BORA = 289,
+    BINARYOP_SHLA = 290,
+    BINARYOP_SHRA = 291,
+    UNARYOP_LNOT = 292,
+    UNARYOP_INCR = 293,
+    UNARYOP_DECR = 294,
+    UNARYOP_BNOT = 295,
+    TYPE = 296,
+    LP = 297,
+    RP = 298,
+    LB = 299,
+    RB = 300,
+    LC = 301,
+    RC = 302,
+    STRUCT = 303,
+    RETURN = 304,
+    IF = 305,
+    ELSE = 306,
+    BREAK = 307,
+    CONT = 308,
+    FOR = 309,
+    UNARYOP_DERE = 310
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-#line 59 "Simple.y" /* yacc.c:1909  */
+#line 61 "Simple.y" /* yacc.c:1909  */
 union semrec
 {
-#line 60 "Simple.y" /* yacc.c:1909  */
+#line 62 "Simple.y" /* yacc.c:1909  */
 
-int intval; /* Integer values */
-char *id; /* Identifiers */
-struct lbs *lbls; /* For backpatching */
+  int intval;       /* Integer values */
+  char *id;         /* Identifiers */
+  struct lbs *lbls; /* For backpatching */
 
-#line 79 "Simple.tab.h" /* yacc.c:1909  */
+#line 116 "Simple.tab.h" /* yacc.c:1909  */
 };
-#line 59 "Simple.y" /* yacc.c:1909  */
+#line 61 "Simple.y" /* yacc.c:1909  */
 typedef union semrec YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
