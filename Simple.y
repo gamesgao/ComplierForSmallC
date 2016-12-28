@@ -70,19 +70,75 @@ TOKENS
 %start program
 %token <intval> INT /* Simple integer */
 %token <id> ID /* Simple identifier */
-%token <lbls> IF WHILE /* For backpatching labels */
 %token SEMI
 %token COMMA
+
+%token BINARYOP_MUL
+%token BINARYOP_DIV
+%token BINARYOP_MOD
+%token BINARYOP_ADD
+%token BINARYOP_MIN
+%token BINARYOP_SHL
+%token BINARYOP_SHR
+%token BINARYOP_GT
+%token BINARYOP_NLT
+%token BINARYOP_LT
+%token BINARYOP_NGT
+%token BINARYOP_EQ
+%token BINARYOP_NEQ
+%token BINARYOP_BAND
+%token BINARYOP_BXOR
+%token BINARYOP_BOR
+%token BINARYOP_LAND
+%token BINARYOP_LOR
+%token BINARYOP_ASSIGN
+%token BINARYOP_ADDA
+%token BINARYOP_DIVA
+%token BINARYOP_MODA
+%token BINARYOP_ADDA
+%token BINARYOP_MINA
+%token BINARYOP_BANDA
+%token BINARYOP_BXORA
+%token BINARYOP_BORA
+%token BINARYOP_SHLA
+%token BINARYOP_SHRA
+
+%token UNARYOP_NEG
+%token UNARYOP_LNOT
+%token UNARYOP_INCR
+%token UNARYOP_DECR
+%token UNARYOP_BNOT
+
 %token TYPE
-%token SKIP THEN ELSE FI DO END
-%token INTEGER READ WRITE LET IN
-%token ASSGNOP
+%token LP
+%token RP
+%token LB
+%token RB
+%token LC
+%token RC
+%token STRUCT
+%token RETURN 
+%token IF
+%token ELSE
+%token BREAK
+%token CONT
+%token FOR
 /*=========================================================================
 OPERATOR PRECEDENCE
 =========================================================================*/
-%left '-' '+'
-%left '*' '/'
-%right '^'
+%right BINARYOP_ASSIGN BINARYOP_ADDA BINARYOP_DIVA BINARYOP_MODA BINARYOP_ADDA BINARYOP_MINA BINARYOP_BANDA BINARYOP_BXORA BINARYOP_BORA BINARYOP_SHLA BINARYOP_SHRA
+%left BINARYOP_LOR
+%left BINARYOP_LAND
+%left BINARYOP_BOR
+%left BINARYOP_BXOR
+%left BINARYOP_BAND
+%left BINARYOP_NEQ BINARYOP_EQ
+%left BINARYOP_NGT BINARYOP_LT BINARYOP_NLT BINARYOP_GT
+%left BINARYOP_SHL BINARYOP_SHR
+%left BINARYOP_MIN BINARYOP_ADD
+%left BINARYOP_MOD BINARYOP_DIV BINARYOP_MUL
+%right UNARYOP_BNOT UNARYOP_DERE UNARYOP_INCR UNARYOP_LNOT UNARYOP_NEG
+%left COMMA LP RP LB RB
 /*=========================================================================
 GRAMMAR RULES for the Simple language
 =========================================================================*/
