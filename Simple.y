@@ -180,8 +180,10 @@ sextvars  : sextvars COMMA ID
 ;
 
 extvars   : extvars COMMA var
-          | extvars COMMA var BINARYOP_ASSIGN init
-          | var BINARYOP_ASSIGN init
+          | extvars COMMA ID BINARYOP_ASSIGN exp
+          | ID BINARYOP_ASSIGN exp
+          | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
+          | varArray BINARYOP_ASSIGN LC args RC
           | var 
 ;
 
@@ -230,8 +232,10 @@ sdecs     : sdecs COMMA ID
 
 decs      : var
           | decs COMMA var  
-          | decs COMMA var BINARYOP_ASSIGN init  
-          | var BINARYOP_ASSIGN init
+          | decs COMMA ID BINARYOP_ASSIGN exp  
+          | ID BINARYOP_ASSIGN exp
+          | decs COMMA varArray BINARYOP_ASSIGN LC args RC  
+          | varArray BINARYOP_ASSIGN LC args RC
 ;
 
 var       : ID
@@ -240,10 +244,6 @@ var       : ID
 
 varArray  : varArray LB INT RB 
           | ID LB INT RB 
-;
-
-init      : exp
-          | LC args RC
 ;
 
 exp       : /* empty */
