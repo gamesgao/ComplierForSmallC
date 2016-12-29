@@ -154,9 +154,7 @@ OPERATOR PRECEDENCE
 /*=========================================================================
 Return type for the terminal and non-terminal
 =========================================================================*/
-%type<id> var
-%type<id> decs
-%type<id> extvars
+
 
 
 /*=========================================================================
@@ -237,9 +235,7 @@ decs      : var
 ;
 
 var       : ID 
-          | var LB INT RB {
-            //TODO
-          }
+          | var LB INT RB 
 ;
 
 init      : exp
@@ -312,7 +308,7 @@ main( int argc, char *argv[] )
   // yydebug = 1;
   errors = 0;
   yyparse();
-  printf("%s\n", getsym("x")->type);
+  // printf("%s\n", getsym("x")->type);
   printf("Parse Completed\n");
   // if (errors == 0) {
   //   print_code();
