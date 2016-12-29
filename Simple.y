@@ -160,7 +160,6 @@ Return type for the terminal and non-terminal
 /*=========================================================================
 GRAMMAR RULES for the Simple language
 =========================================================================*/
-
 %%
 
 program   : extdefs
@@ -170,8 +169,9 @@ extdefs   : /* empty */
           | extdef extdefs
 ;
 
-extdef    : TYPE extvars SEMI
+extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
           | stspec sextvars SEMI
+          | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
           | TYPE func stmtblock
 ;
 
@@ -186,7 +186,7 @@ extvars   : extvars COMMA var
 ;
 
 stspec    : STRUCT ID LC sdefs RC
-          | STRUCT LC sdefs RC
+          | STRUCT LC sdefs RC /*在没有ID的情况下可能需要随机分配一个?*/
           | STRUCT ID
 ;
 
@@ -224,7 +224,7 @@ sdefs     : /* empty */
           | TYPE sdecs SEMI sdefs
 ;
 
-sdecs     : ID COMMA sdecs
+sdecs     : sdecs COMMA ID  
           | ID
 ;
 
