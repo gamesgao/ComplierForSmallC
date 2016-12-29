@@ -229,13 +229,17 @@ sdecs     : sdecs COMMA ID
 ;
 
 decs      : var
-          | var COMMA decs
-          | var BINARYOP_ASSIGN init COMMA decs
+          | decs COMMA var  
+          | decs COMMA var BINARYOP_ASSIGN init  
           | var BINARYOP_ASSIGN init
 ;
 
-var       : ID 
-          | var LB INT RB 
+var       : ID
+          | varArray
+;
+
+varArray  : varArray LB INT RB 
+          | ID LB INT RB 
 ;
 
 init      : exp
