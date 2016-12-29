@@ -172,25 +172,19 @@ extdefs   : /* empty */
           | extdef extdefs
 ;
 
-extdef    : TYPE extvars SEMI{
-            registerId($2, "int");
-          }
+extdef    : TYPE extvars SEMI
           | stspec sextvars SEMI
           | TYPE func stmtblock
 ;
 
-sextvars  : /* empty */
+sextvars  : sextvars COMMA ID
           | ID
-          | ID COMMA sextvars
 ;
 
-extvars   : /* empty */
-          | var {
-            $$ = $1;
-          }
+extvars   : extvars COMMA var
+          | extvars COMMA var BINARYOP_ASSIGN init
           | var BINARYOP_ASSIGN init
-          | var COMMA extvars
-          | var BINARYOP_ASSIGN init COMMA extvars
+          | var 
 ;
 
 stspec    : STRUCT ID LC sdefs RC
@@ -224,9 +218,7 @@ stmt      : exp SEMI
 ;
 
 defs      : /* empty */
-          | TYPE decs SEMI defs {
-            registerId($2, "int");
-          }
+          | TYPE decs SEMI defs
           | stspec sdecs SEMI defs
 ;
 
@@ -238,17 +230,13 @@ sdecs     : ID COMMA sdecs
           | ID
 ;
 
-decs      : var {
-            $$ = $1;
-          }
+decs      : var
           | var COMMA decs
           | var BINARYOP_ASSIGN init COMMA decs
           | var BINARYOP_ASSIGN init
 ;
 
-var       : ID {
-            $$ = $1;
-          }
+var       : ID 
           | var LB INT RB {
             //TODO
           }
@@ -296,15 +284,11 @@ exps      : exps BINARYOP_MUL exps
           | UNARYOP_INCR exps
           | UNARYOP_DECR exps
           | UNARYOP_BNOT exps
-          | LP exps RP  {
-            $$ = $2;
-          }
+          | LP exps RP  
           | ID LP args RP
           | ID arrs
           | ID DOT ID
-          | INT {
-            $$ = $1;
-          }
+          | INT 
 ;
 
 arrs      : /* empty */
