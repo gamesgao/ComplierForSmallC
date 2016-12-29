@@ -220,8 +220,8 @@ defs      : /* empty */
           | stspec sdecs SEMI defs
 ;
 
-sdefs     : /* empty */
-          | TYPE sdecs SEMI sdefs
+sdefs     : sdefs TYPE sdecs SEMI
+          | TYPE sdecs SEMI 
 ;
 
 sdecs     : sdecs COMMA ID  
