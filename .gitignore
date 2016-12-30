@@ -9,3 +9,6 @@ test*
 
 #debug
 .vscode
+.idea/
+CMakeLists.txt
+cmake-build-debug/

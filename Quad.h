@@ -9,31 +9,32 @@ Quad code RECORD
 -------------------------------------------------------------------------*/
 
 enum Opcode {
-  add, sub, mul, div, load, store, mov, jmp, call
+    add, sub, mul, div, load, store, mov, jmp, call
 };
 
 union var {
     int line;
-    int reg;
+    int temp; //虽然我也想用int 但是这样会导致我无法区分temp和id
     int num;
-    char* variable;
+    char* id; //或者干脆就不要用id了,或者只在lwsw处用id
 };
 
 // 一条IR指令
 struct Quad {
-  // 四元组
-  Opcode op;
-  var   src1; // 直接使用别的指令作为operand
-  var   src2;
-  var   dest;
+    // 四元组
+    enum Opcode op;
+    union var   src1; // 直接使用别的指令作为operand
+    union var   src2;
+    union var   dest;
 
-  struct Quad* prev, next; // 双向链
-}
+    struct Quad* prev;
+    struct Quad* next; // 双向链
+};
 
 struct IntermediaRepresentation{
     struct Quad* head;
     struct Quad* tail;
-}
+};
 
 // // 一个基本块
 // class BasicBlock {
@@ -69,26 +70,31 @@ Implementation: a chain of records.
 initialization
 ------------------------------------------------------------------------*/
 // IR->head = IR->tail = (Quad *) 0;
+int tempCount = 0;
 /*========================================================================
 Operations: genIR
 ========================================================================*/
-void genIR(Opcode op, var s1, var s2, var d) {
-  if(IR == (struct IntermediaRepresentation*)0){
-    IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
-    IR->head = (struct Quad *) malloc(sizeof(struct Quad));
-    IR->head->next = (Quad *)0;
-    IR->head->prev = (Quad *)0;
-    IR->tail = IR->head;
-  }// the first node is useless
-  struct Quad *ptr;
-  ptr = (struct Quad *) malloc(sizeof(struct Quad));
-  ptr->op = op;
-  ptr->src1 = s1; // this may cause some problem
-  ptr->src2 = s2;
-  ptr->dest = d;
-  IR->tail->next = ptr;
-  ptr->prev = IR->tail;
-  IR->tail = ptr;
-  // return ptr;
+void genIR(enum Opcode op, union var s1, union var s2, union var d) {
+    if(IR == (struct IntermediaRepresentation*)0){
+        IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
+        IR->head = (struct Quad *) malloc(sizeof(struct Quad));
+        IR->head->next = (struct Quad *)0;
+        IR->head->prev = (struct Quad *)0;
+        IR->tail = IR->head;
+    }// the first node is useless
+    struct Quad *ptr;
+    ptr = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr->op = op;
+    ptr->src1 = s1; // this may cause some problem
+    ptr->src2 = s2;
+    ptr->dest = d;
+    IR->tail->next = ptr;
+    ptr->prev = IR->tail;
+    IR->tail = ptr;
+    // return ptr;
+}
+
+int newTemp(){
+    return tempCount++;
 }
 /************************** End Quad code **************************/

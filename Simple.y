@@ -8,6 +8,7 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include <stdlib.h> /* For malloc here and in symbol table */
 #include <string.h> /* For strcmp in symbol table */
 #include "ST.h" /* Symbol Table */
+#include "Quad.h" /* Quad Code */
 // #include "SM.h" /* Stack Machine */
 // #include "CG.h" /* Code Generator */
 #define YYDEBUG 1 /* For Debugging */
@@ -30,11 +31,11 @@ struct lbs *newlblrec() /* Allocate space for the labels */
 Install identifier & check if previously defined.
 -------------------------------------------------------------------------*/
 
-void registerId(char *sym_name, char *type) {
+void registerId(char *sym_name, char* type, int width, struct symrec * scope, struct Quad* entry) {
   symrec *s;
-  s = getsym(sym_name);
+  s = getsymInScope(sym_name);
   if (s == 0)
-    s = putsym(sym_name, type);
+    s = putsym(sym_name, type, width, scope, entry);
   else {
     errors++;
     printf("%s is already defined\n", sym_name);
@@ -74,13 +75,23 @@ SEMANTIC RECORDS
   int intval;       /* Integer values */
   char *id;         /* Identifiers */
   struct lbs *lbls; /* For backpatching */
+  struct{
+    char* id;
+    int width;
+  } variable;
 
+  struct{
+    int valType; /*can be 0:int, 2:temp*/
+    // int intval;
+    int temp;
+    // char* id;
+  } value;
 }
 /*=========================================================================
 TOKENS
 =========================================================================*/
 %start program
-%token INT
+%token<intval> INT
 %token<id> ID
 %token SEMI
 %token COMMA
@@ -154,7 +165,8 @@ OPERATOR PRECEDENCE
 /*=========================================================================
 Return type for the terminal and non-terminal
 =========================================================================*/
-
+%type<variable> varArray var
+%type<value> exps
 
 
 /*=========================================================================
@@ -179,12 +191,16 @@ sextvars  : sextvars COMMA ID
           | ID
 ;
 
-extvars   : extvars COMMA var
-          | extvars COMMA ID BINARYOP_ASSIGN exp
-          | ID BINARYOP_ASSIGN exp
+extvars   : extvars COMMA var {
+            registerId($<variable.id>3, "int", $<variable.width>3, 0, 0);
+          }
+          | extvars COMMA ID BINARYOP_ASSIGN exps
+          | ID BINARYOP_ASSIGN exps
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
           | varArray BINARYOP_ASSIGN LC args RC
-          | var 
+          | var {
+            registerId($<variable.id>1, "int", $<variable.width>1, 0, 0);
+          }
 ;
 
 stspec    : STRUCT ID LC sdefs RC
@@ -232,18 +248,29 @@ sdecs     : sdecs COMMA ID
 
 decs      : var
           | decs COMMA var  
-          | decs COMMA ID BINARYOP_ASSIGN exp  
-          | ID BINARYOP_ASSIGN exp
+          | decs COMMA ID BINARYOP_ASSIGN exps 
+          | ID BINARYOP_ASSIGN exps
           | decs COMMA varArray BINARYOP_ASSIGN LC args RC  
           | varArray BINARYOP_ASSIGN LC args RC
 ;
 
-var       : ID
-          | varArray
+var       : ID {
+            $<variable.id>$ = $1;
+            $<variable.width>$ = 4;
+          }
+          | varArray{
+            $$ = $1;
+          }
 ;
 
-varArray  : varArray LB INT RB 
-          | ID LB INT RB 
+varArray  : varArray LB INT RB {
+            $<variable.id>$ = $<variable.id>1;
+            $<variable.width>$ = $<variable.width>1 * 4;
+          }
+          | ID LB INT RB {
+            $<variable.id>$ = $1;
+            $<variable.width>$ = $3 * 4;
+          }
 ;
 
 exp       : /* empty */
@@ -280,15 +307,79 @@ exps      : exps BINARYOP_MUL exps
           | exps BINARYOP_SHLA exps
           | exps BINARYOP_SHRA exps
           | MIN exps %prec UNARYOP_LNOT
-          | UNARYOP_LNOT exps
-          | UNARYOP_INCR exps
-          | UNARYOP_DECR exps
-          | UNARYOP_BNOT exps
-          | LP exps RP  
-          | ID LP args RP
-          | ID arrs
-          | ID DOT ID
-          | INT 
+          | UNARYOP_LNOT exps{
+            if($<value.valType>2 == 0){
+              $<value.valType>$ = $<value.valType>2;
+              $<value.temp>$ = !$<value.temp>2;
+            }
+            else{
+              int temp = newTemp();
+              genIR(bnot, $<value.temp>2, , temp);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
+            }
+          }
+          | UNARYOP_INCR exps{
+            if($<value.valType>2 == 0){
+              $<value.valType>$ = $<value.valType>2;
+              $<value.temp>$ = $<value.temp>2 - 1;
+            }
+            else{
+              int temp = newTemp();
+              genIR(sub, $<value.temp>2, 1, temp);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
+            }
+          }
+          | UNARYOP_DECR exps{
+            if($<value.valType>2 == 0){
+              $<value.valType>$ = $<value.valType>2;
+              $<value.temp>$ = $<value.temp>2 + 1;
+            }
+            else{
+              int temp = newTemp();
+              genIR(addi, $<value.temp>2, 1, temp);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
+            }
+          }
+          | UNARYOP_BNOT exps{
+            if($<value.valType>2 == 0){
+              $<value.valType>$ = $<value.valType>2;
+              $<value.temp>$ = ~$<value.temp>2;
+            }
+            else{
+              int temp = newTemp();
+              genIR(bnot, $<value.temp>2, , temp);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
+            }
+          }
+          | LP exps RP {
+            $$ = $2;
+          }
+          | ID LP args RP /*this is func*/
+          | ID arrs {
+            $<value.valType>$ = 2;
+            $<value.temp>$ = newTemp();
+            genIR(mov, 1,1,1);
+          }
+          | ID DOT ID{
+            int temp = newTemp();
+            $<value.valType>$ = 2;
+            $<value.temp>$ = temp;
+            struct symrec * structVar = getsym($1);
+            struct symrec * base = getsym(structVar->type);
+            if(base == 0) printf("not defined type in struct variable!\n");
+            else{
+              struct symrec * os = getsymWithinScope($3, base->scope);
+            }
+            genIR(load, structVar->offset+os->offset, 0, temp);
+          }
+          | INT {
+            $<value.valType>$ = 0;
+            $<value.temp>$ = $1;
+          }
 ;
 
 arrs      : /* empty */
