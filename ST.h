@@ -30,6 +30,7 @@ int totalOffset = 0;
 /*========================================================================
 Operations: Putsym, Getsym
 ========================================================================*/
+struct symrec *getsym(char *sym_name);
 void addLevel(){
     struct symrec *ptr;
 

@@ -198,20 +198,20 @@ extvars   : extvars COMMA var {
             registerId($3, "int", 4, 0, 0);
             if($<value.valType>5 == 0){
               int temp = newTemp();
-              genIR(li, 0, $<value.valType>5, temp);
-              genIR(sw, temp, 0, $3);
+              genIR(li, 0, $<value.temp>5, temp);
+              genIRForLS(sw, temp, 0, $3);
             } else {
-              genIR(sw, $<value.valType>5, 0, $3);
+              genIRForLS(sw, $<value.temp>5, 0, $3);
             }
           }
           | ID BINARYOP_ASSIGN exps {
             registerId($1, "int", 4, 0, 0);
             if($<value.valType>3 == 0){
               int temp = newTemp();
-              genIR(li, 0, $<value.valType>3, temp);
-              genIR(sw, temp, 0, $1);
+              genIR(li, 0, $<value.temp>3, temp);
+              genIRForLS(sw, temp, 0, $1);
             } else {
-              genIR(sw, $<value.valType>3, 0, $1);
+              genIRForLS(sw, $<value.temp>3, 0, $1);
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
@@ -411,7 +411,7 @@ exps      : exps BINARYOP_MUL exps{
             else{
               struct symrec * os = getsymWithinScope($3, base->scope);
             }
-            genIR(load, structVar->offset+os->offset, 0, temp);
+            // genIR(load, structVar->offset+os->offset, 0, temp);
           }
           | INT {
             $<value.valType>$ = 0;
@@ -442,6 +442,7 @@ main( int argc, char *argv[] )
   yyparse();
   // printf("%s\n", getsym("x")->type);
   printf("Parse Completed\n");
+  printIR();
   // if (errors == 0) {
   //   print_code();
   //   fetch_execute_cycle();
