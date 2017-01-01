@@ -166,7 +166,7 @@ OPERATOR PRECEDENCE
 Return type for the terminal and non-terminal
 =========================================================================*/
 %type<variable> varArray var
-%type<value> exps
+%type<value> exps exp
 
 
 /*=========================================================================
@@ -194,8 +194,26 @@ sextvars  : sextvars COMMA ID
 extvars   : extvars COMMA var {
             registerId($<variable.id>3, "int", $<variable.width>3, 0, 0);
           }
-          | extvars COMMA ID BINARYOP_ASSIGN exps
-          | ID BINARYOP_ASSIGN exps
+          | extvars COMMA ID BINARYOP_ASSIGN exps{
+            registerId($3, "int", 4, 0, 0);
+            if($<value.valType>5 == 0){
+              int temp = newTemp();
+              genIR(li, 0, $<value.valType>5, temp);
+              genIR(sw, temp, 0, $3);
+            } else {
+              genIR(sw, $<value.valType>5, 0, $3);
+            }
+          }
+          | ID BINARYOP_ASSIGN exps {
+            registerId($1, "int", 4, 0, 0);
+            if($<value.valType>3 == 0){
+              int temp = newTemp();
+              genIR(li, 0, $<value.valType>3, temp);
+              genIR(sw, temp, 0, $1);
+            } else {
+              genIR(sw, $<value.valType>3, 0, $1);
+            }
+          }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
           | varArray BINARYOP_ASSIGN LC args RC
           | var {
@@ -274,10 +292,29 @@ varArray  : varArray LB INT RB {
 ;
 
 exp       : /* empty */
-          | exps
+          | exps {
+            $$ = $1;
+          }
 ;
 
-exps      : exps BINARYOP_MUL exps
+exps      : exps BINARYOP_MUL exps{
+            if($<value.valType>1 == 0 && $<value.valType>3 == 0){
+              $<value.valType>$ = 0;
+              $<value.temp>$ = $<value.temp>1 * $<value.temp>3;
+            }
+            else if($<value.valType>1 == 2 && $<value.valType>3 == 2){
+              int temp = newTemp();
+              genIR(mul, $<value.temp>1, $<value.temp>3, temp);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
+            }else{
+              int temp = newTemp();
+              if($<value.valType>1 == 2) genIR(muli, $<value.temp>1, $<value.temp>3, temp);
+              else genIR(muli, $<value.temp>3, $<value.temp>1, temp);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
+            }
+          }
           | exps BINARYOP_DIV exps
           | exps BINARYOP_MOD exps
           | exps BINARYOP_ADD exps
@@ -314,7 +351,7 @@ exps      : exps BINARYOP_MUL exps
             }
             else{
               int temp = newTemp();
-              genIR(bnot, $<value.temp>2, , temp);
+              genIR(bnot, $<value.temp>2, 0, temp);
               $<value.valType>$ = 2;
               $<value.temp>$ = temp;
             }
@@ -326,7 +363,7 @@ exps      : exps BINARYOP_MUL exps
             }
             else{
               int temp = newTemp();
-              genIR(sub, $<value.temp>2, 1, temp);
+              genIR(subi, $<value.temp>2, 1, temp);
               $<value.valType>$ = 2;
               $<value.temp>$ = temp;
             }
@@ -350,7 +387,7 @@ exps      : exps BINARYOP_MUL exps
             }
             else{
               int temp = newTemp();
-              genIR(bnot, $<value.temp>2, , temp);
+              genIR(bnot, $<value.temp>2, 0, temp);
               $<value.valType>$ = 2;
               $<value.temp>$ = temp;
             }
