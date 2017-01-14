@@ -9,7 +9,7 @@ Quad code RECORD
 -------------------------------------------------------------------------*/
 
 enum Opcode {
-    add, addi, sub, subi, mul, muli, opdiv, opdivi, bnot, lwi, swi, mov, jmp, call, li, lw, sw
+    add, addi, sub, subi, mul, muli, opdiv, opdivi, lwi, swi, jmp, call, li, lw, sw, jgt, jgti
 };
 
 char* Opstr[15] = {
@@ -21,26 +21,28 @@ char* Opstr[15] = {
     "muli",
     "div",
     "divi",
-    "bnot",
     "lwi",
     "swi",
-    "mov",
     "jmp",
     "call",
     "li",
     "lw",
-    "sw"
+    "sw",
+    "jgt",
+    "jgti"
 };
 
 union var {
      //虽然我也想用int 但是这样会导致我无法区分temp和id
     int TIA; // stand for temp, immediate number and address.
     char* id; //或者干脆就不要用id了,或者只在lwsw处用id
+    struct Quad* addr; //用于jmp
 };
 
 // 一条IR指令
 struct Quad {
     // 四元组
+    int order;
     enum Opcode op;
     union var   src1; // 直接使用别的指令作为operand
     union var   src2;
@@ -93,36 +95,41 @@ int tempCount = 0;
 /*========================================================================
 Operations: genIR
 ========================================================================*/
-void genIR(enum Opcode op, int s1, int s2, int d) {
+struct Quad * genIR(enum Opcode op, int s1, int s2, int d) {
     if(IR == (struct IntermediaRepresentation*)0){
         IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
         IR->head = (struct Quad *) malloc(sizeof(struct Quad));
+        IR->head->order = 0;
         IR->head->next = (struct Quad *)0;
         IR->head->prev = (struct Quad *)0;
         IR->tail = IR->head;
     }// the first node is useless
     struct Quad *ptr;
     ptr = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr->order = IR->tail->order+1;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
     ptr->dest.TIA = d;
     IR->tail->next = ptr;
     ptr->prev = IR->tail;
+    ptr->next = 0;
     IR->tail = ptr;
-    // return ptr;
+    return ptr;
 }
 
-void genIRForLS(enum Opcode op, int s1, int s2, char* d) {
+struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
     if(IR == (struct IntermediaRepresentation*)0){
         IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
         IR->head = (struct Quad *) malloc(sizeof(struct Quad));
+        IR->head->order = 0;
         IR->head->next = (struct Quad *)0;
         IR->head->prev = (struct Quad *)0;
         IR->tail = IR->head;
     }// the first node is useless
     struct Quad *ptr;
     ptr = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr->order = IR->tail->order+1;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
@@ -131,6 +138,30 @@ void genIRForLS(enum Opcode op, int s1, int s2, char* d) {
     ptr->prev = IR->tail;
     ptr->next = (struct Quad *)0;
     IR->tail = ptr;
+    return ptr;
+}
+
+struct Quad * genIRForBranch(enum Opcode op, int s1, int s2, struct Quad* d) {
+    if(IR == (struct IntermediaRepresentation*)0){
+        IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
+        IR->head = (struct Quad *) malloc(sizeof(struct Quad));
+        IR->head->order = 0;
+        IR->head->next = (struct Quad *)0;
+        IR->head->prev = (struct Quad *)0;
+        IR->tail = IR->head;
+    }// the first node is useless
+    struct Quad *ptr;
+    ptr = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr->order = IR->tail->order+1;
+    ptr->op = op;
+    ptr->src1.TIA = s1; // this may cause some problem
+    ptr->src2.TIA = s2;
+    ptr->dest.addr = d;
+    IR->tail->next = ptr;
+    ptr->prev = IR->tail;
+    ptr->next = (struct Quad *)0;
+    IR->tail = ptr;
+    return ptr;
 }
 
 int newTemp(){
@@ -142,8 +173,9 @@ void printIR(){
     struct Quad* ptr = IR->head;
     while(ptr->next != (struct Quad *)0){
         ptr = ptr->next;
-        if(ptr->op!=lw && ptr->op!=sw) printf("%s\t%d\t%d\t%d\n", Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
-        else printf("%s\t%d\t%d\t%s\n", Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.id);
+        if(ptr->op==lw || ptr->op==sw) printf("%d\t%s\t%d\t%d\t%s\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.id);
+        else if(ptr->op == jmp || ptr->op == jgt) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
+        else printf("%d\t%s\t%d\t%d\t%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
     }
 }
 /************************** End Quad code **************************/

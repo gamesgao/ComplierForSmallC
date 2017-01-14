@@ -1,62 +1,62 @@
 /***************************************************************************
-numStack code Module
+branchList code Module
 ***************************************************************************/
 /*=========================================================================
 DECLARATIONS
 =========================================================================*/
 /*-------------------------------------------------------------------------
-numStack code RECORD
+branchList code RECORD
 -------------------------------------------------------------------------*/
-struct NSData{
-    int valType; /*can be 0:empty, 1:int, 2:temp*/
-    // int intval;
-    int temp;
-    // char* id;
-    struct branchList* trueList;
-    struct branchList* falseList;
-    struct branchList* nextList;
-}
 
-struct numStack {
-    struct NSData* data;
-    struct numStack* next; 
+struct branchList {
+    struct Quad* inst;
+    struct branchList* next; 
 };
 /*-------------------------------------------------------------------------
-numStack code ENTRY
+branchList code ENTRY
 -------------------------------------------------------------------------*/
-struct numStack* top = (struct numStack*) 0;
 /*-------------------------------------------------------------------------
-numStack code
+branchList code
 Implementation: a chain of records.
 ------------------------------------------------------------------------*/
 /*-------------------------------------------------------------------------
 initialization
 ------------------------------------------------------------------------*/
 /*========================================================================
-Operations: push, pop, isEmpty.
+Operations: makelist, merge, backpatch.
 ========================================================================*/
-void NSPush(struct NSData* data){
-    struct numStack* newTop = (struct numStack* ) malloc(sizeof(struct numStack));
-    newTop->data = (struct NSData*) malloc(sizeof(struct NSData));
-    newTop->data->valType = data->valType;
-    newTop->data->temp = data->temp;
-    newTop->next = top;
-    top = newTop;
-}
-
-struct NSData* NSPop(){
-    if(isEmpty()) return -409;
-    struct NSData* temp = top->data;
-    struct numStack* tempTop = top->next;
-    free(top);
-    top = tempTop;
+struct branchList * makelist(struct Quad* inst){
+    struct branchList *temp = malloc(sizeof(struct branchList));
+    temp->inst = inst;
+    temp->next = (struct branchList *) 0;
     return temp;
 }
 
-bool NSIsEmpty(){
-    return top == (struct numStack*) 0;
+struct branchList * merge(struct branchList * L1, struct branchList * L2){
+    struct branchList * temp = L1;
+    if(L1 == (struct branchList *) 0){
+        if(L2 == (struct branchList *) 0) return 0;
+        else{
+            temp = L2;
+            L2 = L1;
+            L1 = temp;
+        }
+    }
+    while(temp->next != 0){
+        temp = temp->next;
+    }
+    temp->next = L2;
+    return L1;
+}
+
+void backpatch(struct branchList * L, struct Quad* inst){
+    struct branchList * temp = L;
+    if(L == (struct branchList *) 0) return;
+    while(temp->next != 0){
+        temp->inst->dest.addr = inst;
+        temp = temp->next;
+    }
 }
 
 
-
-/************************** End numStack code **************************/
+/************************** End branchList code **************************/

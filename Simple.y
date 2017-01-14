@@ -9,6 +9,7 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include <string.h> /* For strcmp in symbol table */
 #include "ST.h" /* Symbol Table */
 #include "Quad.h" /* Quad Code */
+#include "branchList.h" /*branch List For backpatching */
 #include "numStack.h" /* numStack Code */
 // #include "SM.h" /* Stack Machine */
 // #include "CG.h" /* Code Generator */
@@ -17,17 +18,6 @@ int errors; /* Error Count */
 /*-------------------------------------------------------------------------
 The following support backpatching
 -------------------------------------------------------------------------*/
-struct lbs /* Labels for data, if and while */
-{
-  int for_goto;
-  int for_jmp_false;
-};
-
-struct lbs *newlblrec() /* Allocate space for the labels */
-{
-  return (struct lbs *)malloc(sizeof(struct lbs));
-}
-
 /*-------------------------------------------------------------------------
 Install identifier & check if previously defined.
 -------------------------------------------------------------------------*/
@@ -45,26 +35,9 @@ void registerId(char *sym_name, char* type, int width, int height, struct symrec
 /*-------------------------------------------------------------------------
 If identifier is defined, generate code
 -------------------------------------------------------------------------*/
-// context_check(enum code_ops operation, char *sym_name) {
-//   symrec *identifier;
-//   identifier = getsym(sym_name);
-//   if (identifier == 0) {
-//     errors++;
-//     printf("%s", sym_name);
-//     printf("%s\n", " is an undeclared identifier");
-//   } else
-//     gen_code(operation, identifier->offset);
-// }
-
 /*-------------------------------------------------------------------------
 define the return type for each terminal and nonterminal
 -------------------------------------------------------------------------*/
-struct name{
-
-};
-
-
-
 
 %}
 /*=========================================================================
@@ -75,7 +48,6 @@ SEMANTIC RECORDS
 {
   int intval;       /* Integer values */
   char *id;         /* Identifiers */
-  struct lbs *lbls; /* For backpatching */
   struct{
     char* id;
     int width;
@@ -89,6 +61,10 @@ SEMANTIC RECORDS
     struct symrec *param;
     struct Quad * beforeEntry;
   } funcType;
+  /* For backpatching */
+  struct Quad * inst;
+  struct branchList * nextlist;
+
 }
 /*=========================================================================
 TOKENS
@@ -172,6 +148,9 @@ Return type for the terminal and non-terminal
 %type<value> exps exp arrs
 %type<int> args
 %type<funcType> func
+%type<inst> MM 
+%type<nextlist> NN stmt
+
 
 
 /*=========================================================================
@@ -278,9 +257,7 @@ paras     : /* empty */
           }
 ;
 
-stmtblock : LC defs stmts RC {
-            
-          }
+stmtblock : LC defs stmts RC
 ;
 
 stmts     : /* empty */
@@ -290,8 +267,15 @@ stmts     : /* empty */
 stmt      : exp SEMI
           | stmtblock
           | RETURN exp SEMI
-          | IF LP exp RP stmt
-          | IF LP exp RP stmt ELSE stmt
+          | IF LP exp RP MM stmt {
+            backpatch($<value.trueList>3, $5->next);
+            $$ = merge($<value.falseList>3, $6);
+          }
+          | IF LP exp RP MM stmt NN ELSE MM stmt {
+            backpatch($<value.trueList>3, $5->next);
+            backpatch($<value.trueList>3, $9->next);
+            $$ = merge(merge($6, $7), $10);
+          }
           | FOR LP exp SEMI exp SEMI exp RP stmt
           | CONT SEMI
           | BREAK SEMI
@@ -376,7 +360,34 @@ exps      : exps BINARYOP_MUL exps{
           | exps MIN exps
           | exps BINARYOP_SHL exps
           | exps BINARYOP_SHR exps
-          | exps BINARYOP_GT exps
+          | exps BINARYOP_GT exps {
+            if($<value.valType>1 == 1 && $<value.valType>2 == 1){
+              if($<value.temp>1 > $<value.temp>2){
+                $<value.trueList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+              }
+              else{
+                $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+              }
+            }
+            else if($<value.valType>1 == 2 && $<value.valType>2 == 2){
+              $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value.temp>1, $<value.temp>2, 0));
+              $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+            }
+            else{
+              if($<value.valType>1 == 2){
+                $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value.temp>1, $<value.temp>2, 0));
+                $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+              }
+              else if($<value.valType>2 == 2){
+                $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value.temp>2, $<value.temp>1, 0));
+                $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+              }
+              else{
+                printf("wrong while do NOT");
+              }
+            }
+            $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value>1))
+          }
           | exps BINARYOP_NLT exps
           | exps BINARYOP_LT exps
           | exps BINARYOP_NGT exps
@@ -385,8 +396,20 @@ exps      : exps BINARYOP_MUL exps{
           | exps BINARYOP_BAND exps
           | exps BINARYOP_BXOR exps
           | exps BINARYOP_BOR exps
-          | exps BINARYOP_LAND exps
-          | exps BINARYOP_LOR exps
+          | exps BINARYOP_LAND MM exps {
+            backpatch($<value.trueList>1, $3->next);
+            $<value.trueList>$ = $<value.trueList>4;
+            $<value.falseList>$ = merge($<value.falseList>1, $<value.falseList>4);
+            $<value.nextList>$ = 0;
+            $<value.valType>$ = 0;
+          }
+          | exps BINARYOP_LOR MM exps {
+            backpatch($<value.falseList>1, $3->next);
+            $<value.trueList>$ = merge($<value.trueList>1, $<value.trueList>4);
+            $<value.falseList>$ = $<value.falseList>4;
+            $<value.nextList>$ = 0;
+            $<value.valType>$ = 0;
+          }
           | exps BINARYOP_ASSIGN exps
           | exps BINARYOP_MULA exps
           | exps BINARYOP_DIVA exps
@@ -400,16 +423,10 @@ exps      : exps BINARYOP_MUL exps{
           | exps BINARYOP_SHRA exps
           | MIN exps %prec UNARYOP_LNOT
           | UNARYOP_LNOT exps{
-            if($<value.valType>2 == 1){
-              $<value.valType>$ = $<value.valType>2;
-              $<value.temp>$ = !$<value.temp>2;
-            }
-            else{
-              int temp = newTemp();
-              genIR(bnot, $<value.temp>2, 0, temp);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = temp;
-            }
+            $<value.trueList>$ = $<value.falseList>2;
+            $<value.falseList>$ = $<value.trueList>2;
+            $<value.nextList>$ = 0;
+            $<value.valType>$ = 0;
           }
           | UNARYOP_INCR exps{
             if($<value.valType>2 == 1){
@@ -480,6 +497,16 @@ exps      : exps BINARYOP_MUL exps{
           | INT {
             $<value.valType>$ = 1;
             $<value.temp>$ = $1;
+          }
+;
+
+MM         : /* empty */{
+            $$ = IR->tail;
+          }
+;
+
+NN         : /* empty */{
+            $$ = makelist(genIRForBranch(jmp, 0, 0, 0));
           }
 ;
 
