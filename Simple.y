@@ -32,11 +32,11 @@ struct lbs *newlblrec() /* Allocate space for the labels */
 Install identifier & check if previously defined.
 -------------------------------------------------------------------------*/
 
-void registerId(char *sym_name, char* type, int width, int height, struct symrec * scope, struct Quad* entry) {
+void registerId(char *sym_name, char* type, int width, int height, struct symrec * scope, struct Quad* entry, struct symrec *param) {
   symrec *s;
   s = getsymInScope(sym_name);
   if (s == 0)
-    s = putsym(sym_name, type, width, height, scope, entry);
+    s = putsym(sym_name, type, width, height, scope, entry, param);
   else {
     errors++;
     printf("%s is already defined\n", sym_name);
@@ -83,6 +83,12 @@ SEMANTIC RECORDS
   } variable;
 
   struct NSData value;
+
+  struct{
+    char* id;
+    struct symrec *param;
+    struct Quad * beforeEntry;
+  } funcType;
 }
 /*=========================================================================
 TOKENS
@@ -163,8 +169,9 @@ OPERATOR PRECEDENCE
 Return type for the terminal and non-terminal
 =========================================================================*/
 %type<variable> varArray var
-%type<value> exps exp
+%type<value> exps exp arrs
 %type<int> args
+%type<funcType> func
 
 
 /*=========================================================================
@@ -182,22 +189,24 @@ extdefs   : /* empty */
 extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
           | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
-          | TYPE func stmtblock
+          | TYPE func stmtblock {
+            registerId($<funcType.id>2, "func", 0, 0, subLevel(), $<funcType.beforeEntry>2->next, $<funcType.param>2);
+          }
 ;
 
 sextvars  : sextvars COMMA ID {
-            registerId($3, $0, 0, 0, 0, 0);
+            registerId($3, $0, 0, 0, 0, 0, 0);
           }
           | ID {
-            registerId($1, $0, 0, 0, 0, 0);
+            registerId($1, $0, 0, 0, 0, 0, 0);
           }
 ;
 
 extvars   : extvars COMMA var {
-            registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0);
+            registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
           }
           | extvars COMMA ID BINARYOP_ASSIGN exps{
-            registerId($3, "int", 1, 1, 0, 0);
+            registerId($3, "int", 1, 1, 0, 0, 0);
             if($<value.valType>5 == 1){
               int temp = newTemp();
               genIR(li, 0, $<value.temp>5, temp);
@@ -207,13 +216,13 @@ extvars   : extvars COMMA var {
             }
           }
           | ID BINARYOP_ASSIGN exps {
-            registerId($1, "int", 1, 1, 0, 0);
+            registerId($1, "int", 1, 1, 0, 0, 0);
             if($<value.valType>3 == 1){
               int temp = newTemp();
               genIR(li, 0, $<value.temp>3, temp);
-              genIRForLS(sw, temp, 0, $1);
+              genIRForLS(swi, temp, 0, $1);
             } else {
-              genIRForLS(sw, $<value.temp>3, 0, $1);
+              genIRForLS(swi, $<value.temp>3, 0, $1);
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
@@ -225,27 +234,27 @@ extvars   : extvars COMMA var {
                 if(temp->valType == 1){
                   int tempReg = newTemp();
                   genIR(li, 0, temp->temp, tempReg);
-                  genIRForLS(sw, tempReg, i*4, $<variable.id>1);
+                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
                 }
                 else if(temp->valType == 2){
-                  genIRForLS(sw, temp->temp, i*4, $<variable.id>1);
+                  genIRForLS(swi, temp->temp, i*4, $<variable.id>1);
                 }
               }
             }
           }
           | var {
-            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0);
+            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
           }
 ;
 
 stspec    : STRUCT ID LC {addLevel();} sdefs RC{
-            registerId($2, 'struct', width, 0, subLevel(), 0);
+            registerId($2, 'struct', width, 0, subLevel(), 0, 0);
             $$ = $2;
           }
           | STRUCT LC sdefs RC{
             char * tempID = (char *) malloc(sizeof(char)*9);
             itoa(getRandomNumber(), tempID, 10);
-            registerId(tempID, 'struct', width, 0, subLevel(), 0);
+            registerId(tempID, 'struct', width, 0, subLevel(), 0, 0);
             $$ = tempID;
           } /*在没有ID的情况下可能需要随机分配一个?*/
           | STRUCT ID {
@@ -253,15 +262,25 @@ stspec    : STRUCT ID LC {addLevel();} sdefs RC{
           }
 ;
 
-func      : ID LP paras RP
+func      : ID LP {addLevel();} paras RP{
+            $<funcType.id>$ = $1;
+            $<funcType.param>$ = sym_table;
+            $<funcType.beforeEntry>$ = IR->tail;
+          }
 ;
 
 paras     : /* empty */
-          | TYPE ID COMMA paras
-          | TYPE ID
+          | TYPE ID COMMA paras {
+            registerId($2, 'int', 1, 1, 0, 0, 0);
+          }
+          | TYPE ID {
+            registerId($2, 'int', 1, 1, 0, 0, 0);
+          }
 ;
 
-stmtblock : LC defs stmts RC
+stmtblock : LC defs stmts RC {
+            
+          }
 ;
 
 stmts     : /* empty */
@@ -284,11 +303,15 @@ defs      : /* empty */
 ;
 
 sdefs     : sdefs TYPE sdecs SEMI
-          | TYPE sdecs SEMI 
+          | TYPE sdecs SEMI
 ;
 
-sdecs     : sdecs COMMA ID  
-          | ID
+sdecs     : sdecs COMMA ID {
+            registerId($3, 'int', 1, 1, 0, 0, 0);
+          }
+          | ID {
+            registerId($1, 'int', 1, 1, 0, 0, 0);
+          }
 ;
 
 decs      : var
@@ -316,8 +339,8 @@ varArray  : ID LB INT RB LB INT RB {
           }
           | ID LB INT RB {
             $<variable.id>$ = $1;
-            $<variable.width>$ = 1;
-            $<variable.height>$ = $3;
+            $<variable.width>$ = $3;
+            $<variable.height>$ = 1;
           }
 ;
 
@@ -430,8 +453,17 @@ exps      : exps BINARYOP_MUL exps{
           | ID LP args RP /*this is func*/
           | ID arrs {
             $<value.valType>$ = 2;
-            $<value.temp>$ = newTemp();
-            genIR(mov, 1,1,1);
+            int temp = newTemp();
+            if($<value.valType>2 == 1){
+              genIRForLS(lwi, temp, $<value.temp>2, $1);
+            }
+            else if($<value.valType>2 == 2){
+              genIRForLS(lw, temp, $<value.temp>2, $1);
+            }
+            else{
+              printf("wrong while array reference\n");
+            }
+            $<value.temp>$ = temp;
           }
           | ID DOT ID{
             int temp = newTemp();
@@ -443,7 +475,7 @@ exps      : exps BINARYOP_MUL exps{
             else{
               struct symrec * os = getsymWithinScope($3, base->scope);
             }
-            // genIRForLS(lw, temp, os->offset, structVar->name);
+            genIRForLS(lwi, temp, os->offset, structVar->name);
           }
           | INT {
             $<value.valType>$ = 1;
@@ -451,8 +483,60 @@ exps      : exps BINARYOP_MUL exps{
           }
 ;
 
-arrs      : /* empty */
-          | LB exps RB arrs
+arrs      : /* empty */{
+            $<value.valType>$ = 1;
+            $<value.temp>$ = 0;
+          }
+          | LB exps RB {
+            if($<value.valType>2 == 1){
+              $<value.valType>$ = 1;
+              $<value.temp>$ = $<value.temp>2*4;
+            }
+            else if($<value.valType>2 == 2){
+              $<value.valType>$ = 2;
+              int temp = newTemp();
+              genIR(muli, $<value.temp>2, 4, temp);
+              $<value.temp>$ = temp;
+            }
+            else{
+              printf("wrong! while arrs 2\n");
+            }
+          }
+          | LB exps RB LB exps RB {
+            struct symrec * array = getsym($0);
+            if($<value.valType>2 == 1 && $<value.valType>5 == 1){
+              $<value.valType>$ = 1;
+              $<value.temp>$ = array->width * $<value.temp>2 * 4 + $<value.temp>5 * 4;
+            }
+            else if($<value.valType>2 == 2 && $<value.valType>5 == 2){
+              int temp1 = newTemp();
+              int temp2 = newTemp();
+              int temp3 = newTemp();
+              genIR(muli, $<value.temp>2, array->width * 4, temp1);
+              genIR(muli, $<value.temp>5, 4, temp2);
+              genIR(add, temp1, temp2, temp3);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp3;
+            }
+            else{
+              if($<value.valType>2 == 2){
+                int temp1 = newTemp();
+                int temp3 = newTemp();
+                genIR(muli, $<value.temp>2, array->width * 4, temp1);
+                genIR(addi, temp1, $<value.temp>5 * 4, temp3);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp3;
+              }
+              else{
+                int temp2 = newTemp();
+                int temp3 = newTemp();
+                genIR(muli, $<value.temp>5, 4, temp2);
+                genIR(add, temp2, array->width * 4 * $<value.temp>2, temp3);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp3;
+              }
+            }
+          }
 ;
 
 args      : args COMMA exp{

@@ -12,6 +12,7 @@ struct symrec {
     int offset;          /* data offset */
     char* type; /*fun struct ID int*/
     struct symrec *scope; /*为了struct ID*/
+    struct symrec *param; /*为了func ID*/
     int width; /*为了struct type 和 array type*/
     int height; /*为了array type*/
     struct symrec *next; /* link field */
@@ -58,7 +59,7 @@ struct symrec * subLevel(){
     return scope;
 }
 
-struct symrec *putsym(char *sym_name, char* type, int width, int height, struct symrec * scope, struct Quad* entry) {
+struct symrec *putsym(char *sym_name, char* type, int width, int height, struct symrec * scope, struct Quad* entry, struct symrec * param) {
     struct symrec *ptr;
     ptr = (struct symrec *) malloc(sizeof(struct symrec));
     ptr->name = (char *) malloc(strlen(sym_name) + 1);
@@ -75,6 +76,7 @@ struct symrec *putsym(char *sym_name, char* type, int width, int height, struct 
     } else if(strcmp(ptr->type, "func")){
         ptr->scope = scope;
         ptr->entry = entry;
+        ptr->param = param;
 
     } else if(strcmp(ptr->type, "struct")){
         ptr->offset = totalOffset;
@@ -129,5 +131,9 @@ struct symrec *getsymWithinScope(char *sym_name, struct symrec * symPoint) {
         if (strcmp(ptr->name, sym_name) == 0)
             return ptr;
     return 0;
+}
+
+void keepStmtBlock(struct symrec * symPoint){
+
 }
 /************************** End Symbol Table **************************/
