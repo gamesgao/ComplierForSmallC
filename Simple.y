@@ -9,6 +9,7 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include <string.h> /* For strcmp in symbol table */
 #include "ST.h" /* Symbol Table */
 #include "Quad.h" /* Quad Code */
+#include "numStack.h" /* numStack Code */
 // #include "SM.h" /* Stack Machine */
 // #include "CG.h" /* Code Generator */
 #define YYDEBUG 1 /* For Debugging */
@@ -31,11 +32,11 @@ struct lbs *newlblrec() /* Allocate space for the labels */
 Install identifier & check if previously defined.
 -------------------------------------------------------------------------*/
 
-void registerId(char *sym_name, char* type, int width, struct symrec * scope, struct Quad* entry) {
+void registerId(char *sym_name, char* type, int width, int height, struct symrec * scope, struct Quad* entry) {
   symrec *s;
   s = getsymInScope(sym_name);
   if (s == 0)
-    s = putsym(sym_name, type, width, scope, entry);
+    s = putsym(sym_name, type, width, height, scope, entry);
   else {
     errors++;
     printf("%s is already defined\n", sym_name);
@@ -78,14 +79,10 @@ SEMANTIC RECORDS
   struct{
     char* id;
     int width;
+    int height;
   } variable;
 
-  struct{
-    int valType; /*can be 0:int, 2:temp*/
-    // int intval;
-    int temp;
-    // char* id;
-  } value;
+  struct NSData value;
 }
 /*=========================================================================
 TOKENS
@@ -167,6 +164,7 @@ Return type for the terminal and non-terminal
 =========================================================================*/
 %type<variable> varArray var
 %type<value> exps exp
+%type<int> args
 
 
 /*=========================================================================
@@ -187,16 +185,20 @@ extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是
           | TYPE func stmtblock
 ;
 
-sextvars  : sextvars COMMA ID
-          | ID
+sextvars  : sextvars COMMA ID {
+            registerId($3, $0, 0, 0, 0, 0);
+          }
+          | ID {
+            registerId($1, $0, 0, 0, 0, 0);
+          }
 ;
 
 extvars   : extvars COMMA var {
-            registerId($<variable.id>3, "int", $<variable.width>3, 0, 0);
+            registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0);
           }
           | extvars COMMA ID BINARYOP_ASSIGN exps{
-            registerId($3, "int", 4, 0, 0);
-            if($<value.valType>5 == 0){
+            registerId($3, "int", 1, 1, 0, 0);
+            if($<value.valType>5 == 1){
               int temp = newTemp();
               genIR(li, 0, $<value.temp>5, temp);
               genIRForLS(sw, temp, 0, $3);
@@ -205,8 +207,8 @@ extvars   : extvars COMMA var {
             }
           }
           | ID BINARYOP_ASSIGN exps {
-            registerId($1, "int", 4, 0, 0);
-            if($<value.valType>3 == 0){
+            registerId($1, "int", 1, 1, 0, 0);
+            if($<value.valType>3 == 1){
               int temp = newTemp();
               genIR(li, 0, $<value.temp>3, temp);
               genIRForLS(sw, temp, 0, $1);
@@ -215,15 +217,40 @@ extvars   : extvars COMMA var {
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
-          | varArray BINARYOP_ASSIGN LC args RC
+          | varArray BINARYOP_ASSIGN LC args RC{
+            if($<variable.width>1 * $<variable.height>1 >= $4){
+              int i = 0;
+              for(;i<$4;i++){
+                struct NSData* temp = NSPop();
+                if(temp->valType == 1){
+                  int tempReg = newTemp();
+                  genIR(li, 0, temp->temp, tempReg);
+                  genIRForLS(sw, tempReg, i*4, $<variable.id>1);
+                }
+                else if(temp->valType == 2){
+                  genIRForLS(sw, temp->temp, i*4, $<variable.id>1);
+                }
+              }
+            }
+          }
           | var {
-            registerId($<variable.id>1, "int", $<variable.width>1, 0, 0);
+            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0);
           }
 ;
 
-stspec    : STRUCT ID LC sdefs RC
-          | STRUCT LC sdefs RC /*在没有ID的情况下可能需要随机分配一个?*/
-          | STRUCT ID
+stspec    : STRUCT ID LC {addLevel();} sdefs RC{
+            registerId($2, 'struct', width, 0, subLevel(), 0);
+            $$ = $2;
+          }
+          | STRUCT LC sdefs RC{
+            char * tempID = (char *) malloc(sizeof(char)*9);
+            itoa(getRandomNumber(), tempID, 10);
+            registerId(tempID, 'struct', width, 0, subLevel(), 0);
+            $$ = tempID;
+          } /*在没有ID的情况下可能需要随机分配一个?*/
+          | STRUCT ID {
+            $$ = $2;
+          }
 ;
 
 func      : ID LP paras RP
@@ -274,32 +301,37 @@ decs      : var
 
 var       : ID {
             $<variable.id>$ = $1;
-            $<variable.width>$ = 4;
+            $<variable.width>$ = 1;
+            $<variable.height>$ = 1;
           }
           | varArray{
             $$ = $1;
           }
 ;
 
-varArray  : varArray LB INT RB {
+varArray  : ID LB INT RB LB INT RB {
             $<variable.id>$ = $<variable.id>1;
-            $<variable.width>$ = $<variable.width>1 * 4;
+            $<variable.width>$ = $3;
+            $<variable.height>$ = $6;
           }
           | ID LB INT RB {
             $<variable.id>$ = $1;
-            $<variable.width>$ = $3 * 4;
+            $<variable.width>$ = 1;
+            $<variable.height>$ = $3;
           }
 ;
 
-exp       : /* empty */
+exp       : /* empty */{
+            $<value.valType>$ = 0;
+          }
           | exps {
             $$ = $1;
           }
 ;
 
 exps      : exps BINARYOP_MUL exps{
-            if($<value.valType>1 == 0 && $<value.valType>3 == 0){
-              $<value.valType>$ = 0;
+            if($<value.valType>1 == 1 && $<value.valType>3 == 1){
+              $<value.valType>$ = 1;
               $<value.temp>$ = $<value.temp>1 * $<value.temp>3;
             }
             else if($<value.valType>1 == 2 && $<value.valType>3 == 2){
@@ -345,7 +377,7 @@ exps      : exps BINARYOP_MUL exps{
           | exps BINARYOP_SHRA exps
           | MIN exps %prec UNARYOP_LNOT
           | UNARYOP_LNOT exps{
-            if($<value.valType>2 == 0){
+            if($<value.valType>2 == 1){
               $<value.valType>$ = $<value.valType>2;
               $<value.temp>$ = !$<value.temp>2;
             }
@@ -357,7 +389,7 @@ exps      : exps BINARYOP_MUL exps{
             }
           }
           | UNARYOP_INCR exps{
-            if($<value.valType>2 == 0){
+            if($<value.valType>2 == 1){
               $<value.valType>$ = $<value.valType>2;
               $<value.temp>$ = $<value.temp>2 - 1;
             }
@@ -369,7 +401,7 @@ exps      : exps BINARYOP_MUL exps{
             }
           }
           | UNARYOP_DECR exps{
-            if($<value.valType>2 == 0){
+            if($<value.valType>2 == 1){
               $<value.valType>$ = $<value.valType>2;
               $<value.temp>$ = $<value.temp>2 + 1;
             }
@@ -381,7 +413,7 @@ exps      : exps BINARYOP_MUL exps{
             }
           }
           | UNARYOP_BNOT exps{
-            if($<value.valType>2 == 0){
+            if($<value.valType>2 == 1){
               $<value.valType>$ = $<value.valType>2;
               $<value.temp>$ = ~$<value.temp>2;
             }
@@ -411,20 +443,26 @@ exps      : exps BINARYOP_MUL exps{
             else{
               struct symrec * os = getsymWithinScope($3, base->scope);
             }
-            // genIR(load, structVar->offset+os->offset, 0, temp);
+            // genIRForLS(lw, temp, os->offset, structVar->name);
           }
           | INT {
-            $<value.valType>$ = 0;
+            $<value.valType>$ = 1;
             $<value.temp>$ = $1;
           }
 ;
 
 arrs      : /* empty */
-          | LB exp RB arrs
+          | LB exps RB arrs
 ;
 
-args      : exp COMMA args
-          | exp
+args      : args COMMA exp{
+            NSPush($3);
+            $$ = $1 + 1;
+          }
+          | exp {
+            NSPush($1);
+            $$ = 1;
+          }
 ;
 
 %%

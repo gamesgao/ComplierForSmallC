@@ -12,7 +12,8 @@ struct symrec {
     int offset;          /* data offset */
     char* type; /*fun struct ID int*/
     struct symrec *scope; /*为了struct ID*/
-    int width; /*为了struct type*/
+    int width; /*为了struct type 和 array type*/
+    int height; /*为了array type*/
     struct symrec *next; /* link field */
     struct Quad* entry; /*为了func*/
 };
@@ -57,7 +58,7 @@ struct symrec * subLevel(){
     return scope;
 }
 
-struct symrec *putsym(char *sym_name, char* type, int width, struct symrec * scope, struct Quad* entry) {
+struct symrec *putsym(char *sym_name, char* type, int width, int height, struct symrec * scope, struct Quad* entry) {
     struct symrec *ptr;
     ptr = (struct symrec *) malloc(sizeof(struct symrec));
     ptr->name = (char *) malloc(strlen(sym_name) + 1);
@@ -68,7 +69,9 @@ struct symrec *putsym(char *sym_name, char* type, int width, struct symrec * sco
     ptr->next = (struct symrec *) sym_table;
     if(strcmp(ptr->type, "int")){
         ptr->offset = totalOffset;
-        totalOffset += width;
+        ptr->width = width;
+        ptr->height = height;
+        totalOffset += width * height * 4;
     } else if(strcmp(ptr->type, "func")){
         ptr->scope = scope;
         ptr->entry = entry;
