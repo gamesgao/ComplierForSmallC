@@ -396,30 +396,33 @@ exps      : exps BINARYOP_MUL exps{
           | exps BINARYOP_SHL exps
           | exps BINARYOP_SHR exps
           | exps BINARYOP_GT exps {
-            if($<value.valType>1 == 1 && $<value.valType>2 == 1){
-              if($<value.temp>1 > $<value.temp>2){
+            if($<value.valType>1 == 1 && $<value.valType>3 == 1){
+              if($<value.temp>1 > $<value.temp>3){
                 $<value.trueList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
               }
               else{
                 $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
               }
             }
-            else if($<value.valType>1 == 2 && $<value.valType>2 == 2){
-              $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value.temp>1, $<value.temp>2, 0));
+            else if($<value.valType>1 == 1){
+              int temp;
+              temp = normalizeExp((struct NSData *)&$3);
+              $<value.trueList>$ = makelist(genIRForBranch(jgt, temp, $<value.temp>1, 0));
+              $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+            }
+            else if($<value.valType>3 == 1){
+              int temp;
+              temp = normalizeExp((struct NSData *)&$1);
+              $<value.trueList>$ = makelist(genIRForBranch(jgt, temp, $<value.temp>3, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else{
-              if($<value.valType>1 == 2){
-                $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value.temp>1, $<value.temp>2, 0));
-                $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
-              }
-              else if($<value.valType>2 == 2){
-                $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value.temp>2, $<value.temp>1, 0));
-                $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
-              }
-              else{
-                printf("wrong while do GT");
-              }
+              int temp1;
+              int temp2;
+              temp1 = normalizeExp((struct NSData *)&$1);
+              temp2 = normalizeExp((struct NSData *)&$3);
+              $<value.trueList>$ = makelist(genIRForBranch(jgt, temp1, temp2, 0));
+              $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
           }
           | exps BINARYOP_NLT exps
