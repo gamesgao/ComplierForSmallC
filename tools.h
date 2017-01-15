@@ -28,7 +28,7 @@ int normalizeExp(struct NSData * exp){
     int temp;
     int result;
     if(exp->valType == 2){
-        temp = $<value.temp>3;
+        temp = exp->temp;
     }
     else if(exp->valType == 3){
         temp = newTemp();

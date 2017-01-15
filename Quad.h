@@ -97,14 +97,6 @@ int tempCount = 0;
 Operations: genIR
 ========================================================================*/
 struct Quad * genIR(enum Opcode op, int s1, int s2, int d) {
-    if(IR == (struct IntermediaRepresentation*)0){
-        IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
-        IR->head = (struct Quad *) malloc(sizeof(struct Quad));
-        IR->head->order = 0;
-        IR->head->next = (struct Quad *)0;
-        IR->head->prev = (struct Quad *)0;
-        IR->tail = IR->head;
-    }// the first node is useless
     struct Quad *ptr;
     ptr = (struct Quad *) malloc(sizeof(struct Quad));
     ptr->order = IR->tail->order+1;
@@ -120,14 +112,6 @@ struct Quad * genIR(enum Opcode op, int s1, int s2, int d) {
 }
 
 struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
-    if(IR == (struct IntermediaRepresentation*)0){
-        IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
-        IR->head = (struct Quad *) malloc(sizeof(struct Quad));
-        IR->head->order = 0;
-        IR->head->next = (struct Quad *)0;
-        IR->head->prev = (struct Quad *)0;
-        IR->tail = IR->head;
-    }// the first node is useless
     struct Quad *ptr;
     ptr = (struct Quad *) malloc(sizeof(struct Quad));
     ptr->order = IR->tail->order+1;
@@ -143,14 +127,6 @@ struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
 }
 
 struct Quad * genIRForBranch(enum Opcode op, int s1, int s2, struct Quad* d) {
-    if(IR == (struct IntermediaRepresentation*)0){
-        IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
-        IR->head = (struct Quad *) malloc(sizeof(struct Quad));
-        IR->head->order = 0;
-        IR->head->next = (struct Quad *)0;
-        IR->head->prev = (struct Quad *)0;
-        IR->tail = IR->head;
-    }// the first node is useless
     struct Quad *ptr;
     ptr = (struct Quad *) malloc(sizeof(struct Quad));
     ptr->order = IR->tail->order+1;
@@ -178,5 +154,14 @@ void printIR(){
         else if(ptr->op == jmp || ptr->op == jgt) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
         else printf("%d\t%s\t%d\t%d\t%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
     }
+}
+
+void initIR(){
+    IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
+    IR->head = (struct Quad *) malloc(sizeof(struct Quad));
+    IR->head->order = 0;
+    IR->head->next = (struct Quad *)0;
+    IR->head->prev = (struct Quad *)0;
+    IR->tail = IR->head;
 }
 /************************** End Quad code **************************/

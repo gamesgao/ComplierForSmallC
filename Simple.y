@@ -271,7 +271,7 @@ paras     : /* empty */
           }
 ;
 
-stmtblock : LC defs stmts RC
+stmtblock : LC defs stmts RC 
 ;
 
 stmts     : /* empty */
@@ -362,7 +362,7 @@ exps      : exps BINARYOP_MUL exps{
             else if($<value.valType>1 == 1){
               int temp;
               int result;
-              temp = normalizeExp(&$3);
+              temp = normalizeExp((struct NSData *)&$3);
               result = newTemp();
               genIR(muli, temp, $<value.temp>1, result);
               $<value.valType>$ = 2;
@@ -371,7 +371,7 @@ exps      : exps BINARYOP_MUL exps{
             else if($<value.valType>3 == 1){
               int temp;
               int result;
-              temp = normalizeExp(&$1);
+              temp = normalizeExp((struct NSData *)&$1);
               result = newTemp();
               genIR(muli, temp, $<value.temp>3, result);
               $<value.valType>$ = 2;
@@ -381,8 +381,8 @@ exps      : exps BINARYOP_MUL exps{
               int temp1;
               int temp2;
               int result;
-              temp1 = normalizeExp(&$1);
-              temp2 = normalizeExp(&$3);
+              temp1 = normalizeExp((struct NSData *)&$1);
+              temp2 = normalizeExp((struct NSData *)&$3);
               result = newTemp();
               genIR(mul, temp1, temp2, result);
               $<value.valType>$ = 2;
@@ -418,7 +418,7 @@ exps      : exps BINARYOP_MUL exps{
                 $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
               }
               else{
-                printf("wrong while do NOT");
+                printf("wrong while do GT");
               }
             }
           }
@@ -534,13 +534,13 @@ exps      : exps BINARYOP_MUL exps{
           }
 ;
 
-MM         : /* empty */{
-            $$ = IR->tail;
+NN         : /* empty */{
+            $$ = makelist(genIRForBranch(jmp, 0, 0, 0));
           }
 ;
 
-NN         : /* empty */{
-            $$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+MM         : /* empty */{
+            $$ = IR->tail;
           }
 ;
 
@@ -622,6 +622,7 @@ int main( int argc, char *argv[] )
   yyin = fopen(argv[0], "r");
   // yydebug = 1;
   errors = 0;
+  initIR();
   yyparse();
   // printf("%s\n", getsym("x")->type);
   printf("Parse Completed\n");
