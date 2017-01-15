@@ -11,10 +11,12 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include "Quad.h" /* Quad Code */
 #include "branchList.h" /*branch List For backpatching */
 #include "numStack.h" /* numStack Code */
+#include "tools.h" /* tools Code */
 // #include "SM.h" /* Stack Machine */
 // #include "CG.h" /* Code Generator */
 #define YYDEBUG 1 /* For Debugging */
 int errors; /* Error Count */
+
 /*-------------------------------------------------------------------------
 The following support backpatching
 -------------------------------------------------------------------------*/
@@ -22,7 +24,7 @@ The following support backpatching
 Install identifier & check if previously defined.
 -------------------------------------------------------------------------*/
 
-void registerId(char *sym_name, char* type, int width, int height, struct symrec * scope, struct Quad* entry, struct symrec *param) {
+void registerId(char *sym_name, char *type, int width, int height, struct symrec * scope, struct Quad* entry, struct symrec *param) {
   symrec *s;
   s = getsymInScope(sym_name);
   if (s == 0)
@@ -47,6 +49,7 @@ SEMANTIC RECORDS
 %union semrec /* The Semantic Records */
 {
   int intval;       /* Integer values */
+  int offset;
   char *id;         /* Identifiers */
   struct{
     char* id;
@@ -54,7 +57,15 @@ SEMANTIC RECORDS
     int height;
   } variable;
 
-  struct NSData value;
+  struct{
+    int valType; /*can be 0:empty, 1:int, 2:temp*/
+    // int intval;
+    int temp;
+    // char* id;
+    struct branchList* trueList;
+    struct branchList* falseList;
+    struct branchList* nextList;
+  } value;
 
   struct{
     char* id;
@@ -146,11 +157,12 @@ Return type for the terminal and non-terminal
 =========================================================================*/
 %type<variable> varArray var
 %type<value> exps exp arrs
-%type<int> args
+%type<intval> args
 %type<funcType> func
 %type<inst> MM 
 %type<nextlist> NN stmt
-
+%type<id> stspec
+%type<offset> sdefs
 
 
 /*=========================================================================
@@ -174,10 +186,10 @@ extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是
 ;
 
 sextvars  : sextvars COMMA ID {
-            registerId($3, $0, 0, 0, 0, 0, 0);
+            registerId($3, $<id>0, 0, 0, 0, 0, 0);
           }
           | ID {
-            registerId($1, $0, 0, 0, 0, 0, 0);
+            registerId($1, $<id>0, 0, 0, 0, 0, 0);
           }
 ;
 
@@ -205,11 +217,12 @@ extvars   : extvars COMMA var {
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
-          | varArray BINARYOP_ASSIGN LC args RC{
-            if($<variable.width>1 * $<variable.height>1 >= $4){
-              int i = 0;
-              for(;i<$4;i++){
-                struct NSData* temp = NSPop();
+          | varArray BINARYOP_ASSIGN LC args RC {
+            int i = 0;
+            struct NSData* temp;
+            if(($<variable.width>1 * $<variable.height>1) >= $4){
+              for(i=$4-1;i >= 0 ;i--){
+                temp = NSPop();
                 if(temp->valType == 1){
                   int tempReg = newTemp();
                   genIR(li, 0, temp->temp, tempReg);
@@ -227,13 +240,13 @@ extvars   : extvars COMMA var {
 ;
 
 stspec    : STRUCT ID LC {addLevel();} sdefs RC{
-            registerId($2, 'struct', width, 0, subLevel(), 0, 0);
+            registerId($2, "struct", $5, 0, subLevel(), 0, 0);
             $$ = $2;
           }
-          | STRUCT LC sdefs RC{
+          | STRUCT LC {addLevel();} sdefs RC{
             char * tempID = (char *) malloc(sizeof(char)*9);
-            itoa(getRandomNumber(), tempID, 10);
-            registerId(tempID, 'struct', width, 0, subLevel(), 0, 0);
+            sprintf(tempID, "%d", getRandomNumber());
+            registerId(tempID, "struct", $4, 0, subLevel(), 0, 0);
             $$ = tempID;
           } /*在没有ID的情况下可能需要随机分配一个?*/
           | STRUCT ID {
@@ -250,10 +263,10 @@ func      : ID LP {addLevel();} paras RP{
 
 paras     : /* empty */
           | TYPE ID COMMA paras {
-            registerId($2, 'int', 1, 1, 0, 0, 0);
+            registerId($2, "int", 1, 1, 0, 0, 0);
           }
           | TYPE ID {
-            registerId($2, 'int', 1, 1, 0, 0, 0);
+            registerId($2, "int", 1, 1, 0, 0, 0);
           }
 ;
 
@@ -286,15 +299,19 @@ defs      : /* empty */
           | stspec sdecs SEMI defs
 ;
 
-sdefs     : sdefs TYPE sdecs SEMI
-          | TYPE sdecs SEMI
+sdefs     : sdefs TYPE sdecs SEMI {
+            $$ = totalOffset;
+          }
+          | TYPE sdecs SEMI {
+            $$ = totalOffset;
+          }
 ;
 
 sdecs     : sdecs COMMA ID {
-            registerId($3, 'int', 1, 1, 0, 0, 0);
+            registerId($3, "int", 1, 1, 0, 0, 0);
           }
           | ID {
-            registerId($1, 'int', 1, 1, 0, 0, 0);
+            registerId($1, "int", 1, 1, 0, 0, 0);
           }
 ;
 
@@ -386,7 +403,6 @@ exps      : exps BINARYOP_MUL exps{
                 printf("wrong while do NOT");
               }
             }
-            $<value.trueList>$ = makelist(genIRForBranch(jgt, $<value>1))
           }
           | exps BINARYOP_NLT exps
           | exps BINARYOP_LT exps
@@ -410,7 +426,7 @@ exps      : exps BINARYOP_MUL exps{
             $<value.nextList>$ = 0;
             $<value.valType>$ = 0;
           }
-          | exps BINARYOP_ASSIGN exps
+          | exps BINARYOP_ASSIGN exps 
           | exps BINARYOP_MULA exps
           | exps BINARYOP_DIVA exps
           | exps BINARYOP_MODA exps
@@ -483,6 +499,7 @@ exps      : exps BINARYOP_MUL exps{
             $<value.temp>$ = temp;
           }
           | ID DOT ID{
+            struct symrec * os;
             int temp = newTemp();
             $<value.valType>$ = 2;
             $<value.temp>$ = temp;
@@ -490,7 +507,7 @@ exps      : exps BINARYOP_MUL exps{
             struct symrec * base = getsym(structVar->type);
             if(base == 0) printf("not defined type in struct variable!\n");
             else{
-              struct symrec * os = getsymWithinScope($3, base->scope);
+              os = getsymWithinScope($3, base->scope);
             }
             genIRForLS(lwi, temp, os->offset, structVar->name);
           }
@@ -530,7 +547,7 @@ arrs      : /* empty */{
             }
           }
           | LB exps RB LB exps RB {
-            struct symrec * array = getsym($0);
+            struct symrec * array = getsym($<id>0);
             if($<value.valType>2 == 1 && $<value.valType>5 == 1){
               $<value.valType>$ = 1;
               $<value.temp>$ = array->width * $<value.temp>2 * 4 + $<value.temp>5 * 4;
@@ -567,11 +584,11 @@ arrs      : /* empty */{
 ;
 
 args      : args COMMA exp{
-            NSPush($3);
+            NSPush((struct NSData *)&$3);
             $$ = $1 + 1;
           }
           | exp {
-            NSPush($1);
+            NSPush((struct NSData *)&$1);
             $$ = 1;
           }
 ;
@@ -580,7 +597,7 @@ args      : args COMMA exp{
 /*=========================================================================
 MAIN
 =========================================================================*/
-main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   extern FILE *yyin;
   ++argv;
@@ -596,15 +613,17 @@ main( int argc, char *argv[] )
   //   print_code();
   //   fetch_execute_cycle();
   // }
+  return 0;
 }
 /*=========================================================================
 YYERROR
 =========================================================================*/
-yyerror ( char *s ) /* Called by yyparse on error */
+int yyerror ( char *s ) /* Called by yyparse on error */
 {
   errors++;
   printf("%s\n", "=========================================================================");
   printf("%s\n", s);
   printf("%d\n", yychar);
+  return 0;
 }
 /**************************** End Grammar File ***************************/

@@ -15,7 +15,7 @@ struct NSData{
     struct branchList* trueList;
     struct branchList* falseList;
     struct branchList* nextList;
-}
+};
 
 struct numStack {
     struct NSData* data;
@@ -44,8 +44,12 @@ void NSPush(struct NSData* data){
     top = newTop;
 }
 
+int NSIsEmpty(){
+    return top == (struct numStack*) 0;
+}
+
 struct NSData* NSPop(){
-    if(isEmpty()) return -409;
+    if(NSIsEmpty()) return 0;
     struct NSData* temp = top->data;
     struct numStack* tempTop = top->next;
     free(top);
@@ -53,9 +57,7 @@ struct NSData* NSPop(){
     return temp;
 }
 
-bool NSIsEmpty(){
-    return top == (struct numStack*) 0;
-}
+
 
 
 

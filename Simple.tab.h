@@ -103,29 +103,43 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-#line 73 "Simple.y" /* yacc.c:1909  */
+#line 49 "Simple.y" /* yacc.c:1909  */
 union semrec
 {
-#line 74 "Simple.y" /* yacc.c:1909  */
+#line 50 "Simple.y" /* yacc.c:1909  */
 
   int intval;       /* Integer values */
+  int offset;
   char *id;         /* Identifiers */
-  struct lbs *lbls; /* For backpatching */
   struct{
     char* id;
     int width;
+    int height;
   } variable;
 
   struct{
-    int valType; /*can be 0:int, 2:temp*/
+    int valType; /*can be 0:empty, 1:int, 2:temp*/
     // int intval;
     int temp;
     // char* id;
+    struct branchList* trueList;
+    struct branchList* falseList;
+    struct branchList* nextList;
   } value;
 
-#line 127 "Simple.tab.h" /* yacc.c:1909  */
+  struct{
+    char* id;
+    struct symrec *param;
+    struct Quad * beforeEntry;
+  } funcType;
+  /* For backpatching */
+  struct Quad * inst;
+  struct branchList * nextlist;
+
+
+#line 141 "Simple.tab.h" /* yacc.c:1909  */
 };
-#line 73 "Simple.y" /* yacc.c:1909  */
+#line 49 "Simple.y" /* yacc.c:1909  */
 typedef union semrec YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
