@@ -77,6 +77,14 @@ SEMANTIC RECORDS
   struct Quad * inst;
   struct branchList * nextlist;
 
+  struct{
+    struct branchList * nextlist;
+    int breakCount;
+    int continueCount;
+    struct branchList * breakList;
+    struct branchList * continueList;
+  } stmtType;
+
 }
 /*=========================================================================
 TOKENS
@@ -161,7 +169,8 @@ Return type for the terminal and non-terminal
 %type<intval> args
 %type<funcType> func
 %type<inst> MM 
-%type<nextlist> NN stmt
+%type<nextlist> NN 
+%type<stmtType> stmt stmts stmtblock
 %type<id> stspec
 %type<offset> sdefs
 
@@ -234,6 +243,9 @@ extvars   : extvars COMMA var {
                 }
               }
             }
+            else{
+              printf("wrong while init array!\n");
+            }
           }
           | var {
             registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
@@ -271,37 +283,100 @@ paras     : /* empty */
           }
 ;
 
-stmtblock : LC defs stmts RC 
+stmtblock : LC defs stmts RC {
+            $<stmtType.nextList>$ = 0;
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>3;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>3;
+            $<stmtType.continueList>$ = $<stmtType.continueList>3;
+            $<stmtType.breakList>$ = $<stmtType.breakList>3;
+          }
 ;
 
-stmts     : /* empty */
+stmts     : /* empty */ {
+            $<stmtType.nextList>$ = 0;
+            $<stmtType.continueCount>$ = 0;
+            $<stmtType.breakCount>$ = 0;
+            $<stmtType.continueList>$ = 0;
+            $<stmtType.breakList>$ = 0;
+          }
           | stmt MM stmts {
-            printf("$1 is %d\n", $1);
-            if($2->next != 0) printf("$2->next is %d\n", $2->next->order);
-            backpatch($1, $2->next);
+            backpatch($<stmtType.nextList>1, $2->next);
+            $<stmtType.nextList>$ = 0;
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>1 + $<stmtType.continueCount>3;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>1 + $<stmtType.breakCount>3;
+            $<stmtType.continueList>$ = merge($<stmtType.continueList>1, $<stmtType.continueList>3);
+            $<stmtType.breakList>$ = merge($<stmtType.breakList>1, $<stmtType.breakList>3);
           }
 ;
 
 stmt      : exps SEMI {
-            $$ = 0;
+            $<stmtType.nextList>$ = 0;
+            $<stmtType.continueCount>$ = 0;
+            $<stmtType.breakCount>$ = 0;
+            $<stmtType.continueList>$ = 0;
+            $<stmtType.breakList>$ = 0;
           }
           | stmtblock {
-            $$ = 0;
+            $<stmtType.nextList>$ = 0;
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>1;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>1;
+            $<stmtType.continueList>$ = $<stmtType.continueList>1;
+            $<stmtType.breakList>$ = $<stmtType.breakList>1;
           }
-          | RETURN exp SEMI 
+          | RETURN exp SEMI {
+            int temp;
+            if($<value.valType>2 == 1){
+              temp = newTemp;
+              genIR(li, 0, $<value.temp>2, temp);
+            }
+            else{
+              temp = normalizeExp((struct NSData *) &$2);
+            }
+            genIR(ret, temp, 0, 0);
+            $<stmtType.continueCount>$ = 0;
+            $<stmtType.continueList>$ = 0;
+            $<stmtType.breakCount>$ = 0;
+            $<stmtType.breakList>$ = 0;
+            $<stmtType.nextList>$ = 0;
+          }
           | IF LP exp RP MM stmt {
-            // printf("$<value.trueList>3 is %d\n", $<value.trueList>3);
             backpatch($<value.trueList>3, $5->next);
-            $$ = merge($<value.falseList>3, $6);
+            $<stmtType.nextList>$ = merge($<value.falseList>3, $<stmtType.nextList>6);
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>6;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>6;
+            $<stmtType.continueList>$ = $<stmtType.continueList>6;
+            $<stmtType.breakList>$ = $<stmtType.breakList>6;
           }
           | IF LP exp RP MM stmt NN ELSE MM stmt {
             backpatch($<value.trueList>3, $5->next);
             backpatch($<value.trueList>3, $9->next);
-            $$ = merge(merge($6, $7), $10);
+            $<stmtType.nextList>$ = merge(merge($<stmtType.nextList>6, $7), $<stmtType.nextList>10);
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>6 + $<stmtType.continueCount>10;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>6 + $<stmtType.breakCount>10;
+            $<stmtType.continueList>$ = merge($<stmtType.continueList>6, $<stmtType.continueList>10);
+            $<stmtType.breakList>$ = merge($<stmtType.breakList>6, $<stmtType.breakList>10);
+
           }
-          | FOR LP exp SEMI exp SEMI exp RP stmt
-          | CONT SEMI
-          | BREAK SEMI
+          | FOR LP exp SEMI MM exp SEMI MM exp NN RP MM stmt {
+            backpatch($<value.trueList>6, $12->next);
+            backpatch($10, $5->next);
+            genIRForBranch(jmp, 0, 0, $8->next);
+            $$ = $<value.falseList>6;
+          }
+          | CONT SEMI {
+            $<stmtType.continueCount>$ = 1;
+            $<stmtType.continueList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+            $<stmtType.breakCount>$ = 0;
+            $<stmtType.breakList>$ = 0;
+            $<stmtType.nextList>$ = 0;
+          }
+          | BREAK SEMI {
+            $<stmtType.continueCount>$ = 0;
+            $<stmtType.continueList>$ = 0;
+            $<stmtType.breakCount>$ = 1;
+            $<stmtType.breakList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+            $<stmtType.nextList>$ = 0;
+          }
 ;
 
 defs      : /* empty */
@@ -416,13 +491,13 @@ exps      : exps BINARYOP_MUL exps{
             else if($<value.valType>1 == 1){
               int temp;
               temp = normalizeExp((struct NSData *)&$3);
-              $<value.trueList>$ = makelist(genIRForBranch(jgt, temp, $<value.temp>1, 0));
+              $<value.trueList>$ = makelist(genIRForBranch(jgti, temp, $<value.temp>1, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else if($<value.valType>3 == 1){
               int temp;
               temp = normalizeExp((struct NSData *)&$1);
-              $<value.trueList>$ = makelist(genIRForBranch(jgt, temp, $<value.temp>3, 0));
+              $<value.trueList>$ = makelist(genIRForBranch(jgti, temp, $<value.temp>3, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else{
@@ -507,7 +582,28 @@ exps      : exps BINARYOP_MUL exps{
           | LP exps RP {
             $$ = $2;
           }
-          | ID LP args RP /*this is func*/
+          | ID LP args RP  {
+            struct symrec *fun = getsym($1);
+            if(fun != 0){
+              for(i=$4-1;i >= 0 ;i--){
+                temp = NSPop();
+                if(temp->valType == 1){
+                  int tempReg = newTemp();
+                  genIR(li, 0, temp->temp, tempReg);
+                  genIRForLS(param, tempReg, 0, 0);
+                }
+                else if(temp->valType == 2){
+                  genIRForLS(param, temp->temp, 0, 0);
+                }
+              }
+              genIRForBranch(call, 0, 0, fun->entry);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = newTemp();
+            }
+            else{
+              printf("wrong while call func!\n");
+            }
+          }/*this is func*/
           | ID arrs {
             // $<value.valType>$ = 2;
             if($<value.valType>2 == 1){

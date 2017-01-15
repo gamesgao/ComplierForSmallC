@@ -133,7 +133,43 @@ struct symrec *getsymWithinScope(char *sym_name, struct symrec * symPoint) {
     return 0;
 }
 
-void keepStmtBlock(struct symrec * symPoint){
+void printST(){
+    struct symrec *ptr;
+    for (ptr = sym_table; ptr != (struct symrec *)0; ptr = (struct symrec *)ptr->next){
+        if(strcmp(ptr->type, "int")){
+            printf("type:%s\tname:%s\toffset:%d\twidth:%d\theight:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width, ptr->height);
+        } else if(strcmp(ptr->type, "func")){
+            printf("type:%s\tname:%s\toffset:%d\tentry:%d\n", ptr->type, ptr->name, ptr->offset, ptr->entry->order);
+            printf("===========================================================\n");
+            printSTwithinScope(ptr->scope);
+            printf("===========================================================\n");
 
+        } else if(strcmp(ptr->type, "struct")){
+            printf("type:%s\tname:%s\toffset:%d\twidth:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width);
+        }
+        else{
+            printf("type:%s\tname:%s\toffset:%d\n", ptr->type, ptr->name, ptr->offset);
+        }
+    }
+        
+    
+}
+
+void printSTwithinScope(struct symrec * symPoint){
+    for (ptr = symPoint; ptr != (struct symrec *)0 && ptr->name != 0; ptr = (struct symrec *)ptr->next){
+        if(strcmp(ptr->type, "int")){
+            printf("type:%s\tname:%s\toffset:%d\twidth:%d\theight:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width, ptr->height);
+        } else if(strcmp(ptr->type, "func")){
+            printf("type:%s\tname:%s\toffset:%d\tentry:%d\n", ptr->type, ptr->name, ptr->offset, ptr->entry->order);
+            printf("===========================================================\n");
+            printSTwithinScope(ptr->scope);
+            printf("===========================================================\n");
+        } else if(strcmp(ptr->type, "struct")){
+            printf("type:%s\tname:%s\toffset:%d\twidth:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width);
+        }
+        else{
+            printf("type:%s\tname:%s\toffset:%d\n", ptr->type, ptr->name, ptr->offset);
+        }
+    }
 }
 /************************** End Symbol Table **************************/

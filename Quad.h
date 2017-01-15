@@ -9,10 +9,10 @@ Quad code RECORD
 -------------------------------------------------------------------------*/
 
 enum Opcode {
-    bnot, add, addi, sub, subi, mul, muli, opdiv, opdivi, lwi, swi, jmp, call, li, lw, sw, jgt, jgti
+    bnot, add, addi, sub, subi, mul, muli, opdiv, opdivi, lwi, swi, jmp, call, ret, li, lw, sw, jgt, jgti, end, param
 };
 
-char* Opstr[18] = {
+char* Opstr[21] = {
     "bnot",
     "add",
     "addi",
@@ -26,11 +26,14 @@ char* Opstr[18] = {
     "swi",
     "jmp",
     "call",
+    "ret",
     "li",
     "lw",
     "sw",
     "jgt",
-    "jgti"
+    "jgti",
+    "end",
+    "param"
 };
 
 union var {
@@ -98,45 +101,51 @@ Operations: genIR
 ========================================================================*/
 struct Quad * genIR(enum Opcode op, int s1, int s2, int d) {
     struct Quad *ptr;
-    ptr = (struct Quad *) malloc(sizeof(struct Quad));
-    ptr->order = IR->tail->order+1;
+    struct Quad *next;
+    next = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr = IR->tail->next;
+    next->order = ptr->order+1;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
     ptr->dest.TIA = d;
-    IR->tail->next = ptr;
-    ptr->prev = IR->tail;
-    ptr->next = 0;
+    ptr->next = next;
+    next->prev = ptr;
+    next->next = 0;
     IR->tail = ptr;
     return ptr;
 }
 
 struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
     struct Quad *ptr;
-    ptr = (struct Quad *) malloc(sizeof(struct Quad));
-    ptr->order = IR->tail->order+1;
+    struct Quad *next;
+    next = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr = IR->tail->next;
+    next->order = ptr->order+1;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
     ptr->dest.id = d;
-    IR->tail->next = ptr;
-    ptr->prev = IR->tail;
-    ptr->next = (struct Quad *)0;
+    ptr->next = next;
+    next->prev = ptr;
+    next->next = 0;
     IR->tail = ptr;
     return ptr;
 }
 
 struct Quad * genIRForBranch(enum Opcode op, int s1, int s2, struct Quad* d) {
     struct Quad *ptr;
-    ptr = (struct Quad *) malloc(sizeof(struct Quad));
-    ptr->order = IR->tail->order+1;
+    struct Quad *next;
+    next = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr = IR->tail->next;
+    next->order = ptr->order+1;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
     ptr->dest.addr = d;
-    IR->tail->next = ptr;
-    ptr->prev = IR->tail;
-    ptr->next = (struct Quad *)0;
+    ptr->next = next;
+    next->prev = ptr;
+    next->next = 0;
     IR->tail = ptr;
     return ptr;
 }
@@ -159,9 +168,19 @@ void printIR(){
 void initIR(){
     IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
     IR->head = (struct Quad *) malloc(sizeof(struct Quad));
+    IR->tail = (struct Quad *) malloc(sizeof(struct Quad));
     IR->head->order = 0;
-    IR->head->next = (struct Quad *)0;
+    IR->tail->order = 1;
+    IR->head->next = IR->tail;
     IR->head->prev = (struct Quad *)0;
+    IR->tail->prev = IR->head;
+    IR->head->next = (struct Quad *)0;
     IR->tail = IR->head;
+}
+
+void endIR(){
+    IR->tail = IR->tail->next;
+    IR->tail->op = end;
+
 }
 /************************** End Quad code **************************/
