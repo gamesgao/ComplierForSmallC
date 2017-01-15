@@ -51,8 +51,7 @@ struct branchList * merge(struct branchList * L1, struct branchList * L2){
 
 void backpatch(struct branchList * L, struct Quad* inst){
     struct branchList * temp = L;
-    if(L == (struct branchList *) 0) return;
-    while(temp->next != 0){
+    while(temp != 0){
         temp->inst->dest.addr = inst;
         temp = temp->next;
     }

@@ -275,13 +275,22 @@ stmtblock : LC defs stmts RC
 ;
 
 stmts     : /* empty */
-          | stmt stmts
+          | stmt MM stmts {
+            printf("$1 is %d\n", $1);
+            if($2->next != 0) printf("$2->next is %d\n", $2->next->order);
+            backpatch($1, $2->next);
+          }
 ;
 
-stmt      : exp SEMI
-          | stmtblock
-          | RETURN exp SEMI
+stmt      : exps SEMI {
+            $$ = 0;
+          }
+          | stmtblock {
+            $$ = 0;
+          }
+          | RETURN exp SEMI 
           | IF LP exp RP MM stmt {
+            // printf("$<value.trueList>3 is %d\n", $<value.trueList>3);
             backpatch($<value.trueList>3, $5->next);
             $$ = merge($<value.falseList>3, $6);
           }
