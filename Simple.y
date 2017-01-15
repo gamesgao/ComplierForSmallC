@@ -58,10 +58,11 @@ SEMANTIC RECORDS
   } variable;
 
   struct{
-    int valType; /*can be 0:empty, 1:int, 2:temp*/
+    int valType; /*can be 0:empty, 1:int, 2:temp, 3:id, 4:id reg */
     // int intval;
     int temp;
-    // char* id;
+    char* id;
+    int offset; /*3:int 4:reg*/
     struct branchList* trueList;
     struct branchList* falseList;
     struct branchList* nextList;
@@ -358,17 +359,34 @@ exps      : exps BINARYOP_MUL exps{
               $<value.valType>$ = 1;
               $<value.temp>$ = $<value.temp>1 * $<value.temp>3;
             }
-            else if($<value.valType>1 == 2 && $<value.valType>3 == 2){
-              int temp = newTemp();
-              genIR(mul, $<value.temp>1, $<value.temp>3, temp);
+            else if($<value.valType>1 == 1){
+              int temp;
+              int result;
+              temp = normalizeExp(&$3);
+              result = newTemp();
+              genIR(muli, temp, $<value.temp>1, result);
               $<value.valType>$ = 2;
-              $<value.temp>$ = temp;
-            }else{
-              int temp = newTemp();
-              if($<value.valType>1 == 2) genIR(muli, $<value.temp>1, $<value.temp>3, temp);
-              else genIR(muli, $<value.temp>3, $<value.temp>1, temp);
+              $<value.temp>$ = result;
+            }
+            else if($<value.valType>3 == 1){
+              int temp;
+              int result;
+              temp = normalizeExp(&$1);
+              result = newTemp();
+              genIR(muli, temp, $<value.temp>3, result);
               $<value.valType>$ = 2;
-              $<value.temp>$ = temp;
+              $<value.temp>$ = result;
+            }
+            else{
+              int temp1;
+              int temp2;
+              int result;
+              temp1 = normalizeExp(&$1);
+              temp2 = normalizeExp(&$3);
+              result = newTemp();
+              genIR(mul, temp1, temp2, result);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = result;
             }
           }
           | exps BINARYOP_DIV exps
@@ -426,7 +444,34 @@ exps      : exps BINARYOP_MUL exps{
             $<value.nextList>$ = 0;
             $<value.valType>$ = 0;
           }
-          | exps BINARYOP_ASSIGN exps 
+          | exps BINARYOP_ASSIGN exps {
+            if($<value.valType>1 == 3 || $<value.valType>1 == 4){
+              int temp;
+              if($<value.valType>3 == 3){
+                temp = newTemp();
+                genIRForLS(lwi, temp, $<value.offset>3, $<value.id>3);
+              }
+              else if($<value.valType>3 == 4){
+                temp = newTemp();
+                genIRForLS(lw, temp, $<value.offset>3, $<value.id>3);
+              }
+              else if($<value.valType>3 == 2){
+                temp = $<value.temp>3;
+              }
+              else if($<value.valType>3 == 1){
+                temp = newTemp();
+                genIR(li, 0, $<value.temp>3, temp);
+              }
+              else{
+                printf("should not enter here!\n");
+              }
+              if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
+              else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+            }
+            else {
+              printf("wrong while assign!\n");
+            }
+          }
           | exps BINARYOP_MULA exps
           | exps BINARYOP_DIVA exps
           | exps BINARYOP_MODA exps
@@ -444,72 +489,44 @@ exps      : exps BINARYOP_MUL exps{
             $<value.nextList>$ = 0;
             $<value.valType>$ = 0;
           }
-          | UNARYOP_INCR exps{
-            if($<value.valType>2 == 1){
-              $<value.valType>$ = $<value.valType>2;
-              $<value.temp>$ = $<value.temp>2 - 1;
-            }
-            else{
-              int temp = newTemp();
-              genIR(subi, $<value.temp>2, 1, temp);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = temp;
-            }
-          }
-          | UNARYOP_DECR exps{
-            if($<value.valType>2 == 1){
-              $<value.valType>$ = $<value.valType>2;
-              $<value.temp>$ = $<value.temp>2 + 1;
-            }
-            else{
-              int temp = newTemp();
-              genIR(addi, $<value.temp>2, 1, temp);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = temp;
-            }
-          }
-          | UNARYOP_BNOT exps{
-            if($<value.valType>2 == 1){
-              $<value.valType>$ = $<value.valType>2;
-              $<value.temp>$ = ~$<value.temp>2;
-            }
-            else{
-              int temp = newTemp();
-              genIR(bnot, $<value.temp>2, 0, temp);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = temp;
-            }
-          }
+          | UNARYOP_INCR exps
+          | UNARYOP_DECR exps
+          | UNARYOP_BNOT exps
           | LP exps RP {
             $$ = $2;
           }
           | ID LP args RP /*this is func*/
           | ID arrs {
-            $<value.valType>$ = 2;
-            int temp = newTemp();
+            // $<value.valType>$ = 2;
             if($<value.valType>2 == 1){
-              genIRForLS(lwi, temp, $<value.temp>2, $1);
+              $<value.valType>$ = 3;
+              $<value.id>$ = $1;
+              $<value.offset>$ = $<value.temp>2;
+              // genIRForLS(lwi, temp, $<value.temp>2, $1);
             }
             else if($<value.valType>2 == 2){
-              genIRForLS(lw, temp, $<value.temp>2, $1);
+              $<value.valType>$ = 4;
+              $<value.id>$ = $1;
+              $<value.offset>$ = $<value.temp>2;
+              // genIRForLS(lw, temp, $<value.temp>2, $1);
             }
             else{
               printf("wrong while array reference\n");
             }
-            $<value.temp>$ = temp;
+            // $<value.temp>$ = temp;
           }
           | ID DOT ID{
             struct symrec * os;
-            int temp = newTemp();
-            $<value.valType>$ = 2;
-            $<value.temp>$ = temp;
+            $<value.valType>$ = 3;
             struct symrec * structVar = getsym($1);
             struct symrec * base = getsym(structVar->type);
             if(base == 0) printf("not defined type in struct variable!\n");
             else{
               os = getsymWithinScope($3, base->scope);
             }
-            genIRForLS(lwi, temp, os->offset, structVar->name);
+            $<value.id>$ = $1;
+            $<value.offset>$ = os->offset;
+            // genIRForLS(lwi, temp, os->offset, structVar->name);
           }
           | INT {
             $<value.valType>$ = 1;

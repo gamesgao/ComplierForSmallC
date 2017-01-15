@@ -24,5 +24,25 @@ int getRandomNumber(){
     return rand()%(100000000);
 }
 
+int normalizeExp(struct NSData * exp){
+    int temp;
+    int result;
+    if(exp->valType == 2){
+        temp = $<value.temp>3;
+    }
+    else if(exp->valType == 3){
+        temp = newTemp();
+        genIRForLS(lwi, temp, exp->offset, exp->id);
+    }
+    else if(exp->valType == 4){
+        temp = newTemp();
+        genIRForLS(lw, temp, exp->offset, exp->id);
+    }
+    else{
+        printf("wrong while do mul!\n");
+    }
+    return temp;
+}
+
 
 /************************** End tools code **************************/

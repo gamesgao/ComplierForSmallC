@@ -11,7 +11,8 @@ struct NSData{
     int valType; /*can be 0:empty, 1:int, 2:temp*/
     // int intval;
     int temp;
-    // char* id;
+    char* id;
+    int offset;
     struct branchList* trueList;
     struct branchList* falseList;
     struct branchList* nextList;
