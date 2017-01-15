@@ -68,17 +68,17 @@ struct symrec *putsym(char *sym_name, char* type, int width, int height, struct 
     strcpy(ptr->type, type);
 
     ptr->next = (struct symrec *) sym_table;
-    if(strcmp(ptr->type, "int")){
+    if(strcmp(ptr->type, "int") == 0){
         ptr->offset = totalOffset;
         ptr->width = width;
         ptr->height = height;
         totalOffset += width * height * 4;
-    } else if(strcmp(ptr->type, "func")){
+    } else if(strcmp(ptr->type, "func") == 0){
         ptr->scope = scope;
         ptr->entry = entry;
         ptr->param = param;
 
-    } else if(strcmp(ptr->type, "struct")){
+    } else if(strcmp(ptr->type, "struct") == 0){
         ptr->offset = totalOffset;
         ptr->width = width;
         ptr->scope = scope;
@@ -133,18 +133,37 @@ struct symrec *getsymWithinScope(char *sym_name, struct symrec * symPoint) {
     return 0;
 }
 
+void printSTwithinScope(struct symrec * symPoint){
+    struct symrec *ptr;
+    for (ptr = symPoint; ptr != (struct symrec *)0 && ptr->name != 0; ptr = (struct symrec *)ptr->next){
+        if(strcmp(ptr->type, "int") == 0){
+            printf("type:%s\tname:%s\toffset:%d\twidth:%d\theight:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width, ptr->height);
+        } else if(strcmp(ptr->type, "func") == 0){
+            printf("type:%s\tname:%s\toffset:%d\tentry:%d\n", ptr->type, ptr->name, ptr->offset, ptr->entry->order);
+            printf("===========================================================\n");
+            printSTwithinScope(ptr->scope);
+            printf("===========================================================\n");
+        } else if(strcmp(ptr->type, "struct") == 0){
+            printf("type:%s\tname:%s\toffset:%d\twidth:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width);
+        }
+        else{
+            printf("type:%s\tname:%s\toffset:%d\n", ptr->type, ptr->name, ptr->offset);
+        }
+    }
+}
+
 void printST(){
     struct symrec *ptr;
     for (ptr = sym_table; ptr != (struct symrec *)0; ptr = (struct symrec *)ptr->next){
-        if(strcmp(ptr->type, "int")){
+        if(strcmp(ptr->type, "int") == 0){
             printf("type:%s\tname:%s\toffset:%d\twidth:%d\theight:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width, ptr->height);
-        } else if(strcmp(ptr->type, "func")){
+        } else if(strcmp(ptr->type, "func") == 0){
             printf("type:%s\tname:%s\toffset:%d\tentry:%d\n", ptr->type, ptr->name, ptr->offset, ptr->entry->order);
             printf("===========================================================\n");
             printSTwithinScope(ptr->scope);
             printf("===========================================================\n");
 
-        } else if(strcmp(ptr->type, "struct")){
+        } else if(strcmp(ptr->type, "struct") == 0){
             printf("type:%s\tname:%s\toffset:%d\twidth:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width);
         }
         else{
@@ -155,21 +174,5 @@ void printST(){
     
 }
 
-void printSTwithinScope(struct symrec * symPoint){
-    for (ptr = symPoint; ptr != (struct symrec *)0 && ptr->name != 0; ptr = (struct symrec *)ptr->next){
-        if(strcmp(ptr->type, "int")){
-            printf("type:%s\tname:%s\toffset:%d\twidth:%d\theight:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width, ptr->height);
-        } else if(strcmp(ptr->type, "func")){
-            printf("type:%s\tname:%s\toffset:%d\tentry:%d\n", ptr->type, ptr->name, ptr->offset, ptr->entry->order);
-            printf("===========================================================\n");
-            printSTwithinScope(ptr->scope);
-            printf("===========================================================\n");
-        } else if(strcmp(ptr->type, "struct")){
-            printf("type:%s\tname:%s\toffset:%d\twidth:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width);
-        }
-        else{
-            printf("type:%s\tname:%s\toffset:%d\n", ptr->type, ptr->name, ptr->offset);
-        }
-    }
-}
+
 /************************** End Symbol Table **************************/

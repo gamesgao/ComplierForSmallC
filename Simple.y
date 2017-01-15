@@ -7,8 +7,8 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include <stdio.h> /* For I/O */
 #include <stdlib.h> /* For malloc here and in symbol table */
 #include <string.h> /* For strcmp in symbol table */
-#include "ST.h" /* Symbol Table */
 #include "Quad.h" /* Quad Code */
+#include "ST.h" /* Symbol Table */
 #include "branchList.h" /*branch List For backpatching */
 #include "numStack.h" /* numStack Code */
 #include "tools.h" /* tools Code */
@@ -78,7 +78,7 @@ SEMANTIC RECORDS
   struct branchList * nextlist;
 
   struct{
-    struct branchList * nextlist;
+    struct branchList * nextList;
     int breakCount;
     int continueCount;
     struct branchList * breakList;
@@ -309,7 +309,12 @@ stmts     : /* empty */ {
           }
 ;
 
-stmt      : exps SEMI {
+NN         : /* empty */{
+            $$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+          }
+;
+
+stmt      : exp SEMI {
             $<stmtType.nextList>$ = 0;
             $<stmtType.continueCount>$ = 0;
             $<stmtType.breakCount>$ = 0;
@@ -326,7 +331,7 @@ stmt      : exps SEMI {
           | RETURN exp SEMI {
             int temp;
             if($<value.valType>2 == 1){
-              temp = newTemp;
+              temp = newTemp();
               genIR(li, 0, $<value.temp>2, temp);
             }
             else{
@@ -339,6 +344,16 @@ stmt      : exps SEMI {
             $<stmtType.breakList>$ = 0;
             $<stmtType.nextList>$ = 0;
           }
+          | IF LP exp RP MM stmt NN ELSE MM stmt {
+            backpatch($<value.trueList>3, $5->next);
+            backpatch($<value.falseList>3, $9->next);
+            $<stmtType.nextList>$ = merge(merge($<stmtType.nextList>6, $7), $<stmtType.nextList>10);
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>6 + $<stmtType.continueCount>10;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>6 + $<stmtType.breakCount>10;
+            $<stmtType.continueList>$ = merge($<stmtType.continueList>6, $<stmtType.continueList>10);
+            $<stmtType.breakList>$ = merge($<stmtType.breakList>6, $<stmtType.breakList>10);
+
+          }
           | IF LP exp RP MM stmt {
             backpatch($<value.trueList>3, $5->next);
             $<stmtType.nextList>$ = merge($<value.falseList>3, $<stmtType.nextList>6);
@@ -347,21 +362,16 @@ stmt      : exps SEMI {
             $<stmtType.continueList>$ = $<stmtType.continueList>6;
             $<stmtType.breakList>$ = $<stmtType.breakList>6;
           }
-          | IF LP exp RP MM stmt NN ELSE MM stmt {
-            backpatch($<value.trueList>3, $5->next);
-            backpatch($<value.trueList>3, $9->next);
-            $<stmtType.nextList>$ = merge(merge($<stmtType.nextList>6, $7), $<stmtType.nextList>10);
-            $<stmtType.continueCount>$ = $<stmtType.continueCount>6 + $<stmtType.continueCount>10;
-            $<stmtType.breakCount>$ = $<stmtType.breakCount>6 + $<stmtType.breakCount>10;
-            $<stmtType.continueList>$ = merge($<stmtType.continueList>6, $<stmtType.continueList>10);
-            $<stmtType.breakList>$ = merge($<stmtType.breakList>6, $<stmtType.breakList>10);
-
-          }
           | FOR LP exp SEMI MM exp SEMI MM exp NN RP MM stmt {
             backpatch($<value.trueList>6, $12->next);
             backpatch($10, $5->next);
             genIRForBranch(jmp, 0, 0, $8->next);
-            $$ = $<value.falseList>6;
+            backpatch($<stmtType.continueList>13, $5->next);
+            $<stmtType.nextList>$ = merge($<value.falseList>6, $<stmtType.breakList>13);
+            $<stmtType.continueCount>$ = 0;
+            $<stmtType.continueList>$ = 0;
+            $<stmtType.breakCount>$ = 0;
+            $<stmtType.breakList>$ = 0;
           }
           | CONT SEMI {
             $<stmtType.continueCount>$ = 1;
@@ -583,9 +593,11 @@ exps      : exps BINARYOP_MUL exps{
             $$ = $2;
           }
           | ID LP args RP  {
+            int i;
+            struct NSData* temp;
             struct symrec *fun = getsym($1);
             if(fun != 0){
-              for(i=$4-1;i >= 0 ;i--){
+              for(i=$3-1;i >= 0 ;i--){
                 temp = NSPop();
                 if(temp->valType == 1){
                   int tempReg = newTemp();
@@ -639,11 +651,6 @@ exps      : exps BINARYOP_MUL exps{
           | INT {
             $<value.valType>$ = 1;
             $<value.temp>$ = $1;
-          }
-;
-
-NN         : /* empty */{
-            $$ = makelist(genIRForBranch(jmp, 0, 0, 0));
           }
 ;
 
@@ -733,8 +740,9 @@ int main( int argc, char *argv[] )
   initIR();
   yyparse();
   endIR();
-  // printf("%s\n", getsym("x")->type);
   printf("Parse Completed\n");
+  printST();
+  printf("%s\n", "=========================================================================");
   printIR();
   // if (errors == 0) {
   //   print_code();

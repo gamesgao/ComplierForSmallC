@@ -174,7 +174,7 @@ void initIR(){
     IR->head->next = IR->tail;
     IR->head->prev = (struct Quad *)0;
     IR->tail->prev = IR->head;
-    IR->head->next = (struct Quad *)0;
+    IR->tail->next = (struct Quad *)0;
     IR->tail = IR->head;
 }
 
