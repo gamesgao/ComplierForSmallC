@@ -102,9 +102,10 @@ struct symrec *putsym(char *sym_name, char* type, int width, int height, struct 
 struct symrec *getsym(char *sym_name) {
     struct symrec *ptr;
     for (ptr = sym_table; ptr != (struct symrec *)0; ptr = (struct symrec *)ptr->next)
-        if(ptr->name != 0)
+        if(ptr->name != 0){
             if (strcmp(ptr->name, sym_name) == 0)
                 return ptr;
+        }
     return 0;
 }
 
@@ -165,6 +166,9 @@ void printST(){
 
         } else if(strcmp(ptr->type, "struct") == 0){
             printf("type:%s\tname:%s\toffset:%d\twidth:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width);
+            printf("===========================================================\n");
+            printSTwithinScope(ptr->scope);
+            printf("===========================================================\n");
         }
         else{
             printf("type:%s\tname:%s\toffset:%d\n", ptr->type, ptr->name, ptr->offset);
