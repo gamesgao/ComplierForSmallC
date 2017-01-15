@@ -181,6 +181,8 @@ void initIR(){
 void endIR(){
     IR->tail = IR->tail->next;
     IR->tail->op = end;
-
+    IR->tail->src1.TIA = 0; // this may cause some problem
+    IR->tail->src2.TIA = 0;
+    IR->tail->dest.TIA = 0;
 }
 /************************** End Quad code **************************/

@@ -732,6 +732,7 @@ int main( int argc, char *argv[] )
   errors = 0;
   initIR();
   yyparse();
+  endIR();
   // printf("%s\n", getsym("x")->type);
   printf("Parse Completed\n");
   printIR();
