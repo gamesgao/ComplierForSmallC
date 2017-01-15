@@ -14,4 +14,4 @@ lex.yy.c:Simple.lex
 	flex Simple.lex
 
 clean:
-	rm -rf *.o Simple.tab.c lex.yy.c Simple.tab.h
+	rm -rf *.o Simple.tab.c lex.yy.c Simple.tab.h Simple
