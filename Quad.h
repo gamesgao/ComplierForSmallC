@@ -160,7 +160,7 @@ void printIR(){
     while(ptr->next != (struct Quad *)0){
         ptr = ptr->next;
         if(ptr->op==lw || ptr->op==sw || ptr->op==swi || ptr->op==lwi) printf("%d\t%s\t%d\t%d\t%s\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.id);
-        else if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
+        else if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti || ptr->op == call) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
         else printf("%d\t%s\t%d\t%d\t%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
     }
 }
