@@ -27,9 +27,11 @@ initialization
 /*========================================================================
 Operations: enQueue, deQueue, isEmpty.
 ========================================================================*/
-void SQEnQueue(struct symrec * scope){
+void SQEnQueue(struct symrec * scope, char* prefix){
     struct scopeQueue* newOne = (struct scopeQueue* ) malloc(sizeof(struct scopeQueue));
     newOne->scope = scope;
+    newOne->prefix = (char *) malloc(strlen(prefix) + 1);
+    strcpy(newOne->prefix, prefix);
     SQbottom->next = newOne;
     SQbottom = SQbottom->next;
 }
@@ -45,6 +47,11 @@ struct symrec * SQDeQueue(){
     top->next = temp->next;
     free(temp);
     return temp;
+}
+
+char* getPrefixFromTop(){
+    if(NSIsEmpty()) return 0;
+    return top->next->prefix;
 }
 
 void initSQ(){

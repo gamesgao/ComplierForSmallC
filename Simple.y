@@ -13,6 +13,7 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include "numStack.h" /* numStack Code */
 #include "tools.h" /* tools Code */
 #include "basicBlock.h" /* basicBlock Code */
+#include "codeGenerate.h" /* codeGenerate Code */
 // #include "SM.h" /* Stack Machine */
 // #include "CG.h" /* Code Generator */
 #define YYDEBUG 1 /* For Debugging */
@@ -775,10 +776,10 @@ int main( int argc, char *argv[] )
   printf("%s\n", "===========================================================");
   printIR(InterR);
 
-
-  // if (errors == 0) {
-  //   print_code();
-  // }
+  if (errors == 0) {
+    genData();
+  }
+  
   return 0;
 }
 /*=========================================================================
