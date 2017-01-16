@@ -13,6 +13,10 @@ void genDatawithinScope(struct symrec * symPoint){
 
     for (ptr = symPoint; ptr != (struct symrec *)0 && ptr->name != 0; ptr = (struct symrec *)ptr->next){
         if(strcmp(ptr->type, "int") == 0){
+            int i;
+            for(i = 0; i<ptr->width * ptr->height -1;i++){
+                DSPush("", "");
+            }
             DSPush(ptr->name, prefix);
         } else if(strcmp(ptr->type, "func") == 0){
             SQEnQueue(ptr->scope, ptr->name);
@@ -42,10 +46,12 @@ void patchData(){
     int result = 0;
     prefix = "";
     while(ptr->next != (struct Quad *)0){
-        ptr1 = ptr->next;
+        ptr = ptr->next;
         if(ptr->op == label) prefix = ptr->dest.id;
         else if(ptr->op == swi){
             struct dataSeg* target = findDataInst(ptr->dest.id, prefix);
+            int i;
+            for(i=0;i<ptr->src2.TIA/4;i++) target = target->next;
             if(target != (struct dataSeg*) 0) target->data = result;
             else{
                 printf("wrong while do patchData!\n");
@@ -53,7 +59,10 @@ void patchData(){
             result = 0;
         }
         else if(ptr->op == li){
-            result = ptr->src2;
+            result = ptr->src2.TIA;
+        }
+        else if(ptr->op == end){
+            break;
         }
         else{
             printf("the remain one need to do more!\n");
@@ -64,6 +73,8 @@ void patchData(){
 /*-------------------------------------------------------------------------
 Code Segment
 -------------------------------------------------------------------------*/
+
+
 
 /*-------------------------------------------------------------------------
 Print Code to stdio

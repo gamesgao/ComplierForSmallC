@@ -3,7 +3,7 @@ Compiler for the Simple language
 ***************************************************************************/
 /*=========================================================================
 C Libraries, Symbol Table, Code Generator & other C code
-=========================================================================*/
+/=========================================================================*/
 #include <stdio.h> /* For I/O */
 #include <stdlib.h> /* For malloc here and in symbol table */
 #include <string.h> /* For strcmp in symbol table */
@@ -46,7 +46,7 @@ define the return type for each terminal and nonterminal
 %}
 /*=========================================================================
 SEMANTIC RECORDS
-=========================================================================*/
+/=========================================================================*/
 
 %union semrec /* The Semantic Records */
 {
@@ -90,7 +90,7 @@ SEMANTIC RECORDS
 }
 /*=========================================================================
 TOKENS
-=========================================================================*/
+/=========================================================================*/
 %start program
 %token<intval> INT
 %token<id> ID
@@ -149,7 +149,7 @@ TOKENS
 %token FOR
 /*=========================================================================
 OPERATOR PRECEDENCE
-=========================================================================*/
+/=========================================================================*/
 %right BINARYOP_ASSIGN BINARYOP_MULA BINARYOP_DIVA BINARYOP_MODA BINARYOP_ADDA BINARYOP_MINA BINARYOP_BANDA BINARYOP_BXORA BINARYOP_BORA BINARYOP_SHLA BINARYOP_SHRA
 %left BINARYOP_LOR
 %left BINARYOP_LAND
@@ -165,7 +165,7 @@ OPERATOR PRECEDENCE
 %left DOT LP RP LB RB
 /*=========================================================================
 Return type for the terminal and non-terminal
-=========================================================================*/
+/=========================================================================*/
 %type<variable> varArray var
 %type<value> exps exp arrs
 %type<intval> args
@@ -179,7 +179,7 @@ Return type for the terminal and non-terminal
 
 /*=========================================================================
 GRAMMAR RULES for the Simple language
-=========================================================================*/
+/=========================================================================*/
 %%
 
 program   : extdefs
@@ -230,6 +230,7 @@ extvars   : extvars COMMA var {
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
           | varArray BINARYOP_ASSIGN LC args RC {
+            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
             int i = 0;
             struct NSData* temp;
             if(($<variable.width>1 * $<variable.height>1) >= $4){
@@ -754,14 +755,14 @@ args      : args COMMA exp{
 %%
 /*=========================================================================
 MAIN
-=========================================================================*/
+/=========================================================================*/
 int main( int argc, char *argv[] )
 {
   extern FILE *yyin;
   ++argv;
   --argc;
   yyin = fopen(argv[0], "r");
-  // yydebug = 1;
+  yydebug = 1;
   errors = 0;
   initInitR();
   initInterR();
@@ -778,6 +779,7 @@ int main( int argc, char *argv[] )
   printf("%s\n", "===========================================================");
   if (errors == 0) {
     genData();
+    printf("%s\n", "===========================================================");
     patchData();
   }
   
@@ -785,7 +787,7 @@ int main( int argc, char *argv[] )
 }
 /*=========================================================================
 YYERROR
-=========================================================================*/
+/=========================================================================*/
 int yyerror ( char *s ) /* Called by yyparse on error */
 {
   errors++;
