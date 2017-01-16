@@ -32,6 +32,13 @@ void markBasicBlock(struct IntermediaRepresentation* IR){
             ptr->next->basicBlockFlag = 1;
         }
     }
+    ptr = IR->head;
+    while(ptr->next != (struct Quad *) 0){
+        ptr = ptr->next;
+        if(ptr->op == label){
+            ptr->basicBlockFlag = 0;
+            ptr->next->basicBlockFlag = 1;
+    }
 }
 
 /************************** End basicBlock code **************************/

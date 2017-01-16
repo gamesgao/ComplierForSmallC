@@ -192,7 +192,7 @@ extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是
           | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
           | TYPE func {IR = InterR;genIRForLabel($<funcType.id>2);} stmtblock {
-            registerId($<funcType.id>2, "func", 0, 0, $<funcType.param>2, $<funcType.beforeEntry>2->next, subLevel());
+            registerId($<funcType.id>2, "func", 0, 0, $<funcType.param>2, $<funcType.beforeEntry>2->next->next, subLevel());
           }
 ;
 
