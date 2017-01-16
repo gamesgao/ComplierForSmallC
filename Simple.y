@@ -271,7 +271,7 @@ stspec    : STRUCT ID LC {addLevel();} sdefs RC{
 func      : ID LP {addLevel();} paras RP{
             $<funcType.id>$ = $1;
             $<funcType.param>$ = sym_table;
-            $<funcType.beforeEntry>$ = IR->tail;
+            $<funcType.beforeEntry>$ = InterR->tail;
           }
 ;
 
@@ -336,7 +336,7 @@ stmt      : exp SEMI {
               genIR(InterR, li, 0, $<value.temp>2, temp);
             }
             else{
-              temp = normalizeExp((struct NSData *) &$2);
+              temp = normalizeExp(InterR, (struct NSData *) &$2);
             }
             genIR(InterR, ret, temp, 0, 0);
             $<stmtType.continueCount>$ = 0;
@@ -654,7 +654,7 @@ exps      : exps BINARYOP_MUL exps{
 ;
 
 MM         : /* empty */{
-            $$ = IR->tail;
+            $$ = InterR->tail;
           }
 ;
 

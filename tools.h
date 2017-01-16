@@ -24,22 +24,21 @@ int getRandomNumber(){
     return rand()%(100000000);
 }
 
-int normalizeExp(struct NSData * exp){
+int normalizeExp(struct IntermediaRepresentation * IR, struct NSData * exp){
     int temp;
-    int result;
     if(exp->valType == 2){
         temp = exp->temp;
     }
     else if(exp->valType == 3){
         temp = newTemp();
-        genIRForLS(lwi, temp, exp->offset, exp->id);
+        genIRForLS(IR, lwi, temp, exp->offset, exp->id);
     }
     else if(exp->valType == 4){
         temp = newTemp();
-        genIRForLS(lw, temp, exp->offset, exp->id);
+        genIRForLS(IR, lw, temp, exp->offset, exp->id);
     }
     else{
-        printf("wrong while do mul!\n");
+        printf("wrong while do normalizeExp!\n");
     }
     return temp;
 }
