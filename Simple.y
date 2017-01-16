@@ -230,6 +230,7 @@ extvars   : extvars COMMA var {
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
           | varArray BINARYOP_ASSIGN LC args RC {
+            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
             int i = 0;
             struct NSData* temp;
             if(($<variable.width>1 * $<variable.height>1) >= $4){
@@ -761,7 +762,7 @@ int main( int argc, char *argv[] )
   ++argv;
   --argc;
   yyin = fopen(argv[0], "r");
-  // yydebug = 1;
+  yydebug = 1;
   errors = 0;
   initInitR();
   initInterR();
@@ -778,6 +779,8 @@ int main( int argc, char *argv[] )
   printf("%s\n", "===========================================================");
   if (errors == 0) {
     genData();
+    printf("%s\n", "===========================================================");
+    patchData();
   }
   
   return 0;
