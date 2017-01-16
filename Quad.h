@@ -52,6 +52,8 @@ struct Quad {
     union var   src2;
     union var   dest;
 
+    int basicBlockFlag;
+
     struct Quad* prev;
     struct Quad* next; // 双向链
 };
@@ -84,7 +86,8 @@ struct IntermediaRepresentation{
 /*-------------------------------------------------------------------------
 Quad code ENTRY
 -------------------------------------------------------------------------*/
-struct IntermediaRepresentation* IR = (struct IntermediaRepresentation*) 0;
+struct IntermediaRepresentation* InterR = (struct IntermediaRepresentation*) 0;
+struct IntermediaRepresentation* InitR = (struct IntermediaRepresentation*) 0;
 /*-------------------------------------------------------------------------
 Quad code
 Implementation: a chain of records.
@@ -99,12 +102,13 @@ int tempCount = 0;
 /*========================================================================
 Operations: genIR
 ========================================================================*/
-struct Quad * genIR(enum Opcode op, int s1, int s2, int d) {
+struct Quad * genIR(struct IntermediaRepresentation * IR, enum Opcode op, int s1, int s2, int d) {
     struct Quad *ptr;
     struct Quad *next;
     next = (struct Quad *) malloc(sizeof(struct Quad));
     ptr = IR->tail->next;
     next->order = ptr->order+1;
+    next->basicBlockFlag = 0;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
@@ -116,12 +120,13 @@ struct Quad * genIR(enum Opcode op, int s1, int s2, int d) {
     return ptr;
 }
 
-struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
+struct Quad * genIRForLS(struct IntermediaRepresentation * IR, enum Opcode op, int s1, int s2, char* d) {
     struct Quad *ptr;
     struct Quad *next;
     next = (struct Quad *) malloc(sizeof(struct Quad));
     ptr = IR->tail->next;
     next->order = ptr->order+1;
+    next->basicBlockFlag = 0;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
@@ -133,12 +138,13 @@ struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
     return ptr;
 }
 
-struct Quad * genIRForBranch(enum Opcode op, int s1, int s2, struct Quad* d) {
+struct Quad * genIRForBranch(struct IntermediaRepresentation * IR, enum Opcode op, int s1, int s2, struct Quad* d) {
     struct Quad *ptr;
     struct Quad *next;
     next = (struct Quad *) malloc(sizeof(struct Quad));
     ptr = IR->tail->next;
     next->order = ptr->order+1;
+    next->basicBlockFlag = 0;
     ptr->op = op;
     ptr->src1.TIA = s1; // this may cause some problem
     ptr->src2.TIA = s2;
@@ -154,23 +160,26 @@ int newTemp(){
     return tempCount++;
 }
 
-void printIR(){
+void printIR(struct IntermediaRepresentation * IR){
     if(IR == (struct IntermediaRepresentation*)0) return;
     struct Quad* ptr = IR->head;
     while(ptr->next != (struct Quad *)0){
         ptr = ptr->next;
+        if(ptr->basicBlockFlag == 1) printf("###");
         if(ptr->op==lw || ptr->op==sw || ptr->op==swi || ptr->op==lwi) printf("%d\t%s\t%d\t%d\t%s\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.id);
         else if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti || ptr->op == call) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
         else printf("%d\t%s\t%d\t%d\t%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
     }
 }
 
-void initIR(){
+void initIR(struct IntermediaRepresentation * IR){
     IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
     IR->head = (struct Quad *) malloc(sizeof(struct Quad));
     IR->tail = (struct Quad *) malloc(sizeof(struct Quad));
     IR->head->order = 0;
+    IR->head->basicBlockFlag = 0;
     IR->tail->order = 1;
+    IR->tail->basicBlockFlag = 1;
     IR->head->next = IR->tail;
     IR->head->prev = (struct Quad *)0;
     IR->tail->prev = IR->head;
@@ -178,7 +187,7 @@ void initIR(){
     IR->tail = IR->head;
 }
 
-void endIR(){
+void endIR(struct IntermediaRepresentation * IR){
     IR->tail = IR->tail->next;
     IR->tail->op = end;
     IR->tail->src1.TIA = 0; // this may cause some problem
