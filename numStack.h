@@ -41,6 +41,8 @@ void NSPush(struct NSData* data){
     newTop->data = (struct NSData*) malloc(sizeof(struct NSData));
     newTop->data->valType = data->valType;
     newTop->data->temp = data->temp;
+    newTop->data->id = data->id;
+    newTop->data->offset = data->offset;
     newTop->next = NStop;
     NStop = newTop;
 }
@@ -53,7 +55,7 @@ struct NSData* NSPop(){
     if(NSIsEmpty()) return 0;
     struct NSData* temp = NStop->data;
     struct numStack* tempTop = NStop->next;
-    free(NStop);
+    // free(NStop);
     NStop = tempTop;
     return temp;
 }
