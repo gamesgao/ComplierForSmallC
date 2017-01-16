@@ -9,6 +9,7 @@ dataSeg code RECORD
 -------------------------------------------------------------------------*/
 struct dataSeg {
     char* id;
+    char* prefix;
     int data;
     struct dataSeg* next; 
 };
@@ -28,11 +29,11 @@ OperatioDS: push, pop, isEmpty.
 ========================================================================*/
 void DSPush(char* id, char* prefix){
     struct dataSeg* newTop = (struct dataSeg* ) malloc(sizeof(struct dataSeg));
-    newTop->id = (char *) malloc(strlen(id) + strlen(prefix) + 1);
+    newTop->id = (char *) malloc(strlen(id) + 1);
+    newTop->prefix = (char *) malloc(strlen(id) + 1);
     strcpy(newTop->id, id);
-    strcat(newTop->id, '.');
-    strcat(newTop->id, prefix);
-    ptr->data = 0;
+    strcpy(newTop->prefix, prefix);
+    newTop->data = 0;
     newTop->next = DStop;
     DStop = newTop;
 }
@@ -45,9 +46,20 @@ void printDS(){
     struct dataSeg* ptr = DStop;
     printf(".data\n");
     while(ptr != (struct dataSeg*) 0){
-        printf("%s\t.word\t%d\n", ptr->id, ptr->data);
+        printf("%s.%s:\t.word\t%d\n", ptr->prefix, ptr->id, ptr->data);
         ptr = ptr->next;
     }
+}
+
+struct dataSeg* findDataInst(char *id, char *prefix){
+    struct dataSeg* ptr = DStop;
+    while(ptr != (struct dataSeg*) 0){
+        if(strcmp(ptr->id, id) == 0 && strcmp(ptr->prefix, prefix) == 0){
+            return ptr;
+        }
+        ptr = ptr->next;
+    }
+    return 0;
 }
 // struct DSData* DSPop(){
 //     if(DSIsEmpty()) return 0;
