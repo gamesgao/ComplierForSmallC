@@ -1,65 +1,59 @@
 /***************************************************************************
-numStack code Module
+scopeQueue code Module
 ***************************************************************************/
 /*=========================================================================
 DECLARATIONS
 =========================================================================*/
 /*-------------------------------------------------------------------------
-numStack code RECORD
+scopeQueue code RECORD
 -------------------------------------------------------------------------*/
-struct NSData{
-    int valType; /*can be 0:empty, 1:int, 2:temp*/
-    // int intval;
-    int temp;
-    char* id;
-    int offset;
-    struct branchList* trueList;
-    struct branchList* falseList;
-    struct branchList* nextList;
-};
-
-struct numStack {
-    struct NSData* data;
-    struct numStack* next; 
+struct scopeQueue {
+    char* prefix;
+    struct symrec * scope;
+    struct scopeQueue* next; 
 };
 /*-------------------------------------------------------------------------
-numStack code ENTRY
+scopeQueue code ENTRY
 -------------------------------------------------------------------------*/
-struct numStack* NStop = (struct numStack*) 0;
+struct scopeQueue* SQtop = (struct scopeQueue*) 0;
+struct scopeQueue* SQbottom = (struct scopeQueue*) 0;
 /*-------------------------------------------------------------------------
-numStack code
+scopeQueue code
 Implementation: a chain of records.
 ------------------------------------------------------------------------*/
 /*-------------------------------------------------------------------------
 initialization
 ------------------------------------------------------------------------*/
 /*========================================================================
-Operations: push, pop, isEmpty.
+Operations: enQueue, deQueue, isEmpty.
 ========================================================================*/
-void NSPush(struct NSData* data){
-    struct numStack* newTop = (struct numStack* ) malloc(sizeof(struct numStack));
-    newTop->data = (struct NSData*) malloc(sizeof(struct NSData));
-    newTop->data->valType = data->valType;
-    newTop->data->temp = data->temp;
-    newTop->next = NStop;
-    NStop = newTop;
+void SQEnQueue(struct symrec * scope){
+    struct scopeQueue* newOne = (struct scopeQueue* ) malloc(sizeof(struct scopeQueue));
+    newOne->scope = scope;
+    SQbottom->next = newOne;
+    SQbottom = SQbottom->next;
 }
 
-int NSIsEmpty(){
-    return NStop == (struct numStack*) 0;
+int SQIsEmpty(){
+    return SQbottom == SQtop;
 }
 
-struct NSData* NSPop(){
+struct symrec * SQDeQueue(){
     if(NSIsEmpty()) return 0;
-    struct NSData* temp = NStop->data;
-    struct numStack* tempTop = NStop->next;
-    free(NStop);
-    NStop = tempTop;
+    struct symrec * temp = top->next->scope;
+    struct scopeQueue* temp = top->next;
+    top->next = temp->next;
+    free(temp);
     return temp;
 }
 
+void initSQ(){
+    // the first node is useless!
+    SQtop = (struct scopeQueue* ) malloc(sizeof(struct scopeQueue));
+    SQtop->next = (struct scopeQueue*) 0;
+    SQbottom = SQtop;
+}
 
 
 
-
-/************************** End numStack code **************************/
+/************************** End scopeQueue code **************************/

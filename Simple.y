@@ -191,7 +191,7 @@ extdefs   : /* empty */
 extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
           | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
-          | TYPE func {IR = InterR;} stmtblock {
+          | TYPE func stmtblock {
             registerId($<funcType.id>2, "func", 0, 0, $<funcType.param>2, $<funcType.beforeEntry>2->next, subLevel());
           }
 ;
@@ -284,12 +284,12 @@ paras     : /* empty */
           }
 ;
 
-stmtblock : LC defs stmts RC {
+stmtblock : LC {IR = InitR;} defs {IR = InterR;} stmts RC {
             $<stmtType.nextList>$ = 0;
-            $<stmtType.continueCount>$ = $<stmtType.continueCount>3;
-            $<stmtType.breakCount>$ = $<stmtType.breakCount>3;
-            $<stmtType.continueList>$ = $<stmtType.continueList>3;
-            $<stmtType.breakList>$ = $<stmtType.breakList>3;
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>4;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>4;
+            $<stmtType.continueList>$ = $<stmtType.continueList>4;
+            $<stmtType.breakList>$ = $<stmtType.breakList>4;
           }
 ;
 
@@ -596,25 +596,50 @@ exps      : exps BINARYOP_MUL exps{
           | ID LP args RP  {
             int i;
             struct NSData* temp;
-            struct symrec *fun = getsym($1);
-            if(fun != 0){
-              for(i=$3-1;i >= 0 ;i--){
-                temp = NSPop();
-                if(temp->valType == 1){
-                  int tempReg = newTemp();
-                  genIR(li, 0, temp->temp, tempReg);
-                  genIRForLS(param, tempReg, 0, 0);
-                }
-                else if(temp->valType == 2){
-                  genIRForLS(param, temp->temp, 0, 0);
-                }
+            if(strcmp($1, "read") == 0){
+              int input = newTemp();
+              temp = NSPop();
+              genIR(read, 0, 0, input);
+              if(temp->valType == 3 || temp->valType == 4){
+                if($<value.valType>1 == 3) genIRForLS(swi, input, temp->offset, temp->id);
+                else genIRForLS(sw, input, temp->offset, temp->id);
               }
-              genIRForBranch(call, 0, 0, fun->entry);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = newTemp();
+              else {
+                printf("wrong while read args!\n");
+              }
+            }
+            else if(strcmp($1, "write") == 0){
+              int output;
+              temp = NSPop();
+              if(temp->valType == 1){
+                output = newTemp();
+                genIR(li, 0, temp->temp, output);
+              } 
+              else output = normalizeExp(temp);
+              genIR(write, 0, 0, output);
             }
             else{
-              printf("wrong while call func!\n");
+              struct symrec *fun = getsym($1);
+              if(fun != 0){
+                for(i=$3-1;i >= 0 ;i--){
+                  temp = NSPop();
+                  if(temp->valType == 1){
+                    int tempReg = newTemp();
+                    genIR(li, 0, temp->temp, tempReg);
+                    genIRForLS(param, tempReg, 0, 0);
+                  }
+                  else{
+                    temp = normalizeExp(temp);
+                    genIRForLS(param, temp, 0, 0);
+                  }
+                }
+                genIRForBranch(call, 0, 0, fun->entry);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = newTemp();
+              }
+              else{
+                printf("wrong while call func!\n");
+              }
             }
           }/*this is func*/
           | ID arrs {
@@ -748,10 +773,11 @@ int main( int argc, char *argv[] )
   printIR(InitR);
   printf("%s\n", "===========================================================");
   printIR(InterR);
-  // if (errors == 0) {
-  //   print_code();
-  //   fetch_execute_cycle();
-  // }
+
+
+  if (errors == 0) {
+    print_code();
+  }
   return 0;
 }
 /*=========================================================================

@@ -174,9 +174,5 @@ void printST(){
             printf("type:%s\tname:%s\toffset:%d\n", ptr->type, ptr->name, ptr->offset);
         }
     }
-        
-    
 }
-
-
 /************************** End Symbol Table **************************/

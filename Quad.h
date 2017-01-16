@@ -9,10 +9,10 @@ Quad code RECORD
 -------------------------------------------------------------------------*/
 
 enum Opcode {
-    bnot, add, addi, sub, subi, mul, muli, opdiv, opdivi, lwi, swi, jmp, call, ret, li, lw, sw, jgt, jgti, end, param
+    bnot, add, addi, sub, subi, mul, muli, opdiv, opdivi, lwi, swi, jmp, call, ret, li, lw, sw, jgt, jgti, end, param, write, read, label
 };
 
-char* Opstr[21] = {
+char* Opstr[24] = {
     "bnot",
     "add",
     "addi",
@@ -33,7 +33,10 @@ char* Opstr[21] = {
     "jgt",
     "jgti",
     "end",
-    "param"
+    "param",
+    "write",
+    "read",
+    "label"
 };
 
 union var {
@@ -139,6 +142,24 @@ struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
     return ptr;
 }
 
+struct Quad * genIRForLabel(char* l) {
+    struct Quad *ptr;
+    struct Quad *next;
+    next = (struct Quad *) malloc(sizeof(struct Quad));
+    ptr = IR->tail->next;
+    next->order = ptr->order+1;
+    next->basicBlockFlag = 0; // this may cause some problem
+    ptr->op = label;
+    ptr->src1.TIA = 0; 
+    ptr->src2.TIA = 0;
+    ptr->dest.id = l;
+    ptr->next = next;
+    next->prev = ptr;
+    next->next = 0;
+    IR->tail = ptr;
+    return ptr;
+}
+
 struct Quad * genIRForBranch(enum Opcode op, int s1, int s2, struct Quad* d) {
     struct Quad *ptr;
     struct Quad *next;
@@ -169,6 +190,7 @@ void printIR(struct IntermediaRepresentation * ir){
         if(ptr->basicBlockFlag == 1) printf("###");
         if(ptr->op==lw || ptr->op==sw || ptr->op==swi || ptr->op==lwi) printf("%d\t%s\t%d\t%d\t%s\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.id);
         else if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti || ptr->op == call) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
+        else if(ptr->op == label) printf("%s:\n", ptr->dest.id);
         else printf("%d\t%s\t%d\t%d\t%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
     }
 }
@@ -201,6 +223,8 @@ void initInterR(){
     InterR->tail->prev = InterR->head;
     InterR->tail->next = (struct Quad *)0;
     InterR->tail = InterR->head;
+
+
 }
 
 void endIR(struct IntermediaRepresentation * ir){
