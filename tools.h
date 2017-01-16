@@ -31,11 +31,11 @@ int normalizeExp(struct NSData * exp){
     }
     else if(exp->valType == 3){
         temp = newTemp();
-        genIRForLS(IR, lwi, temp, exp->offset, exp->id);
+        genIRForLS(lwi, temp, exp->offset, exp->id);
     }
     else if(exp->valType == 4){
         temp = newTemp();
-        genIRForLS(IR, lw, temp, exp->offset, exp->id);
+        genIRForLS(lw, temp, exp->offset, exp->id);
     }
     else{
         printf("wrong while do normalizeExp!\n");

@@ -173,19 +173,34 @@ void printIR(struct IntermediaRepresentation * ir){
     }
 }
 
-void initIR(struct IntermediaRepresentation * ir){
-    ir = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
-    ir->head = (struct Quad *) malloc(sizeof(struct Quad));
-    ir->tail = (struct Quad *) malloc(sizeof(struct Quad));
-    ir->head->order = 0;
-    ir->head->basicBlockFlag = 0;
-    ir->tail->order = 1;
-    ir->tail->basicBlockFlag = 1;
-    ir->head->next = ir->tail;
-    ir->head->prev = (struct Quad *)0;
-    ir->tail->prev = ir->head;
-    ir->tail->next = (struct Quad *)0;
-    ir->tail = ir->head;
+void initInitR(){
+    InitR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
+    InitR->head = (struct Quad *) malloc(sizeof(struct Quad));
+    InitR->tail = (struct Quad *) malloc(sizeof(struct Quad));
+    InitR->head->order = 0;
+    InitR->head->basicBlockFlag = 0;
+    InitR->tail->order = 1;
+    InitR->tail->basicBlockFlag = 1;
+    InitR->head->next = InitR->tail;
+    InitR->head->prev = (struct Quad *)0;
+    InitR->tail->prev = InitR->head;
+    InitR->tail->next = (struct Quad *)0;
+    InitR->tail = InitR->head;
+}
+
+void initInterR(){
+    InterR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
+    InterR->head = (struct Quad *) malloc(sizeof(struct Quad));
+    InterR->tail = (struct Quad *) malloc(sizeof(struct Quad));
+    InterR->head->order = 0;
+    InterR->head->basicBlockFlag = 0;
+    InterR->tail->order = 1;
+    InterR->tail->basicBlockFlag = 1;
+    InterR->head->next = InterR->tail;
+    InterR->head->prev = (struct Quad *)0;
+    InterR->tail->prev = InterR->head;
+    InterR->tail->next = (struct Quad *)0;
+    InterR->tail = InterR->head;
 }
 
 void endIR(struct IntermediaRepresentation * ir){

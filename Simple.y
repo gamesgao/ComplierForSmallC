@@ -185,11 +185,11 @@ program   : extdefs
 ;
 
 extdefs   : /* empty */
-          | extdef extdefs
+          | {IR = InitR;} extdef extdefs
 ;
 
-extdef    : TYPE {IR = InitR;} extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
-          | stspec {IR = InitR;} sextvars SEMI
+extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
+          | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
           | TYPE func {IR = InterR;} stmtblock {
             registerId($<funcType.id>2, "func", 0, 0, $<funcType.param>2, $<funcType.beforeEntry>2->next, subLevel());
@@ -736,17 +736,17 @@ int main( int argc, char *argv[] )
   yyin = fopen(argv[0], "r");
   // yydebug = 1;
   errors = 0;
-  initIR(InitR);
-  initIR(InterR);
+  initInitR();
+  initInterR();
   yyparse();
   endIR(InitR);
   endIR(InterR);
   printf("Parse Completed\n");
   printST();
   markBasicBlock(InterR);
-  printf("%s\n", "=========================================================================");
+  printf("%s\n", "===========================================================");
   printIR(InitR);
-  printf("%s\n", "=========================================================================");
+  printf("%s\n", "===========================================================");
   printIR(InterR);
   // if (errors == 0) {
   //   print_code();
