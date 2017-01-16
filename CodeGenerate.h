@@ -19,10 +19,10 @@ void genDatawithinScope(struct symrec * symPoint){
         } else if(strcmp(ptr->type, "struct") != 0){
             struct symrec *base = getsym(ptr->type);
             int i;
-            for(i = 0; i < base->width / 4 ;i++){
-                if(i == 0) DSPush(ptr->name, prefix);
-                else DSPush("", "");
+            for(i = 0; i < base->width / 4-1 ;i++){
+                DSPush("", "");
             }
+            DSPush(ptr->name, prefix);
         }
     }
 }
@@ -34,6 +34,11 @@ void genData(){
         prefix = getPrefixFromTop();
         genDatawithinScope(SQDeQueue());
     }
+    printDS();
+}
+
+void patchData(){
+    // InitR
 }
 /*-------------------------------------------------------------------------
 Code Segment

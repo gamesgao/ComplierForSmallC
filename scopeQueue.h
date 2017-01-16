@@ -32,6 +32,7 @@ void SQEnQueue(struct symrec * scope, char* prefix){
     newOne->scope = scope;
     newOne->prefix = (char *) malloc(strlen(prefix) + 1);
     strcpy(newOne->prefix, prefix);
+    newOne->next = (struct scopeQueue*) 0;
     SQbottom->next = newOne;
     SQbottom = SQbottom->next;
 }
@@ -41,17 +42,18 @@ int SQIsEmpty(){
 }
 
 struct symrec * SQDeQueue(){
-    if(NSIsEmpty()) return 0;
-    struct symrec * temp = top->next->scope;
-    struct scopeQueue* temp = top->next;
-    top->next = temp->next;
+    if(SQIsEmpty()) return 0;
+    struct symrec * tempScope = SQtop->next->scope;
+    struct scopeQueue* temp = SQtop->next;
+    if(temp != SQbottom) SQtop->next = temp->next;
+    else SQbottom = SQtop;
     free(temp);
-    return temp;
+    return tempScope;
 }
 
 char* getPrefixFromTop(){
-    if(NSIsEmpty()) return 0;
-    return top->next->prefix;
+    if(SQIsEmpty()) return 0;
+    return SQtop->next->prefix;
 }
 
 void initSQ(){

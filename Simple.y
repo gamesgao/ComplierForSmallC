@@ -13,7 +13,7 @@ C Libraries, Symbol Table, Code Generator & other C code
 #include "numStack.h" /* numStack Code */
 #include "tools.h" /* tools Code */
 #include "basicBlock.h" /* basicBlock Code */
-#include "codeGenerate.h" /* codeGenerate Code */
+#include "CodeGenerate.h" /* codeGenerate Code */
 // #include "SM.h" /* Stack Machine */
 // #include "CG.h" /* Code Generator */
 #define YYDEBUG 1 /* For Debugging */
@@ -192,7 +192,7 @@ extdefs   : /* empty */
 extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
           | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
-          | TYPE func {IR = InterR;genIRForLabel($<funcType.id>2);} stmtblock {
+          | TYPE func {genIRForLabel($<funcType.id>2);IR = InterR;genIRForLabel($<funcType.id>2);} stmtblock {
             registerId($<funcType.id>2, "func", 0, 0, $<funcType.param>2, $<funcType.beforeEntry>2->next->next, subLevel());
           }
 ;
@@ -775,7 +775,7 @@ int main( int argc, char *argv[] )
   printIR(InitR);
   printf("%s\n", "===========================================================");
   printIR(InterR);
-
+  printf("%s\n", "===========================================================");
   if (errors == 0) {
     genData();
   }

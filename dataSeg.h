@@ -28,11 +28,12 @@ OperatioDS: push, pop, isEmpty.
 ========================================================================*/
 void DSPush(char* id, char* prefix){
     struct dataSeg* newTop = (struct dataSeg* ) malloc(sizeof(struct dataSeg));
-    newTop->id = (char *) malloc(strlen(id) + strlen(prefix) + 1);
+    newTop->id = (char *) malloc(strlen(id) + strlen(prefix) + 3);
     strcpy(newTop->id, id);
-    strcat(newTop->id, '.');
+    if(strcmp(prefix, "") != 0) strcat(newTop->id, ".");
+    if(strcmp(id, "") != 0) strcat(newTop->id, ":");
     strcat(newTop->id, prefix);
-    ptr->data = 0;
+    newTop->data = 0;
     newTop->next = DStop;
     DStop = newTop;
 }

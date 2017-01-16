@@ -38,6 +38,7 @@ void markBasicBlock(struct IntermediaRepresentation* IR){
         if(ptr->op == label){
             ptr->basicBlockFlag = 0;
             ptr->next->basicBlockFlag = 1;
+        }
     }
 }
 
