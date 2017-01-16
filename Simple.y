@@ -188,10 +188,10 @@ extdefs   : /* empty */
           | extdef extdefs
 ;
 
-extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
-          | stspec sextvars SEMI
+extdef    : TYPE {IR = InitR;} extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
+          | stspec {IR = InitR;} sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
-          | TYPE func stmtblock {
+          | TYPE func {IR = InterR;} stmtblock {
             registerId($<funcType.id>2, "func", 0, 0, $<funcType.param>2, $<funcType.beforeEntry>2->next, subLevel());
           }
 ;
@@ -211,20 +211,20 @@ extvars   : extvars COMMA var {
             registerId($3, "int", 1, 1, 0, 0, 0);
             if($<value.valType>5 == 1){
               int temp = newTemp();
-              genIR(InitR, li, 0, $<value.temp>5, temp);
-              genIRForLS(InitR, sw, temp, 0, $3);
+              genIR(li, 0, $<value.temp>5, temp);
+              genIRForLS(sw, temp, 0, $3);
             } else {
-              genIRForLS(InitR, sw, $<value.temp>5, 0, $3);
+              genIRForLS(sw, $<value.temp>5, 0, $3);
             }
           }
           | ID BINARYOP_ASSIGN exps {
             registerId($1, "int", 1, 1, 0, 0, 0);
             if($<value.valType>3 == 1){
               int temp = newTemp();
-              genIR(InitR, li, 0, $<value.temp>3, temp);
-              genIRForLS(InitR, swi, temp, 0, $1);
+              genIR(li, 0, $<value.temp>3, temp);
+              genIRForLS(swi, temp, 0, $1);
             } else {
-              genIRForLS(InitR, swi, $<value.temp>3, 0, $1);
+              genIRForLS(swi, $<value.temp>3, 0, $1);
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC
@@ -236,11 +236,11 @@ extvars   : extvars COMMA var {
                 temp = NSPop();
                 if(temp->valType == 1){
                   int tempReg = newTemp();
-                  genIR(InitR, li, 0, temp->temp, tempReg);
-                  genIRForLS(InitR, swi, tempReg, i*4, $<variable.id>1);
+                  genIR(li, 0, temp->temp, tempReg);
+                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
                 }
                 else if(temp->valType == 2){
-                  genIRForLS(InitR, swi, temp->temp, i*4, $<variable.id>1);
+                  genIRForLS(swi, temp->temp, i*4, $<variable.id>1);
                 }
               }
             }
@@ -311,7 +311,7 @@ stmts     : /* empty */ {
 ;
 
 NN         : /* empty */{
-            $$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+            $$ = makelist(genIRForBranch(jmp, 0, 0, 0));
           }
 ;
 
@@ -333,12 +333,12 @@ stmt      : exp SEMI {
             int temp;
             if($<value.valType>2 == 1){
               temp = newTemp();
-              genIR(InterR, li, 0, $<value.temp>2, temp);
+              genIR(li, 0, $<value.temp>2, temp);
             }
             else{
-              temp = normalizeExp(InterR, (struct NSData *) &$2);
+              temp = normalizeExp((struct NSData *) &$2);
             }
-            genIR(InterR, ret, temp, 0, 0);
+            genIR(ret, temp, 0, 0);
             $<stmtType.continueCount>$ = 0;
             $<stmtType.continueList>$ = 0;
             $<stmtType.breakCount>$ = 0;
@@ -366,7 +366,7 @@ stmt      : exp SEMI {
           | FOR LP exp SEMI MM exp SEMI MM exp NN RP MM stmt {
             backpatch($<value.trueList>6, $12->next);
             backpatch($10, $5->next);
-            genIRForBranch(InterR, jmp, 0, 0, $8->next);
+            genIRForBranch(jmp, 0, 0, $8->next);
             backpatch($<stmtType.continueList>13, $5->next);
             $<stmtType.nextList>$ = merge($<value.falseList>6, $<stmtType.breakList>13);
             $<stmtType.continueCount>$ = 0;
@@ -376,7 +376,7 @@ stmt      : exp SEMI {
           }
           | CONT SEMI {
             $<stmtType.continueCount>$ = 1;
-            $<stmtType.continueList>$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+            $<stmtType.continueList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             $<stmtType.breakCount>$ = 0;
             $<stmtType.breakList>$ = 0;
             $<stmtType.nextList>$ = 0;
@@ -385,7 +385,7 @@ stmt      : exp SEMI {
             $<stmtType.continueCount>$ = 0;
             $<stmtType.continueList>$ = 0;
             $<stmtType.breakCount>$ = 1;
-            $<stmtType.breakList>$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+            $<stmtType.breakList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             $<stmtType.nextList>$ = 0;
           }
 ;
@@ -459,7 +459,7 @@ exps      : exps BINARYOP_MUL exps{
               int result;
               temp = normalizeExp((struct NSData *)&$3);
               result = newTemp();
-              genIR(InterR, muli, temp, $<value.temp>1, result);
+              genIR(muli, temp, $<value.temp>1, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -468,7 +468,7 @@ exps      : exps BINARYOP_MUL exps{
               int result;
               temp = normalizeExp((struct NSData *)&$1);
               result = newTemp();
-              genIR(InterR, muli, temp, $<value.temp>3, result);
+              genIR(muli, temp, $<value.temp>3, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -479,7 +479,7 @@ exps      : exps BINARYOP_MUL exps{
               temp1 = normalizeExp((struct NSData *)&$1);
               temp2 = normalizeExp((struct NSData *)&$3);
               result = newTemp();
-              genIR(InterR, mul, temp1, temp2, result);
+              genIR(mul, temp1, temp2, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -493,31 +493,31 @@ exps      : exps BINARYOP_MUL exps{
           | exps BINARYOP_GT exps {
             if($<value.valType>1 == 1 && $<value.valType>3 == 1){
               if($<value.temp>1 > $<value.temp>3){
-                $<value.trueList>$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+                $<value.trueList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
               }
               else{
-                $<value.falseList>$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+                $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
               }
             }
             else if($<value.valType>1 == 1){
               int temp;
               temp = normalizeExp((struct NSData *)&$3);
-              $<value.trueList>$ = makelist(genIRForBranch(InterR, jgti, temp, $<value.temp>1, 0));
-              $<value.falseList>$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+              $<value.trueList>$ = makelist(genIRForBranch(jgti, temp, $<value.temp>1, 0));
+              $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else if($<value.valType>3 == 1){
               int temp;
               temp = normalizeExp((struct NSData *)&$1);
-              $<value.trueList>$ = makelist(genIRForBranch(InterR, jgti, temp, $<value.temp>3, 0));
-              $<value.falseList>$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+              $<value.trueList>$ = makelist(genIRForBranch(jgti, temp, $<value.temp>3, 0));
+              $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else{
               int temp1;
               int temp2;
               temp1 = normalizeExp((struct NSData *)&$1);
               temp2 = normalizeExp((struct NSData *)&$3);
-              $<value.trueList>$ = makelist(genIRForBranch(InterR, jgt, temp1, temp2, 0));
-              $<value.falseList>$ = makelist(genIRForBranch(InterR, jmp, 0, 0, 0));
+              $<value.trueList>$ = makelist(genIRForBranch(jgt, temp1, temp2, 0));
+              $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
           }
           | exps BINARYOP_NLT exps
@@ -547,24 +547,24 @@ exps      : exps BINARYOP_MUL exps{
               int temp;
               if($<value.valType>3 == 3){
                 temp = newTemp();
-                genIRForLS(InterR, lwi, temp, $<value.offset>3, $<value.id>3);
+                genIRForLS(lwi, temp, $<value.offset>3, $<value.id>3);
               }
               else if($<value.valType>3 == 4){
                 temp = newTemp();
-                genIRForLS(InterR, lw, temp, $<value.offset>3, $<value.id>3);
+                genIRForLS(lw, temp, $<value.offset>3, $<value.id>3);
               }
               else if($<value.valType>3 == 2){
                 temp = $<value.temp>3;
               }
               else if($<value.valType>3 == 1){
                 temp = newTemp();
-                genIR(InterR, li, 0, $<value.temp>3, temp);
+                genIR(li, 0, $<value.temp>3, temp);
               }
               else{
                 printf("should not enter here!\n");
               }
-              if($<value.valType>1 == 3) genIRForLS(InterR, swi, temp, $<value.offset>1, $<value.id>1);
-              else genIRForLS(InterR, sw, temp, $<value.offset>1, $<value.id>1);
+              if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
+              else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
             }
             else {
               printf("wrong while assign!\n");
@@ -602,14 +602,14 @@ exps      : exps BINARYOP_MUL exps{
                 temp = NSPop();
                 if(temp->valType == 1){
                   int tempReg = newTemp();
-                  genIR(InterR, li, 0, temp->temp, tempReg);
-                  genIRForLS(InterR, param, tempReg, 0, 0);
+                  genIR(li, 0, temp->temp, tempReg);
+                  genIRForLS(param, tempReg, 0, 0);
                 }
                 else if(temp->valType == 2){
-                  genIRForLS(InterR, param, temp->temp, 0, 0);
+                  genIRForLS(param, temp->temp, 0, 0);
                 }
               }
-              genIRForBranch(InterR, call, 0, 0, fun->entry);
+              genIRForBranch(call, 0, 0, fun->entry);
               $<value.valType>$ = 2;
               $<value.temp>$ = newTemp();
             }
@@ -645,7 +645,7 @@ exps      : exps BINARYOP_MUL exps{
             }
             $<value.id>$ = $1;
             $<value.offset>$ = os->offset;
-            // genIRForLS(InterR, lwi, temp, os->offset, structVar->name);
+            // genIRForLS(lwi, temp, os->offset, structVar->name);
           }
           | INT {
             $<value.valType>$ = 1;
@@ -670,7 +670,7 @@ arrs      : /* empty */{
             else if($<value.valType>2 == 2){
               $<value.valType>$ = 2;
               int temp = newTemp();
-              genIR(InterR, muli, $<value.temp>2, 4, temp);
+              genIR(muli, $<value.temp>2, 4, temp);
               $<value.temp>$ = temp;
             }
             else{
@@ -687,9 +687,9 @@ arrs      : /* empty */{
               int temp1 = newTemp();
               int temp2 = newTemp();
               int temp3 = newTemp();
-              genIR(InterR, muli, $<value.temp>2, array->width * 4, temp1);
-              genIR(InterR, muli, $<value.temp>5, 4, temp2);
-              genIR(InterR, add, temp1, temp2, temp3);
+              genIR(muli, $<value.temp>2, array->width * 4, temp1);
+              genIR(muli, $<value.temp>5, 4, temp2);
+              genIR(add, temp1, temp2, temp3);
               $<value.valType>$ = 2;
               $<value.temp>$ = temp3;
             }
@@ -697,16 +697,16 @@ arrs      : /* empty */{
               if($<value.valType>2 == 2){
                 int temp1 = newTemp();
                 int temp3 = newTemp();
-                genIR(InterR, muli, $<value.temp>2, array->width * 4, temp1);
-                genIR(InterR, addi, temp1, $<value.temp>5 * 4, temp3);
+                genIR(muli, $<value.temp>2, array->width * 4, temp1);
+                genIR(addi, temp1, $<value.temp>5 * 4, temp3);
                 $<value.valType>$ = 2;
                 $<value.temp>$ = temp3;
               }
               else{
                 int temp2 = newTemp();
                 int temp3 = newTemp();
-                genIR(InterR, muli, $<value.temp>5, 4, temp2);
-                genIR(InterR, add, temp2, array->width * 4 * $<value.temp>2, temp3);
+                genIR(muli, $<value.temp>5, 4, temp2);
+                genIR(add, temp2, array->width * 4 * $<value.temp>2, temp3);
                 $<value.valType>$ = 2;
                 $<value.temp>$ = temp3;
               }

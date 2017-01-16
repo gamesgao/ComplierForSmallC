@@ -24,7 +24,7 @@ int getRandomNumber(){
     return rand()%(100000000);
 }
 
-int normalizeExp(struct IntermediaRepresentation * IR, struct NSData * exp){
+int normalizeExp(struct NSData * exp){
     int temp;
     if(exp->valType == 2){
         temp = exp->temp;

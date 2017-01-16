@@ -86,6 +86,7 @@ struct IntermediaRepresentation{
 /*-------------------------------------------------------------------------
 Quad code ENTRY
 -------------------------------------------------------------------------*/
+struct IntermediaRepresentation * IR = (struct IntermediaRepresentation*) 0;
 struct IntermediaRepresentation* InterR = (struct IntermediaRepresentation*) 0;
 struct IntermediaRepresentation* InitR = (struct IntermediaRepresentation*) 0;
 /*-------------------------------------------------------------------------
@@ -102,7 +103,7 @@ int tempCount = 0;
 /*========================================================================
 Operations: genIR
 ========================================================================*/
-struct Quad * genIR(struct IntermediaRepresentation * IR, enum Opcode op, int s1, int s2, int d) {
+struct Quad * genIR(enum Opcode op, int s1, int s2, int d) {
     struct Quad *ptr;
     struct Quad *next;
     next = (struct Quad *) malloc(sizeof(struct Quad));
@@ -120,7 +121,7 @@ struct Quad * genIR(struct IntermediaRepresentation * IR, enum Opcode op, int s1
     return ptr;
 }
 
-struct Quad * genIRForLS(struct IntermediaRepresentation * IR, enum Opcode op, int s1, int s2, char* d) {
+struct Quad * genIRForLS(enum Opcode op, int s1, int s2, char* d) {
     struct Quad *ptr;
     struct Quad *next;
     next = (struct Quad *) malloc(sizeof(struct Quad));
@@ -138,7 +139,7 @@ struct Quad * genIRForLS(struct IntermediaRepresentation * IR, enum Opcode op, i
     return ptr;
 }
 
-struct Quad * genIRForBranch(struct IntermediaRepresentation * IR, enum Opcode op, int s1, int s2, struct Quad* d) {
+struct Quad * genIRForBranch(enum Opcode op, int s1, int s2, struct Quad* d) {
     struct Quad *ptr;
     struct Quad *next;
     next = (struct Quad *) malloc(sizeof(struct Quad));
@@ -160,9 +161,9 @@ int newTemp(){
     return tempCount++;
 }
 
-void printIR(struct IntermediaRepresentation * IR){
-    if(IR == (struct IntermediaRepresentation*)0) return;
-    struct Quad* ptr = IR->head;
+void printIR(struct IntermediaRepresentation * ir){
+    if(ir == (struct IntermediaRepresentation*)0) return;
+    struct Quad* ptr = ir->head;
     while(ptr->next != (struct Quad *)0){
         ptr = ptr->next;
         if(ptr->basicBlockFlag == 1) printf("###");
@@ -172,26 +173,26 @@ void printIR(struct IntermediaRepresentation * IR){
     }
 }
 
-void initIR(struct IntermediaRepresentation * IR){
-    IR = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
-    IR->head = (struct Quad *) malloc(sizeof(struct Quad));
-    IR->tail = (struct Quad *) malloc(sizeof(struct Quad));
-    IR->head->order = 0;
-    IR->head->basicBlockFlag = 0;
-    IR->tail->order = 1;
-    IR->tail->basicBlockFlag = 1;
-    IR->head->next = IR->tail;
-    IR->head->prev = (struct Quad *)0;
-    IR->tail->prev = IR->head;
-    IR->tail->next = (struct Quad *)0;
-    IR->tail = IR->head;
+void initIR(struct IntermediaRepresentation * ir){
+    ir = (struct IntermediaRepresentation *) malloc(sizeof(struct IntermediaRepresentation));
+    ir->head = (struct Quad *) malloc(sizeof(struct Quad));
+    ir->tail = (struct Quad *) malloc(sizeof(struct Quad));
+    ir->head->order = 0;
+    ir->head->basicBlockFlag = 0;
+    ir->tail->order = 1;
+    ir->tail->basicBlockFlag = 1;
+    ir->head->next = ir->tail;
+    ir->head->prev = (struct Quad *)0;
+    ir->tail->prev = ir->head;
+    ir->tail->next = (struct Quad *)0;
+    ir->tail = ir->head;
 }
 
-void endIR(struct IntermediaRepresentation * IR){
-    IR->tail = IR->tail->next;
-    IR->tail->op = end;
-    IR->tail->src1.TIA = 0; // this may cause some problem
-    IR->tail->src2.TIA = 0;
-    IR->tail->dest.TIA = 0;
+void endIR(struct IntermediaRepresentation * ir){
+    ir->tail = ir->tail->next;
+    ir->tail->op = end;
+    ir->tail->src1.TIA = 0; // this may cause some problem
+    ir->tail->src2.TIA = 0;
+    ir->tail->dest.TIA = 0;
 }
 /************************** End Quad code **************************/
