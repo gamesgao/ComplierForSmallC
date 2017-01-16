@@ -213,9 +213,9 @@ extvars   : extvars COMMA var {
             if($<value.valType>5 == 1){
               int temp = newTemp();
               genIR(li, 0, $<value.temp>5, temp);
-              genIRForLS(sw, temp, 0, $3);
+              genIRForLS(swi, temp, 0, $3);
             } else {
-              genIRForLS(sw, $<value.temp>5, 0, $3);
+              genIRForLS(swi, $<value.temp>5, 0, $3);
             }
           }
           | ID BINARYOP_ASSIGN exps {
