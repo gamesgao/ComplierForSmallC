@@ -59,6 +59,7 @@ void patchData(){
             printf("the remain one need to do more!\n");
         }
     }
+    printDS();
 }
 /*-------------------------------------------------------------------------
 Code Segment

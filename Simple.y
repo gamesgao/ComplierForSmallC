@@ -778,6 +778,7 @@ int main( int argc, char *argv[] )
   printf("%s\n", "===========================================================");
   if (errors == 0) {
     genData();
+    patchData();
   }
   
   return 0;
