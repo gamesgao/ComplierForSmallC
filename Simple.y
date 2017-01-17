@@ -623,18 +623,20 @@ exps      : exps BINARYOP_MUL exps{
             }
             else{
               struct symrec *fun = getsym($1);
+              struct symrec *param = fun->param;
               if(fun != 0){
                 for(i=$3-1;i >= 0 ;i--){
                   temp = NSPop();
                   if(temp->valType == 1){
                     int tempReg = newTemp();
                     genIR(li, 0, temp->temp, tempReg);
-                    genIRForLS(param, tempReg, 0, 0);
+                    genIRForLS(param, tempReg, 0, param->name);
                   }
                   else{
                     int tempReg = normalizeExp(temp);
-                    genIRForLS(param, tempReg, 0, 0);
+                    genIRForLS(param, tempReg, 0, param->name);
                   }
+                  param = param->next;
                 }
                 genIRForBranch(call, 0, 0, fun->entry);
                 $<value.valType>$ = 2;

@@ -114,6 +114,9 @@ void CodeGenerate(){
                 scope = getsym(ptr->dest.id)->scope;
                 sprintf(prefix, "%s", ptr->dest.id);
                 sprintf(instLabel, "%s", ptr->dest.id);
+                CSPush(instLabel, "sw", "$ra", noneStr, "0($sp)", noneStr);
+                CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case lwi:{
@@ -192,8 +195,32 @@ void CodeGenerate(){
                 sprintf(p2, "$t%d", getTemp(ptr, ptr->src1.TIA));
                 sprintf(p3, "%s", noneStr);        
                 CSPush(instLabel, op, p1, p2, p3, noneStr);
-                CSPush(noneStr, "lw", "$ra", "0($sp)", noneStr, noneStr);
+                CSPush(noneStr, "add", "$sp", "$sp", "4", noneStr);
+                CSPush(noneStr, "lw", "$ra", noneStr, "0($sp)", noneStr);
                 CSPush(noneStr, "jr", "$ra", noneStr, noneStr, noneStr);
+                sprintf(instLabel, "%s", noneStr);
+                break;
+            }
+            case param:{
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
+                // this is an part that are not very smooth in this part!
+                struct Quad* fun = ptr;
+                while(fun->op != call) fun = fun->next;
+                sprintf(op, "sw");
+                sprintf(p1, "$t%d", getTemp(ptr, ptr->src1.TIA));
+                sprintf(p2, "%s", noneStr);
+                sprintf(p3, "%s", ptr->dest.id);
+                CSPush(instLabel, op, p1, p2, p3, fun->name);
+                sprintf(instLabel, "%s", noneStr);
+                break;
+            }
+            case jmp:{
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
+                sprintf(op, "jal");
+                sprintf(p1, "%s", noneStr);
+                sprintf(p2, "%s", noneStr);
+                sprintf(p3, "", ptr->dest.addr->name);        
+                CSPush(instLabel, op, p1, p2, p3, noneStr);
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }
