@@ -9,10 +9,10 @@ Quad code RECORD
 -------------------------------------------------------------------------*/
 
 enum Opcode {
-    bnot, add, addi, sub, subi, mul, muli, opdiv, opdivi, lwi, swi, jmp, call, ret, li, lw, sw, jgt, jgti, end, param, write, read, label
+    bnot, add, addi, sub, subi, mul, muli, opdiv, opdivi, lwi, swi, jmp, call, ret, li, lw, sw, jgt, jgti, end, param, write, read, label, rem, remi, shl, shli, shr, shri, jge, jgei, jlt, jlti, jle, jlei, je, jei, jne, jnei, band, bandi, bxor, bxori, bor, bori, neg
 };
 
-char* Opstr[24] = {
+char* Opstr[47] = {
     "bnot",
     "add",
     "addi",
@@ -36,7 +36,30 @@ char* Opstr[24] = {
     "param",
     "write",
     "read",
-    "label"
+    "label",
+    "rem",
+    "remi",
+    "shl",
+    "shli",
+    "shr",
+    "shri",
+    "jge",
+    "jgei",
+    "jlt",
+    "jlti",
+    "jle",
+    "jlei",
+    "je",
+    "jei",
+    "jne",
+    "jnei",
+    "band",
+    "bandi",
+    "bxor",
+    "bxori",
+    "bor",
+    "bori",
+    "neg"
 };
 
 union var {
