@@ -210,17 +210,18 @@ void CodeGenerate(){
                 sprintf(p1, "$t%d", getTemp(ptr, ptr->src1.TIA));
                 sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s", ptr->dest.id);
-                CSPush(instLabel, op, p1, p2, p3, fun->name);
+                CSPush(instLabel, op, p1, p2, p3, fun->dest.addr->dest.id);
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }
-            case jmp:{
+            case call:{
                 if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "jal");
                 sprintf(p1, "%s", noneStr);
                 sprintf(p2, "%s", noneStr);
-                sprintf(p3, "", ptr->dest.addr->name);        
+                sprintf(p3, "%s", ptr->dest.addr->dest.id);        
                 CSPush(instLabel, op, p1, p2, p3, noneStr);
+
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }

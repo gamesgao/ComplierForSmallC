@@ -162,7 +162,7 @@ int getTemp(struct Quad * ptr, int temp){
         }
     }
     else{
-        printf("wrong while do the reg allocation!\n");
+        printf("wrong while do the reg allocation for %d\n", temp);
     }
 }
 
