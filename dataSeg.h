@@ -30,7 +30,7 @@ OperatioDS: push, pop, isEmpty.
 void DSPush(char* id, char* prefix){
     struct dataSeg* newTop = (struct dataSeg* ) malloc(sizeof(struct dataSeg));
     newTop->id = (char *) malloc(strlen(id) + 1);
-    newTop->prefix = (char *) malloc(strlen(id) + 1);
+    newTop->prefix = (char *) malloc(strlen(prefix) + 1);
     strcpy(newTop->id, id);
     strcpy(newTop->prefix, prefix);
     newTop->data = 0;
