@@ -275,11 +275,15 @@ func      : ID LP {addLevel();} paras RP{
             $<funcType.param>$ = sym_table;
             $<funcType.beforeEntry>$ = InterR->tail;
           }
+          | ID LP {addLevel();} RP{
+            $<funcType.id>$ = $1;
+            $<funcType.param>$ = sym_table;
+            $<funcType.beforeEntry>$ = InterR->tail;
+          }
 ;
 
-paras     : /* empty */
-          | TYPE ID COMMA paras {
-            registerId($2, "int", 1, 1, 0, 0, 0);
+paras     : paras COMMA TYPE ID{
+            registerId($4, "int", 1, 1, 0, 0, 0);
           }
           | TYPE ID {
             registerId($2, "int", 1, 1, 0, 0, 0);

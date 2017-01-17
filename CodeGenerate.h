@@ -221,7 +221,7 @@ void CodeGenerate(){
                 sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s", ptr->dest.addr->dest.id);        
                 CSPush(instLabel, op, p1, p2, p3, noneStr);
-                sprintf(p1, "$t%s", getTR(ptr->src1.TIA));
+                sprintf(p1, "$t%d", getTR(ptr, ptr->src1.TIA));
                 CSPush(noneStr, "move", p1, "$v0", noneStr, noneStr);
                 sprintf(instLabel, "%s", noneStr);
                 break;
