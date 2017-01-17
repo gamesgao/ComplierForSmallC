@@ -232,8 +232,8 @@ extvars   : extvars COMMA var {
             registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
             int i = 0;
             struct NSData* temp;
-            if(($<variable.width>3 * $<variable.height>3) >= $4){
-              for(i=$4-1;i >= 0 ;i--){
+            if(($<variable.width>3 * $<variable.height>3) >= $6){
+              for(i=$6-1;i >= 0 ;i--){
                 temp = NSPop();
                 if(temp->valType == 1){
                   int tempReg = newTemp();
@@ -475,8 +475,8 @@ decs      : var {
             registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
             int i = 0;
             struct NSData* temp;
-            if(($<variable.width>3 * $<variable.height>3) >= $4){
-              for(i=$4-1;i >= 0 ;i--){
+            if(($<variable.width>3 * $<variable.height>3) >= $6){
+              for(i=$6-1;i >= 0 ;i--){
                 temp = NSPop();
                 if(temp->valType == 1){
                   int tempReg = newTemp();
@@ -1328,8 +1328,8 @@ exps      : exps BINARYOP_MUL exps{
           }
           | MIN exps %prec UNARYOP_LNOT {
             if($<value.valType>2 == 1){
-              $<value.valType>$ = 1
-              $<value.temp>$ = -$<value.temp>2;
+              $<value.valType>$ = 1;
+              $<value.temp>$ = - $<value.temp>2;
             }
             else {
               int temp;
@@ -1381,7 +1381,7 @@ exps      : exps BINARYOP_MUL exps{
           }
           | UNARYOP_BNOT exps {
             if($<value.valType>2 == 1){
-              $<value.valType>$ = 1
+              $<value.valType>$ = 1;
               $<value.temp>$ = ~$<value.temp>2;
             }
             else {
