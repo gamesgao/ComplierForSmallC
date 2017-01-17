@@ -638,9 +638,10 @@ exps      : exps BINARYOP_MUL exps{
                   }
                   parameter = parameter->next;
                 }
-                genIRForBranch(call, 0, 0, fun->entry);
+                int tempReg = newTemp();
+                genIRForBranch(call, tempReg, 0, fun->entry);
                 $<value.valType>$ = 2;
-                $<value.temp>$ = newTemp();
+                $<value.temp>$ = tempReg;
               }
               else{
                 printf("wrong while call func!\n");
