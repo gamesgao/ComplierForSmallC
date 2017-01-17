@@ -43,7 +43,7 @@ void CSPush(char* label, char* op, char* p1, char* p2, char* p3, char* prefix){
     strcpy(newBottom->p2, p2);
     newBottom->p3 = (char *) malloc(strlen(p3) + 1);
     strcpy(newBottom->p3, p3);
-    newBottom->prefix = (char *) malloc(strlen(id) + 1);
+    newBottom->prefix = (char *) malloc(strlen(prefix) + 1);
     strcpy(newBottom->prefix, prefix);
     if(CSbottom == (struct codeSeg*) 0){
         CSbottom = newBottom;
@@ -53,6 +53,7 @@ void CSPush(char* label, char* op, char* p1, char* p2, char* p3, char* prefix){
         CSbottom->next = newBottom;
     }
     newBottom->next = (struct codeSeg*) 0;
+    CSbottom = newBottom;
 }
 
 int CSIsEmpty(){
@@ -63,7 +64,10 @@ void printCS(){
     struct codeSeg* ptr = CStop;
     printf(".text\n");
     while(ptr != (struct codeSeg*) 0){
-        printf("%s:\t%s\t%s\t%s\t%s.%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        if(strcmp(ptr->label, "") != 0 && strcmp(ptr->prefix, "") != 0) printf("%s:\t%s\t%s\t%s\t%s.%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        else if(strcmp(ptr->label, "") != 0) printf("%s:\t%s\t%s\t%s\t%s%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        else if(strcmp(ptr->prefix, "") != 0) printf("%s\t%s\t%s\t%s\t%s.%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        else printf("%s\t%s\t%s\t%s\t%s%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
         ptr = ptr->next;
     }
 }

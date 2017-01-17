@@ -3,6 +3,7 @@ Code Generator
 ***************************************************************************/
 #include "scopeQueue.h" /*scopeQueue Code*/
 #include "dataSeg.h" /*dataSeg Code*/
+#include "codeSeg.h" /*codeSeg Code*/
 #include "RegAllocation.h" /*RegAllocation Code*/
 /*-------------------------------------------------------------------------
 Data Segment
@@ -77,129 +78,132 @@ Code Segment
 void CodeGenerate(){
     struct Quad* ptr = InterR->head;
     struct symrec *scope=sym_table;
-    char *label = (char *)malloc(sizeof(char)*80);
+    char* noneStr = "";
+    char *instLabel = (char *)malloc(sizeof(char)*80);
     char *op = (char *)malloc(sizeof(char)*80);
     char *p1 = (char *)malloc(sizeof(char)*80);
     char *p2 = (char *)malloc(sizeof(char)*80);
     char *p3 = (char *)malloc(sizeof(char)*80);
     char *prefix = (char *)malloc(sizeof(char)*80);
-    sprintf(prefix, "");
+    sprintf(prefix, "%s", noneStr);
+    sprintf(instLabel, "%s", noneStr);
     while(ptr->next != (struct Quad *)0){
         ptr = ptr->next;
         switch(ptr->op){
             case mul:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "mul");
-                sprintf(p1, "$%d", getTR(ptr, ptr->dest.TIA));
-                sprintf(p2, "$%d", getTemp(ptr, ptr->src1.TIA));
-                sprintf(p3, "$%d", getTemp(ptr, ptr->src2.TIA));        
-                CSPush(label, op, p1, p2, p3, "");
-                sprintf(label, "");
+                sprintf(p1, "$t%d", getTR(ptr, ptr->dest.TIA));
+                sprintf(p2, "$t%d", getTemp(ptr, ptr->src1.TIA));
+                sprintf(p3, "$t%d", getTemp(ptr, ptr->src2.TIA));        
+                CSPush(instLabel, op, p1, p2, p3, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case muli:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "mul");
-                sprintf(p1, "$%d", getTR(ptr, ptr->dest.TIA));
-                sprintf(p2, "$%d", getTemp(ptr, ptr->src1.TIA));
-                sprintf(p3, "%d", gptr->src2.TIA);
-                CSPush(label, op, p1, p2, p3, "");
-                sprintf(label, "");
+                sprintf(p1, "$t%d", getTR(ptr, ptr->dest.TIA));
+                sprintf(p2, "$t%d", getTemp(ptr, ptr->src1.TIA));
+                sprintf(p3, "%d", ptr->src2.TIA);
+                CSPush(instLabel, op, p1, p2, p3, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case label:{
-                sprintf(label, "%s", ptr->dest.id);
                 scope = getsym(ptr->dest.id)->scope;
-                sprintf(prefix, ptr->dest.id);
-
-
+                sprintf(prefix, "%s", ptr->dest.id);
+                sprintf(instLabel, "%s", ptr->dest.id);
                 break;
             }
             case lwi:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "lw");
-                sprintf(p1, "$%d", getTR(ptr, ptr->src1.TIA));
-                sprintf(p2, "", );
+                sprintf(p1, "$t%d", getTR(ptr, ptr->src1.TIA));
+                sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s+%d", ptr->dest.id, ptr->src2.TIA);
-                if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(label, op, p1, p2, p3, prefix);
-                else CSPush(label, op, p1, p2, p3, "");
-                sprintf(label, "");
+                if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
+                else CSPush(instLabel, op, p1, p2, p3, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case li:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "li");
-                sprintf(p1, "$%d", getTR(ptr, ptr->dest.TIA));
-                sprintf(p2, "");
+                sprintf(p1, "$t%d", getTR(ptr, ptr->dest.TIA));
+                sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%d", ptr->src2.TIA);
-                CSPush(label, op, p1, p2, p3, "");
-                sprintf(label, "");
+                CSPush(instLabel, op, p1, p2, p3, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case swi:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "sw");
-                sprintf(p1, "$%d", getTemp(ptr, ptr->src1.TIA));
-                sprintf(p2, "");
+                sprintf(p1, "$t%d", getTemp(ptr, ptr->src1.TIA));
+                sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s+%d", ptr->dest.id, ptr->src2.TIA);
-                if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(label, op, p1, p2, p3, prefix);
-                else CSPush(label, op, p1, p2, p3, "");
-                sprintf(label, "");
+                if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
+                else CSPush(instLabel, op, p1, p2, p3, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case jgti:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "bgt");
-                sprintf(p1, "$%d", getTemp(ptr, ptr->src1.TIA));
-                sprintf(p2, "%d", gptr->src2.TIA);
+                sprintf(p1, "$t%d", getTemp(ptr, ptr->src1.TIA));
+                sprintf(p2, "%d", ptr->src2.TIA);
                 sprintf(p3, "l%d", ptr->dest.addr->order);        
-                CSPush(label, op, p1, p2, p3, "");
-                sprintf(label, "");
+                CSPush(instLabel, op, p1, p2, p3, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case jmp:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "j");
-                sprintf(p1, "");
-                sprintf(p2, "");
+                sprintf(p1, "%s", noneStr);
+                sprintf(p2, "%s", noneStr);
                 sprintf(p3, "l%d", ptr->dest.addr->order);        
-                CSPush(label, op, p1, p2, p3, "");
-                sprintf(label, "");
+                CSPush(instLabel, op, p1, p2, p3, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case write:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 sprintf(op, "move");
                 sprintf(p1, "$a0");
-                sprintf(p2, "$%d", ptr->dest.TIA);
-                sprintf(p3, "");        
-                CSPush(label, op, p1, p2, p3, "");       
-                CSPush("", "li", "$v0", "1", "", "");
-                CSPush("", "syscall", "", "", "", "");
-                sprintf(label, "");
+                sprintf(p2, "$t%d", getTemp(ptr, ptr->dest.TIA));
+                sprintf(p3, "%s", noneStr);        
+                CSPush(instLabel, op, p1, p2, p3, noneStr);       
+                CSPush(noneStr, "li", "$v0", "1", noneStr, noneStr);
+                CSPush(noneStr, "syscall", noneStr, noneStr, noneStr, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
             case ret:{
-                if(ptr->basicBlockFlag == 1 && strcmp(label, "") == 0) sprintf(label, "l%d", ptr->order);
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 if(strcmp(prefix, "main") == 0){
-                    CSPush(label, "li", "$v0", "10", "", "");
-                    CSPush("", "syscall", "", "", "", "");
+                    CSPush(instLabel, "li", "$v0", "10", noneStr, noneStr);
+                    CSPush(noneStr, "syscall", noneStr, noneStr, noneStr, noneStr);
                     break;
                 }
                 sprintf(op, "move");
                 sprintf(p1, "$v0");
-                sprintf(p2, "$%d", ptr->src1.TIA);
-                sprintf(p3, "");        
-                CSPush(label, op, p1, p2, p3, "");
-                CSPush("", "lw", "$ra", "0($sp)", "", "");
-                CSPush("", "jr", "$ra", "", "", "");
-                sprintf(label, "");
+                sprintf(p2, "$t%d", getTemp(ptr, ptr->src1.TIA));
+                sprintf(p3, "%s", noneStr);        
+                CSPush(instLabel, op, p1, p2, p3, noneStr);
+                CSPush(noneStr, "lw", "$ra", "0($sp)", noneStr, noneStr);
+                CSPush(noneStr, "jr", "$ra", noneStr, noneStr, noneStr);
+                sprintf(instLabel, "%s", noneStr);
                 break;
             }
+            case end:break;
             default:printf("wrong while CG\n");
         }
 
     }
+
+    printCS();
 }
 
 

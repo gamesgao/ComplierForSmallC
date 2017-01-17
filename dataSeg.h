@@ -46,7 +46,9 @@ void printDS(){
     struct dataSeg* ptr = DStop;
     printf(".data\n");
     while(ptr != (struct dataSeg*) 0){
-        printf("%s.%s:\t.word\t%d\n", ptr->prefix, ptr->id, ptr->data);
+        if(strcmp(ptr->id, "") != 0 && strcmp(ptr->prefix, "") != 0)printf("%s.%s:\t.word\t%d\n", ptr->prefix, ptr->id, ptr->data);
+        else if(strcmp(ptr->id, "") != 0) printf("%s%s:\t.word\t%d\n", ptr->prefix, ptr->id, ptr->data);
+        else printf("\t.word\t%d\n", ptr->data);
         ptr = ptr->next;
     }
 }

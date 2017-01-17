@@ -762,7 +762,7 @@ int main( int argc, char *argv[] )
   ++argv;
   --argc;
   yyin = fopen(argv[0], "r");
-  yydebug = 1;
+  // yydebug = 1;
   errors = 0;
   initInitR();
   initInterR();
@@ -781,6 +781,8 @@ int main( int argc, char *argv[] )
     genData();
     printf("%s\n", "===========================================================");
     patchData();
+    printf("%s\n", "===========================================================");
+    CodeGenerate();
   }
   
   return 0;
