@@ -2,6 +2,7 @@
 Code Generator
 ***************************************************************************/
 #include "scopeQueue.h" /*scopeQueue Code*/
+#include "scopeStack.h" /*scopeStack Code*/
 #include "dataSeg.h" /*dataSeg Code*/
 #include "codeSeg.h" /*codeSeg Code*/
 #include "RegAllocation.h" /*RegAllocation Code*/
@@ -560,6 +561,34 @@ void CodeGenerate(){
             }
             case call:{
                 if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
+                prefix
+                struct symrec * funTemp = getsym(prefix)->scope;
+                for (; funTemp != (struct symrec *)0 && funTemp->name != 0; funTemp = (struct symrec *)funTemp->next){
+                   if(strcmp(funTemp->type, "int") == 0){
+                        int i;
+                        for(i = 0; i<funTemp->width * funTemp->height;i++){
+                            sprintf(p3, "%s+%d", funTemp->name, i*4);        
+                            CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
+                            sprintf(instLabel, "%s", noneStr);
+                            CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
+                            CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
+                        }
+                    } else if(strcmp(funTemp->type, "struct") != 0){
+                        struct symrec *base = getsym(funTemp->type);
+                        int i;
+                        for(i = 0; i < base->width / 4;i++){
+                            sprintf(p3, "%s+%d", funTemp->name, i*4);        
+                            CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
+                            sprintf(instLabel, "%s", noneStr);
+                            CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
+                            CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
+                        }
+                    }
+                    else{
+                        printf("wrong while do call CG!\n");
+                    }
+                    SSPush(funTemp);
+                }
                 sprintf(op, "jal");
                 sprintf(p1, "%s", noneStr);
                 sprintf(p2, "%s", noneStr);
@@ -568,6 +597,32 @@ void CodeGenerate(){
                 sprintf(p1, "$t%d", getTR(ptr, ptr->src1.TIA));
                 CSPush(noneStr, "move", p1, "$v0", noneStr, noneStr);
                 sprintf(instLabel, "%s", noneStr);
+
+                funTemp = SSPop();
+                while(funTemp != (struct symrec *) 0){
+                    if(strcmp(funTemp->type, "int") == 0){
+                        int i;
+                        for(i = funTemp->width * funTemp->height-1; i>=0;i--){
+                            CSPush(noneStr, "add", "$sp", "$sp", "4", noneStr);
+                            CSPush(noneStr, "lw", "$a0", noneStr, "0($sp)", noneStr);
+                            sprintf(p3, "%s+%d", funTemp->name, i*4);
+                            CSPush(noneStr, "sw", "$a0", noneStr, p3, prefix);
+                        }
+                    } else if(strcmp(funTemp->type, "struct") != 0){
+                        struct symrec *base = getsym(funTemp->type);
+                        int i;
+                        for(i = base->width / 4 - 1; i >= 0 ;i--){
+                            CSPush(noneStr, "add", "$sp", "$sp", "4", noneStr);
+                            CSPush(noneStr, "lw", "$a0", noneStr, "0($sp)", noneStr);
+                            sprintf(p3, "%s+%d", funTemp->name, i*4);
+                            CSPush(noneStr, "sw", "$a0", noneStr, p3, prefix);
+                        }
+                    }
+                    else{
+                        printf("wrong while do call CG!\n");
+                    }
+                    funTemp = SSPop();
+                }
                 break;
             }
             case end:break;
