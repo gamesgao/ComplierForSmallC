@@ -1606,10 +1606,7 @@ int main( int argc, char *argv[] )
   endIR(InitR);
   endIR(InterR);
   printf("Parse Completed\n");
-  // printST();
-  // printf("%s\n", "===========================================================");
-  // printf("!!!%d\n", InterR);
-  printIR(InterR);
+  printST();
   markBasicBlock(InterR);
   printf("%s\n", "===========================================================");
   printIR(InitR);

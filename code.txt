@@ -1,1010 +1,177 @@
 Parse Completed
-type:func	name:main	offset:0	entry:89
-===========================================================
-===========================================================
-type:func	name:solve	offset:0	entry:1
-===========================================================
-type:int	name:ans	offset:20	width:2	height:1
-type:int	name:s	offset:16	width:1	height:1
-type:int	name:r	offset:12	width:1	height:1
-type:int	name:q	offset:8	width:1	height:1
-type:int	name:p	offset:4	width:1	height:1
-type:int	name:x	offset:0	width:1	height:1
-===========================================================
-type:int	name:MOD	offset:20	width:1	height:1
-type:int	name:n	offset:16	width:1	height:1
-type:int	name:mat	offset:0	width:4	height:1
-===========================================================
-###1	li	0	1	0
-2	swi	0	12	mat
-3	li	0	1	1
-4	swi	1	8	mat
-5	li	0	1	2
-6	swi	2	4	mat
-7	li	0	0	3
-8	swi	3	0	mat
-9	li	0	10007	4
-10	swi	4	0	MOD
-solve:
-12	li	0	1	5
-13	swi	5	4	ans
-14	li	0	0	6
-15	swi	6	0	ans
-main:
-17	end	0	0	0
-===========================================================
-solve:
-###2	lwi	7	0	r
-3	lwi	8	0	s
-4	mul	7	8	9
-5	swi	9	0	p
-6	lwi	10	0	ans
-7	swi	10	0	r
-###8	lwi	11	0	x
-9	shri	11	1	12
-10	swi	12	0	x
-11	jmp	0	0	inst8
-###12	lwi	13	0	x
-13	bandi	13	1	14
-14	lwi	15	0	ans
-15	lwi	16	0	mat
-16	mul	15	16	17
-17	lwi	18	4	ans
-18	lwi	19	8	mat
-19	mul	18	19	20
-20	add	17	20	21
-21	swi	21	0	p
-22	lwi	22	0	ans
-23	lwi	23	4	mat
-24	mul	22	23	24
-25	lwi	25	4	ans
-26	lwi	26	12	mat
-27	mul	25	26	27
-28	add	24	27	28
-29	swi	28	0	q
-30	lwi	29	0	p
-31	lwi	30	0	MOD
-32	rem	29	30	31
-33	swi	31	0	ans
-34	lwi	32	0	q
-35	lwi	33	0	MOD
-36	rem	32	33	34
-37	swi	34	4	ans
-38	lwi	35	0	mat
-39	lwi	36	0	mat
-40	mul	35	36	37
-41	lwi	38	4	mat
-42	lwi	39	8	mat
-43	mul	38	39	40
-44	add	37	40	41
-45	swi	41	0	p
-46	lwi	42	0	mat
-47	lwi	43	4	mat
-48	mul	42	43	44
-49	lwi	45	4	mat
-50	lwi	46	12	mat
-51	mul	45	46	47
-52	add	44	47	48
-53	swi	48	0	q
-54	lwi	49	8	mat
-55	lwi	50	0	mat
-56	mul	49	50	51
-57	lwi	52	12	mat
-58	lwi	53	8	mat
-59	mul	52	53	54
-60	add	51	54	55
-61	swi	55	0	r
-62	lwi	56	4	mat
-63	lwi	57	8	mat
-64	mul	56	57	58
-65	lwi	59	12	mat
-66	lwi	60	12	mat
-67	mul	59	60	61
-68	add	58	61	62
-69	swi	62	0	s
-70	lwi	63	0	p
-71	lwi	64	0	MOD
-72	rem	63	64	65
-73	swi	65	0	mat
-74	lwi	66	0	q
-75	lwi	67	0	MOD
-76	rem	66	67	68
-77	swi	68	4	mat
-78	lwi	69	0	r
-79	lwi	70	0	MOD
-80	rem	69	70	71
-81	swi	71	8	mat
-82	lwi	72	0	s
-83	lwi	73	0	MOD
-84	rem	72	73	74
-85	swi	74	12	mat
-86	jmp	0	0	inst8
-###87	lwi	75	0	ans
-88	ret	75	0	0
-main:
-###90	read	0	0	76
-91	sw	76	0	n
-92	lwi	77	0	n
-93	param	77	0	x
-94	call	78	0	inst1
-###95	write	0	0	78
-96	li	0	0	79
-97	ret	79	0	0
-###98	end	0	0	0
-===========================================================
-.data
-solve.x:	.word	0
-solve.p:	.word	0
-solve.q:	.word	0
-solve.r:	.word	0
-solve.s:	.word	0
-solve.ans:	.word	0
-	.word	0
-mat:	.word	0
-	.word	0
-	.word	0
-	.word	0
-n:	.word	0
-MOD:	.word	0
-===========================================================
-.data
-solve.x:	.word	0
-solve.p:	.word	0
-solve.q:	.word	0
-solve.r:	.word	0
-solve.s:	.word	0
-solve.ans:	.word	0
-	.word	1
-mat:	.word	0
-	.word	1
-	.word	1
-	.word	1
-n:	.word	0
-MOD:	.word	10007
-===========================================================
-.text
-solve:	sw	$ra		0($sp)	
-	add	$sp	$sp	-4	
-l2:	lw	$t0		solve.r+0	
-	lw	$t1		solve.s+0	
-	mul	$t2	$t0	$t1	
-	sw	$t2		solve.p+0	
-	lw	$t3		solve.ans+0	
-	sw	$t3		solve.r+0	
-l8:	lw	$t4		solve.x+0	
-	srl	$t5	$t4	$t1	
-	sw	$t5		solve.x+0	
-	j			l8	
-l12:	lw	$t6		solve.x+0	
-	and	$t7	$t6	1	
-	lw	$t8		solve.ans+0	
-	lw	$t9		mat+0	
-	mul	$t0	$t8	$t9	
-	lw	$t1		solve.ans+4	
-	lw	$t2		mat+8	
-	mul	$t3	$t1	$t2	
-	add	$t4	$t0	$t3	
-	sw	$t4		solve.p+0	
-	lw	$t5		solve.ans+0	
-	lw	$t6		mat+4	
-	mul	$t7	$t5	$t6	
-	lw	$t0		solve.ans+4	
-	lw	$t1		mat+12	
-	mul	$t2	$t0	$t1	
-	add	$t3	$t7	$t2	
-	sw	$t3		solve.q+0	
-	lw	$t4		solve.p+0	
-	lw	$t5		MOD+0	
-	rem	$t6	$t4	$t5	
-	sw	$t6		solve.ans+0	
-	lw	$t7		solve.q+0	
-	lw	$t8		MOD+0	
-	rem	$t9	$t7	$t8	
-	sw	$t9		solve.ans+4	
-	lw	$t0		mat+0	
-	lw	$t1		mat+0	
-	mul	$t2	$t0	$t1	
-	lw	$t3		mat+4	
-	lw	$t4		mat+8	
-	mul	$t5	$t3	$t4	
-	add	$t6	$t2	$t5	
-	sw	$t6		solve.p+0	
-	lw	$t7		mat+0	
-	lw	$t8		mat+4	
-	mul	$t9	$t7	$t8	
-	lw	$t0		mat+4	
-	lw	$t1		mat+12	
-	mul	$t2	$t0	$t1	
-	add	$t3	$t9	$t2	
-	sw	$t3		solve.q+0	
-	lw	$t4		mat+8	
-	lw	$t5		mat+0	
-	mul	$t6	$t4	$t5	
-	lw	$t7		mat+12	
-	lw	$t8		mat+8	
-	mul	$t9	$t7	$t8	
-	add	$t0	$t6	$t9	
-	sw	$t0		solve.r+0	
-	lw	$t1		mat+4	
-	lw	$t2		mat+8	
-	mul	$t3	$t1	$t2	
-	lw	$t4		mat+12	
-	lw	$t5		mat+12	
-	mul	$t6	$t4	$t5	
-	add	$t7	$t3	$t6	
-	sw	$t7		solve.s+0	
-	lw	$t8		solve.p+0	
-	lw	$t9		MOD+0	
-	rem	$t0	$t8	$t9	
-	sw	$t0		mat+0	
-	lw	$t1		solve.q+0	
-	lw	$t2		MOD+0	
-	rem	$t3	$t1	$t2	
-	sw	$t3		mat+4	
-	lw	$t4		solve.r+0	
-	lw	$t5		MOD+0	
-	rem	$t6	$t4	$t5	
-	sw	$t6		mat+8	
-	lw	$t7		solve.s+0	
-	lw	$t8		MOD+0	
-	rem	$t9	$t7	$t8	
-	sw	$t9		mat+12	
-	j			l8	
-l87:	lw	$t0		solve.ans+0	
-	move	$v0	$t0		
-	add	$sp	$sp	4	
-	lw	$ra		0($sp)	
-	jr	$ra			
-main:	sw	$ra		0($sp)	
-	add	$sp	$sp	-4	
-	li	$v0	5		
-	syscall				
-l90:	move	$t1	$v0		
-	sw	$t1		n($t0)	
-	lw	$t2		n+0	
-	sw	$t2		solve.x	
-	jal			solve	
-	move	$t3	$v0		
-l95:	move	$a0	$t3		
-	li	$v0	1		
-	syscall				
-	li	$t4		0	
-	li	$v0	10		
-	syscall				
-Parse Completed
-type:func	name:main	offset:0	entry:92
-===========================================================
-===========================================================
-type:func	name:solve	offset:0	entry:1
-===========================================================
-type:int	name:ans	offset:20	width:2	height:1
-type:int	name:s	offset:16	width:1	height:1
-type:int	name:r	offset:12	width:1	height:1
-type:int	name:q	offset:8	width:1	height:1
-type:int	name:p	offset:4	width:1	height:1
-type:int	name:x	offset:0	width:1	height:1
-===========================================================
-type:int	name:MOD	offset:20	width:1	height:1
-type:int	name:n	offset:16	width:1	height:1
-type:int	name:mat	offset:0	width:4	height:1
-===========================================================
-###1	li	0	1	0
-2	swi	0	12	mat
-3	li	0	1	1
-4	swi	1	8	mat
-5	li	0	1	2
-6	swi	2	4	mat
-7	li	0	0	3
-8	swi	3	0	mat
-9	li	0	10007	4
-10	swi	4	0	MOD
-solve:
-12	li	0	1	5
-13	swi	5	4	ans
-14	li	0	0	6
-15	swi	6	0	ans
-main:
-17	end	0	0	0
-===========================================================
-solve:
-###2	lwi	7	0	r
-3	lwi	8	0	s
-4	mul	7	8	9
-5	swi	9	0	p
-6	lwi	10	0	ans
-7	swi	10	0	r
-###8	lwi	11	0	x
-9	jnei	11	0	37602576
-10	jmp	0	0	inst90
-###11	lwi	12	0	x
-12	shri	12	1	13
-13	swi	13	0	x
-14	jmp	0	0	inst8
-###15	lwi	14	0	x
-16	bandi	14	1	15
-17	lwi	16	0	ans
-18	lwi	17	0	mat
-19	mul	16	17	18
-20	lwi	19	4	ans
-21	lwi	20	8	mat
-22	mul	19	20	21
-23	add	18	21	22
-24	swi	22	0	p
-25	lwi	23	0	ans
-26	lwi	24	4	mat
-27	mul	23	24	25
-28	lwi	26	4	ans
-29	lwi	27	12	mat
-30	mul	26	27	28
-31	add	25	28	29
-32	swi	29	0	q
-33	lwi	30	0	p
-34	lwi	31	0	MOD
-35	rem	30	31	32
-36	swi	32	0	ans
-37	lwi	33	0	q
-38	lwi	34	0	MOD
-39	rem	33	34	35
-40	swi	35	4	ans
-41	lwi	36	0	mat
-42	lwi	37	0	mat
-43	mul	36	37	38
-44	lwi	39	4	mat
-45	lwi	40	8	mat
-46	mul	39	40	41
-47	add	38	41	42
-48	swi	42	0	p
-49	lwi	43	0	mat
-50	lwi	44	4	mat
-51	mul	43	44	45
-52	lwi	46	4	mat
-53	lwi	47	12	mat
-54	mul	46	47	48
-55	add	45	48	49
-56	swi	49	0	q
-57	lwi	50	8	mat
-58	lwi	51	0	mat
-59	mul	50	51	52
-60	lwi	53	12	mat
-61	lwi	54	8	mat
-62	mul	53	54	55
-63	add	52	55	56
-64	swi	56	0	r
-65	lwi	57	4	mat
-66	lwi	58	8	mat
-67	mul	57	58	59
-68	lwi	60	12	mat
-69	lwi	61	12	mat
-70	mul	60	61	62
-71	add	59	62	63
-72	swi	63	0	s
-73	lwi	64	0	p
-74	lwi	65	0	MOD
-75	rem	64	65	66
-76	swi	66	0	mat
-77	lwi	67	0	q
-78	lwi	68	0	MOD
-79	rem	67	68	69
-80	swi	69	4	mat
-81	lwi	70	0	r
-82	lwi	71	0	MOD
-83	rem	70	71	72
-84	swi	72	8	mat
-85	lwi	73	0	s
-86	lwi	74	0	MOD
-87	rem	73	74	75
-88	swi	75	12	mat
-89	jmp	0	0	inst11
-###90	lwi	76	0	ans
-91	ret	76	0	0
-main:
-###93	read	0	0	77
-94	sw	77	0	n
-95	lwi	78	0	n
-96	param	78	0	x
-97	call	79	0	inst1
-###98	write	0	0	79
-99	li	0	0	80
-100	ret	80	0	0
-###101	end	0	0	0
-===========================================================
-.data
-solve.x:	.word	0
-solve.p:	.word	0
-solve.q:	.word	0
-solve.r:	.word	0
-solve.s:	.word	0
-solve.ans:	.word	0
-	.word	0
-mat:	.word	0
-	.word	0
-	.word	0
-	.word	0
-n:	.word	0
-MOD:	.word	0
-===========================================================
-.data
-solve.x:	.word	0
-solve.p:	.word	0
-solve.q:	.word	0
-solve.r:	.word	0
-solve.s:	.word	0
-solve.ans:	.word	0
-	.word	1
-mat:	.word	0
-	.word	1
-	.word	1
-	.word	1
-n:	.word	0
-MOD:	.word	10007
-===========================================================
-.text
-solve:	sw	$ra		0($sp)	
-	add	$sp	$sp	-4	
-l2:	lw	$t0		solve.r+0	
-	lw	$t1		solve.s+0	
-	mul	$t2	$t0	$t1	
-	sw	$t2		solve.p+0	
-	lw	$t3		solve.ans+0	
-	sw	$t3		solve.r+0	
-l8:	lw	$t4		solve.x+0	
-	bne	$t4	0	l15	
-	j			l90	
-l11:	lw	$t5		solve.x+0	
-	srl	$t6	$t5	$t1	
-	sw	$t6		solve.x+0	
-	j			l8	
-l15:	lw	$t7		solve.x+0	
-	and	$t8	$t7	1	
-	lw	$t9		solve.ans+0	
-	lw	$t0		mat+0	
-	mul	$t1	$t9	$t0	
-	lw	$t2		solve.ans+4	
-	lw	$t3		mat+8	
-	mul	$t4	$t2	$t3	
-	add	$t5	$t1	$t4	
-	sw	$t5		solve.p+0	
-	lw	$t6		solve.ans+0	
-	lw	$t7		mat+4	
-	mul	$t8	$t6	$t7	
-	lw	$t0		solve.ans+4	
-	lw	$t1		mat+12	
-	mul	$t2	$t0	$t1	
-	add	$t3	$t8	$t2	
-	sw	$t3		solve.q+0	
-	lw	$t4		solve.p+0	
-	lw	$t5		MOD+0	
-	rem	$t6	$t4	$t5	
-	sw	$t6		solve.ans+0	
-	lw	$t7		solve.q+0	
-	lw	$t8		MOD+0	
-	rem	$t9	$t7	$t8	
-	sw	$t9		solve.ans+4	
-	lw	$t0		mat+0	
-	lw	$t1		mat+0	
-	mul	$t2	$t0	$t1	
-	lw	$t3		mat+4	
-	lw	$t4		mat+8	
-	mul	$t5	$t3	$t4	
-	add	$t6	$t2	$t5	
-	sw	$t6		solve.p+0	
-	lw	$t7		mat+0	
-	lw	$t8		mat+4	
-	mul	$t9	$t7	$t8	
-	lw	$t0		mat+4	
-	lw	$t1		mat+12	
-	mul	$t2	$t0	$t1	
-	add	$t3	$t9	$t2	
-	sw	$t3		solve.q+0	
-	lw	$t4		mat+8	
-	lw	$t5		mat+0	
-	mul	$t6	$t4	$t5	
-	lw	$t7		mat+12	
-	lw	$t8		mat+8	
-	mul	$t9	$t7	$t8	
-	add	$t0	$t6	$t9	
-	sw	$t0		solve.r+0	
-	lw	$t1		mat+4	
-	lw	$t2		mat+8	
-	mul	$t3	$t1	$t2	
-	lw	$t4		mat+12	
-	lw	$t5		mat+12	
-	mul	$t6	$t4	$t5	
-	add	$t7	$t3	$t6	
-	sw	$t7		solve.s+0	
-	lw	$t8		solve.p+0	
-	lw	$t9		MOD+0	
-	rem	$t0	$t8	$t9	
-	sw	$t0		mat+0	
-	lw	$t1		solve.q+0	
-	lw	$t2		MOD+0	
-	rem	$t3	$t1	$t2	
-	sw	$t3		mat+4	
-	lw	$t4		solve.r+0	
-	lw	$t5		MOD+0	
-	rem	$t6	$t4	$t5	
-	sw	$t6		mat+8	
-	lw	$t7		solve.s+0	
-	lw	$t8		MOD+0	
-	rem	$t9	$t7	$t8	
-	sw	$t9		mat+12	
-	j			l11	
-l90:	lw	$t0		solve.ans+0	
-	move	$v0	$t0		
-	add	$sp	$sp	4	
-	lw	$ra		0($sp)	
-	jr	$ra			
-main:	sw	$ra		0($sp)	
-	add	$sp	$sp	-4	
-	li	$v0	5		
-	syscall				
-l93:	move	$t1	$v0		
-	sw	$t1		n($t0)	
-	lw	$t2		n+0	
-	sw	$t2		solve.x	
-	jal			solve	
-	move	$t3	$v0		
-l98:	move	$a0	$t3		
-	li	$v0	1		
-	syscall				
-	li	$t4		0	
-	li	$v0	10		
-	syscall				
-Parse Completed
 ###solve:
-2	lwi	7	0	r
-3	lwi	8	0	s
-4	mul	7	8	9
-5	swi	9	0	p
-6	lwi	10	0	ans
-7	swi	10	0	r
-8	lwi	11	0	x
-9	jnei	11	0	inst14513424
-10	jmp	0	0	inst14520016
-11	lwi	12	0	x
-12	shri	12	1	13
-13	swi	13	0	x
-14	jmp	0	0	inst14512848
-15	lwi	14	0	x
-16	bandi	14	1	15
-17	jei	15	1	inst14513776
-18	jmp	0	0	inst14515856
-19	lwi	16	0	ans
-20	lwi	17	0	mat
-21	mul	16	17	18
-22	lwi	19	4	ans
-23	lwi	20	8	mat
-24	mul	19	20	21
-25	add	18	21	22
-26	swi	22	0	p
-27	lwi	23	0	ans
-28	lwi	24	4	mat
-29	mul	23	24	25
-30	lwi	26	4	ans
-31	lwi	27	12	mat
-32	mul	26	27	28
-33	add	25	28	29
-34	swi	29	0	q
-35	lwi	30	0	p
-36	lwi	31	0	MOD
-37	rem	30	31	32
-38	swi	32	0	ans
-39	lwi	33	0	q
-40	lwi	34	0	MOD
-41	rem	33	34	35
-42	swi	35	4	ans
-43	lwi	36	0	mat
-44	lwi	37	0	mat
-45	mul	36	37	38
-46	lwi	39	4	mat
-47	lwi	40	8	mat
-48	mul	39	40	41
-49	add	38	41	42
-50	swi	42	0	p
-51	lwi	43	0	mat
-52	lwi	44	4	mat
-53	mul	43	44	45
-54	lwi	46	4	mat
-55	lwi	47	12	mat
-56	mul	46	47	48
-57	add	45	48	49
-58	swi	49	0	q
-59	lwi	50	8	mat
-60	lwi	51	0	mat
-61	mul	50	51	52
-62	lwi	53	12	mat
-63	lwi	54	8	mat
-64	mul	53	54	55
-65	add	52	55	56
-66	swi	56	0	r
-67	lwi	57	4	mat
-68	lwi	58	8	mat
-69	mul	57	58	59
-70	lwi	60	12	mat
-71	lwi	61	12	mat
-72	mul	60	61	62
-73	add	59	62	63
-74	swi	63	0	s
-75	lwi	64	0	p
-76	lwi	65	0	MOD
-77	rem	64	65	66
-78	swi	66	0	mat
-79	lwi	67	0	q
-80	lwi	68	0	MOD
-81	rem	67	68	69
-82	swi	69	4	mat
-83	lwi	70	0	r
-84	lwi	71	0	MOD
-85	rem	70	71	72
-86	swi	72	8	mat
-87	lwi	73	0	s
-88	lwi	74	0	MOD
-89	rem	73	74	75
-90	swi	75	12	mat
-91	jmp	0	0	inst14513104
-92	lwi	76	0	ans
-93	ret	76	0	0
+2	lwi	4	0	x
+3	jei	4	0	inst5
+4	jmp	0	0	inst8
+5	lwi	5	0	a1
+6	ret	5	0	0
+7	jmp	0	0	inst38
+8	lwi	6	0	x
+9	jei	6	1	inst11
+10	jmp	0	0	inst14
+11	lwi	7	0	a2
+12	ret	7	0	0
+13	jmp	0	0	inst38
+14	li	0	0	8
+15	swi	8	0	i
+16	lwi	9	0	x
+17	subi	9	2	10
+18	lwi	11	0	i
+19	jlt	11	10	inst25
+20	jmp	0	0	inst36
+21	lwi	12	0	i
+22	addi	12	1	13
+23	sw	13	0	i
+24	jmp	0	0	inst16
+25	lwi	14	0	a3
+26	swi	14	0	temp
+27	lwi	15	0	a1
+28	lwi	16	0	a2
+29	add	15	16	17
+30	swi	17	0	a3
+31	lwi	18	0	a2
+32	swi	18	0	a1
+33	lwi	19	0	temp
+34	swi	19	0	a2
+35	jmp	0	0	inst21
+36	lwi	20	0	a3
+37	ret	20	0	0
 main:
-95	read	0	0	77
-96	sw	77	0	n
-97	lwi	78	0	n
-98	param	78	0	x
-99	call	79	0	inst14488384
-100	write	0	0	79
-101	li	0	0	80
-102	ret	80	0	0
-103	end	0	0	0
-14510624
-14512400
-14512432
-9
-14512368
-14512752
-14512720
-14512912
-14513424
-14520016
-14513200
-13
-14513200
-14512848
-14513520
-15
-14513776
-14515856
-14513904
-14513936
-18
-14514160
-14514192
-21
-22
-14513872
-14514576
-14514608
-25
-14514832
-14514864
-28
-29
-14514544
-14515248
-14515280
-32
-14515216
-14515600
-14515632
-35
-14515568
-14515952
-14515984
-38
-14516208
-14516240
-41
-42
-14515920
-14516624
-14516656
-45
-14516880
-14516912
-48
-49
-14516592
-14517296
-14517328
-52
-14517552
-14517584
-55
-56
-14517264
-14517968
-14518000
-59
-14518224
-14518256
-62
-63
-14517936
-14518640
-14518672
-66
-14518608
-14518992
-14519024
-69
-14518960
-14519344
-14519376
-72
-14519312
-14519696
-14519728
-75
-14519664
-14513104
-14520080
-0
-14520384
-77
-14520656
-14520976
-14510848
-14488384
-79
-80
-0
-0
+39	read	0	0	21
+40	sw	21	0	x
+41	lwi	22	0	x
+42	param	22	0	x
+43	call	23	0	inst1
+44	write	0	0	23
+45	li	0	0	24
+46	ret	24	0	0
+47	end	0	0	0
 ===========================================================
-###1	li	0	1	0
-2	swi	0	12	mat
-3	li	0	1	1
-4	swi	1	8	mat
+###1	li	0	0	0
+2	swi	0	0	time
+3	li	0	0	1
+4	swi	1	0	a1
 5	li	0	1	2
-6	swi	2	4	mat
-7	li	0	0	3
-8	swi	3	0	mat
-9	li	0	10007	4
-10	swi	4	0	MOD
+6	swi	2	0	a2
+7	li	0	1	3
+8	swi	3	0	a3
 solve:
-12	li	0	1	5
-13	swi	5	4	ans
-14	li	0	0	6
-15	swi	6	0	ans
 main:
-17	end	0	0	0
+11	end	0	0	0
 ===========================================================
 solve:
-###2	lwi	7	0	r
-3	lwi	8	0	s
-4	mul	7	8	9
-5	swi	9	0	p
-6	lwi	10	0	ans
-7	swi	10	0	r
-###8	lwi	11	0	x
-9	jnei	11	0	inst14513424
-###10	jmp	0	0	inst14520016
-###11	lwi	12	0	x
-12	shri	12	1	13
-13	swi	13	0	x
-14	jmp	0	0	inst14512848
-###15	lwi	14	0	x
-16	bandi	14	1	15
-17	jei	15	1	inst14513776
-###18	jmp	0	0	inst14515856
-###19	lwi	16	0	ans
-20	lwi	17	0	mat
-21	mul	16	17	18
-22	lwi	19	4	ans
-23	lwi	20	8	mat
-24	mul	19	20	21
-25	add	18	21	22
-26	swi	22	0	p
-27	lwi	23	0	ans
-28	lwi	24	4	mat
-29	mul	23	24	25
-30	lwi	26	4	ans
-31	lwi	27	12	mat
-32	mul	26	27	28
-33	add	25	28	29
-34	swi	29	0	q
-35	lwi	30	0	p
-36	lwi	31	0	MOD
-37	rem	30	31	32
-38	swi	32	0	ans
-39	lwi	33	0	q
-40	lwi	34	0	MOD
-41	rem	33	34	35
-42	swi	35	4	ans
-###43	lwi	36	0	mat
-44	lwi	37	0	mat
-45	mul	36	37	38
-46	lwi	39	4	mat
-47	lwi	40	8	mat
-48	mul	39	40	41
-49	add	38	41	42
-50	swi	42	0	p
-51	lwi	43	0	mat
-52	lwi	44	4	mat
-53	mul	43	44	45
-54	lwi	46	4	mat
-55	lwi	47	12	mat
-56	mul	46	47	48
-57	add	45	48	49
-58	swi	49	0	q
-59	lwi	50	8	mat
-60	lwi	51	0	mat
-61	mul	50	51	52
-62	lwi	53	12	mat
-63	lwi	54	8	mat
-64	mul	53	54	55
-65	add	52	55	56
-66	swi	56	0	r
-67	lwi	57	4	mat
-68	lwi	58	8	mat
-69	mul	57	58	59
-70	lwi	60	12	mat
-71	lwi	61	12	mat
-72	mul	60	61	62
-73	add	59	62	63
-74	swi	63	0	s
-75	lwi	64	0	p
-76	lwi	65	0	MOD
-77	rem	64	65	66
-78	swi	66	0	mat
-79	lwi	67	0	q
-80	lwi	68	0	MOD
-81	rem	67	68	69
-82	swi	69	4	mat
-83	lwi	70	0	r
-84	lwi	71	0	MOD
-85	rem	70	71	72
-86	swi	72	8	mat
-87	lwi	73	0	s
-88	lwi	74	0	MOD
-89	rem	73	74	75
-90	swi	75	12	mat
-91	jmp	0	0	inst14513104
-###92	lwi	76	0	ans
-93	ret	76	0	0
+###2	lwi	4	0	x
+3	jei	4	0	inst5
+###4	jmp	0	0	inst8
+###5	lwi	5	0	a1
+6	ret	5	0	0
+###7	jmp	0	0	inst38
+###8	lwi	6	0	x
+9	jei	6	1	inst11
+###10	jmp	0	0	inst14
+###11	lwi	7	0	a2
+12	ret	7	0	0
+###13	jmp	0	0	inst38
+###14	li	0	0	8
+15	swi	8	0	i
+###16	lwi	9	0	x
+17	subi	9	2	10
+18	lwi	11	0	i
+19	jlt	11	10	inst25
+###20	jmp	0	0	inst36
+###21	lwi	12	0	i
+22	addi	12	1	13
+23	sw	13	0	i
+24	jmp	0	0	inst16
+###25	lwi	14	0	a3
+26	swi	14	0	temp
+27	lwi	15	0	a1
+28	lwi	16	0	a2
+29	add	15	16	17
+30	swi	17	0	a3
+31	lwi	18	0	a2
+32	swi	18	0	a1
+33	lwi	19	0	temp
+34	swi	19	0	a2
+35	jmp	0	0	inst21
+###36	lwi	20	0	a3
+37	ret	20	0	0
 main:
-###95	read	0	0	77
-96	sw	77	0	n
-97	lwi	78	0	n
-98	param	78	0	x
-99	call	79	0	inst14488384
-###100	write	0	0	79
-101	li	0	0	80
-102	ret	80	0	0
-###103	end	0	0	0
+###39	read	0	0	21
+40	sw	21	0	x
+41	lwi	22	0	x
+42	param	22	0	x
+43	call	23	0	inst1
+###44	write	0	0	23
+45	li	0	0	24
+46	ret	24	0	0
+###47	end	0	0	0
 ===========================================================
 .data
 solve.x:	.word	0
-solve.p:	.word	0
-solve.q:	.word	0
-solve.r:	.word	0
-solve.s:	.word	0
-solve.ans:	.word	0
-	.word	0
-mat:	.word	0
-	.word	0
-	.word	0
-	.word	0
-n:	.word	0
-MOD:	.word	0
+solve.i:	.word	0
+solve.temp:	.word	0
+time:	.word	0
+x:	.word	0
+a1:	.word	0
+a2:	.word	0
+a3:	.word	0
 ===========================================================
 .data
 solve.x:	.word	0
-solve.p:	.word	0
-solve.q:	.word	0
-solve.r:	.word	0
-solve.s:	.word	0
-solve.ans:	.word	0
-	.word	1
-mat:	.word	0
-	.word	1
-	.word	1
-	.word	1
-n:	.word	0
-MOD:	.word	10007
+solve.i:	.word	0
+solve.temp:	.word	0
+time:	.word	0
+x:	.word	0
+a1:	.word	0
+a2:	.word	1
+a3:	.word	1
 ===========================================================
 .text
 solve:	sw	$ra		0($sp)	
 	add	$sp	$sp	-4	
-l2:	lw	$t0		solve.r+0	
-	lw	$t1		solve.s+0	
-	mul	$t2	$t0	$t1	
-	sw	$t2		solve.p+0	
-	lw	$t3		solve.ans+0	
-	sw	$t3		solve.r+0	
-l8:	lw	$t4		solve.x+0	
-	bne	$t4	0	l15	
-l10:	j			l92	
-l11:	lw	$t5		solve.x+0	
-	srl	$t6	$t5	$t1	
-	sw	$t6		solve.x+0	
-	j			l8	
-l15:	lw	$t7		solve.x+0	
-	and	$t8	$t7	1	
-	beq	$t8	1	l19	
-l18:	j			l43	
-l19:	lw	$t9		solve.ans+0	
-	lw	$t0		mat+0	
-	mul	$t1	$t9	$t0	
-	lw	$t2		solve.ans+4	
-	lw	$t3		mat+8	
-	mul	$t4	$t2	$t3	
-	add	$t5	$t1	$t4	
-	sw	$t5		solve.p+0	
-	lw	$t6		solve.ans+0	
-	lw	$t7		mat+4	
-	mul	$t8	$t6	$t7	
-	lw	$t0		solve.ans+4	
-	lw	$t1		mat+12	
-	mul	$t2	$t0	$t1	
-	add	$t3	$t8	$t2	
-	sw	$t3		solve.q+0	
-	lw	$t4		solve.p+0	
-	lw	$t5		MOD+0	
-	rem	$t6	$t4	$t5	
-	sw	$t6		solve.ans+0	
-	lw	$t7		solve.q+0	
-	lw	$t8		MOD+0	
-	rem	$t9	$t7	$t8	
-	sw	$t9		solve.ans+4	
-l43:	lw	$t0		mat+0	
-	lw	$t1		mat+0	
-	mul	$t2	$t0	$t1	
-	lw	$t3		mat+4	
-	lw	$t4		mat+8	
-	mul	$t5	$t3	$t4	
-	add	$t6	$t2	$t5	
-	sw	$t6		solve.p+0	
-	lw	$t7		mat+0	
-	lw	$t8		mat+4	
-	mul	$t9	$t7	$t8	
-	lw	$t0		mat+4	
-	lw	$t1		mat+12	
-	mul	$t2	$t0	$t1	
-	add	$t3	$t9	$t2	
-	sw	$t3		solve.q+0	
-	lw	$t4		mat+8	
-	lw	$t5		mat+0	
-	mul	$t6	$t4	$t5	
-	lw	$t7		mat+12	
-	lw	$t8		mat+8	
-	mul	$t9	$t7	$t8	
-	add	$t0	$t6	$t9	
-	sw	$t0		solve.r+0	
-	lw	$t1		mat+4	
-	lw	$t2		mat+8	
-	mul	$t3	$t1	$t2	
-	lw	$t4		mat+12	
-	lw	$t5		mat+12	
-	mul	$t6	$t4	$t5	
-	add	$t7	$t3	$t6	
-	sw	$t7		solve.s+0	
-	lw	$t8		solve.p+0	
-	lw	$t9		MOD+0	
-	rem	$t0	$t8	$t9	
-	sw	$t0		mat+0	
-	lw	$t1		solve.q+0	
-	lw	$t2		MOD+0	
-	rem	$t3	$t1	$t2	
-	sw	$t3		mat+4	
-	lw	$t4		solve.r+0	
-	lw	$t5		MOD+0	
-	rem	$t6	$t4	$t5	
-	sw	$t6		mat+8	
-	lw	$t7		solve.s+0	
-	lw	$t8		MOD+0	
-	rem	$t9	$t7	$t8	
-	sw	$t9		mat+12	
-	j			l11	
-l92:	lw	$t0		solve.ans+0	
-	move	$v0	$t0		
+l2:	lw	$t0		solve.x+0	
+	beq	$t0	0	l5	
+l4:	j			l8	
+l5:	lw	$t1		a1+0	
+	move	$v0	$t1		
+	add	$sp	$sp	4	
+	lw	$ra		0($sp)	
+	jr	$ra			
+l7:	j			l38	
+l8:	lw	$t2		solve.x+0	
+	beq	$t2	1	l11	
+l10:	j			l14	
+l11:	lw	$t3		a2+0	
+	move	$v0	$t3		
+	add	$sp	$sp	4	
+	lw	$ra		0($sp)	
+	jr	$ra			
+l13:	j			l38	
+l14:	li	$t4		0	
+	sw	$t4		solve.i+0	
+l16:	lw	$t5		solve.x+0	
+	sub	$t6	$t5	2	
+	lw	$t7		solve.i+0	
+	blt	$t7	$t6	l25	
+l20:	j			l36	
+l21:	lw	$t8		solve.i+0	
+	add	$t9	$t8	1	
+	sw	$t9		solve.i($t0)	
+	j			l16	
+l25:	lw	$t0		a3+0	
+	sw	$t0		solve.temp+0	
+	lw	$t1		a1+0	
+	lw	$t2		a2+0	
+	add	$t3	$t1	$t2	
+	sw	$t3		a3+0	
+	lw	$t4		a2+0	
+	sw	$t4		a1+0	
+	lw	$t5		solve.temp+0	
+	sw	$t5		a2+0	
+	j			l21	
+l36:	lw	$t6		a3+0	
+	move	$v0	$t6		
 	add	$sp	$sp	4	
 	lw	$ra		0($sp)	
 	jr	$ra			
@@ -1012,15 +179,15 @@ main:	sw	$ra		0($sp)
 	add	$sp	$sp	-4	
 	li	$v0	5		
 	syscall				
-l95:	move	$t1	$v0		
-	sw	$t1		n($t0)	
-	lw	$t2		n+0	
-	sw	$t2		solve.x	
+l39:	move	$t7	$v0		
+	sw	$t7		x($t0)	
+	lw	$t8		x+0	
+	sw	$t8		solve.x	
 	jal			solve	
-	move	$t3	$v0		
-l100:	move	$a0	$t3		
+	move	$t9	$v0		
+l44:	move	$a0	$t9		
 	li	$v0	1		
 	syscall				
-	li	$t4		0	
+	li	$t0		0	
 	li	$v0	10		
 	syscall				
