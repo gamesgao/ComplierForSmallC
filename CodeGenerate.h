@@ -561,7 +561,6 @@ void CodeGenerate(){
             }
             case call:{
                 if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
-                prefix
                 struct symrec * funTemp = getsym(prefix)->scope;
                 for (; funTemp != (struct symrec *)0 && funTemp->name != 0; funTemp = (struct symrec *)funTemp->next){
                    if(strcmp(funTemp->type, "int") == 0){
