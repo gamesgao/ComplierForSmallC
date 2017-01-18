@@ -24,7 +24,7 @@ void markBasicBlock(struct IntermediaRepresentation* IR){
     struct Quad *ptr = IR->head;
     while(ptr->next != (struct Quad *) 0){
         ptr = ptr->next;
-        if(ptr->op == jmp || ptr->op == jgt || ptr->op == call || ptr->op == jgti){
+        if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti || ptr->op == call || ptr->op == jgti || ptr->op == jge || ptr->op == jgei || ptr->op == jlt || ptr->op == jlti || ptr->op == jle || ptr->op == jlei || ptr->op == je || ptr->op == jei || ptr->op == jne || ptr->op == jnei){
             ptr->dest.addr->basicBlockFlag = 1;
             ptr->next->basicBlockFlag = 1;
         }

@@ -193,7 +193,7 @@ extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是
           | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
           | TYPE func {genIRForLabel($<funcType.id>2);IR = InterR;genIRForLabel($<funcType.id>2);} stmtblock {
-            registerId($<funcType.id>2, "func", 0, 0, $<funcType.param>2, $<funcType.beforeEntry>2->next, subLevel());
+            registerId($<funcType.id>2, "func", 0, 0, subLevel(), $<funcType.beforeEntry>2->next, $<funcType.param>2);
           }
 ;
 
@@ -382,6 +382,7 @@ stmt      : exp SEMI {
 
           }
           | IF LP exp RP MM stmt {
+            
             backpatch($<value.trueList>3, $5->next);
             $<stmtType.nextList>$ = merge($<value.falseList>3, $<stmtType.nextList>6);
             $<stmtType.continueCount>$ = $<stmtType.continueCount>6;
@@ -911,12 +912,15 @@ exps      : exps BINARYOP_MUL exps{
             }
           }
           | exps BINARYOP_EQ exps {
+            
             if($<value.valType>1 == 1 && $<value.valType>3 == 1){
               if($<value.temp>1 == $<value.temp>3){
                 $<value.trueList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+                $<value.falseList>$ = 0;
               }
               else{
                 $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
+                $<value.falseList>$ = 0;
               }
             }
             else if($<value.valType>1 == 1){
@@ -1575,7 +1579,10 @@ int main( int argc, char *argv[] )
   endIR(InitR);
   endIR(InterR);
   printf("Parse Completed\n");
-  printST();
+  // printST();
+  // printf("%s\n", "===========================================================");
+  // printf("!!!%d\n", InterR);
+  printIR(InterR);
   markBasicBlock(InterR);
   printf("%s\n", "===========================================================");
   printIR(InitR);

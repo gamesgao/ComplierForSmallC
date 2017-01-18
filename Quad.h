@@ -212,7 +212,7 @@ void printIR(struct IntermediaRepresentation * ir){
         ptr = ptr->next;
         if(ptr->basicBlockFlag == 1) printf("###");
         if(ptr->op==lw || ptr->op==sw || ptr->op==swi || ptr->op==lwi || ptr->op==param) printf("%d\t%s\t%d\t%d\t%s\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.id);
-        else if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti || ptr->op == call) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
+        else if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti || ptr->op == call || ptr->op == jge || ptr->op == jgei || ptr->op == jlt || ptr->op == jlti || ptr->op == jle || ptr->op == jlei || ptr->op == je || ptr->op == jei || ptr->op == jne || ptr->op == jnei) printf("%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
         else if(ptr->op == label) printf("%s:\n", ptr->dest.id);
         else printf("%d\t%s\t%d\t%d\t%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
     }
