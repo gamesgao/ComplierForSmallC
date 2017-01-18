@@ -588,10 +588,13 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
+              temp2 = newTemp();
               result = newTemp();
-              genIR(opdivi, temp, $<value.temp>1, result);
+              genIR(li, 0, $<value.temp>1, temp2);
+              genIR(opdiv, temp2, temp, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -623,10 +626,13 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
+              temp2 = newTemp();
               result = newTemp();
-              genIR(remi, temp, $<value.temp>1, result);
+              genIR(li, 0, $<value.temp>1, temp2);
+              genIR(remi, temp2, temp, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -693,10 +699,13 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
+              temp2 = newTemp();
               result = newTemp();
-              genIR(subi, temp, $<value.temp>1, result);
+              genIR(li, 0, $<value.temp>1, temp2);
+              genIR(subi, temp2, temp, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -728,10 +737,13 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
+              temp2 = newTemp();
               result = newTemp();
-              genIR(shli, temp, $<value.temp>1, result);
+              genIR(li, 0, $<value.temp>1, temp2);
+              genIR(shli, temp2, temp, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -763,10 +775,13 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
+              temp2 = newTemp();
               result = newTemp();
-              genIR(shri, temp, $<value.temp>1, result);
+              genIR(li, 0, $<value.temp>1, temp2);
+              genIR(shri, temp2, temp, result);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
             }
@@ -802,8 +817,11 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               temp = normalizeExp((struct NSData *)&$3);
-              $<value.trueList>$ = makelist(genIRForBranch(jgti, temp, $<value.temp>1, 0));
+              temp2 = newTemp();
+              genIR(li, 0, $<value.temp>1, temp2);
+              $<value.trueList>$ = makelist(genIRForBranch(jgti, temp2, temp, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else if($<value.valType>3 == 1){
@@ -832,8 +850,11 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               temp = normalizeExp((struct NSData *)&$3);
-              $<value.trueList>$ = makelist(genIRForBranch(jgei, temp, $<value.temp>1, 0));
+              temp2 = newTemp();
+              genIR(li, 0, $<value.temp>1, temp2);
+              $<value.trueList>$ = makelist(genIRForBranch(jgei, temp2, temp, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else if($<value.valType>3 == 1){
@@ -862,8 +883,11 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               temp = normalizeExp((struct NSData *)&$3);
-              $<value.trueList>$ = makelist(genIRForBranch(jlti, temp, $<value.temp>1, 0));
+              temp2 = newTemp();
+              genIR(li, 0, $<value.temp>1, temp2);
+              $<value.trueList>$ = makelist(genIRForBranch(jlti, temp2, temp, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else if($<value.valType>3 == 1){
@@ -892,8 +916,11 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if($<value.valType>1 == 1){
               int temp;
+              int temp2;
               temp = normalizeExp((struct NSData *)&$3);
-              $<value.trueList>$ = makelist(genIRForBranch(jlei, temp, $<value.temp>1, 0));
+              temp2 = newTemp();
+              genIR(li, 0, $<value.temp>1, temp2);
+              $<value.trueList>$ = makelist(genIRForBranch(jlei, temp2, temp, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
             else if($<value.valType>3 == 1){
