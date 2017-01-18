@@ -515,6 +515,18 @@ void CodeGenerate(){
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }
+            case read:{
+                if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);   
+                CSPush(noneStr, "li", "$v0", "5", noneStr, noneStr);
+                CSPush(noneStr, "syscall", noneStr, noneStr, noneStr, noneStr);
+                sprintf(op, "move");
+                sprintf(p1, "$t%d", getTR(ptr, ptr->dest.TIA));
+                sprintf(p2, "$v0");
+                sprintf(p3, "%s", noneStr);        
+                CSPush(instLabel, op, p1, p2, p3, noneStr);    
+                sprintf(instLabel, "%s", noneStr);
+                break;
+            }
             case ret:{
                 if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
                 if(strcmp(prefix, "main") == 0){
