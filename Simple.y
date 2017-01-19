@@ -568,19 +568,39 @@ exps      : exps BINARYOP_MUL exps{
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
-              result = newTemp();
-              genIR(muli, temp, $<value.temp>1, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>1 == 1){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else if($<value.temp>1 == 0){
+                $<value.valType>$ = 1;
+                $<value.temp>$ = 0;
+              }
+              else{
+                result = newTemp();
+                genIR(muli, temp, $<value.temp>1, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else if($<value.valType>3 == 1){
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$1);
-              result = newTemp();
-              genIR(muli, temp, $<value.temp>3, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>3 == 1){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else if($<value.temp>3 == 0){
+                $<value.valType>$ = 1;
+                $<value.temp>$ = 0;
+              }
+              else{
+                result = newTemp();
+                genIR(muli, temp, $<value.temp>3, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else{
               int temp1;
@@ -604,21 +624,36 @@ exps      : exps BINARYOP_MUL exps{
               int temp2;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
-              temp2 = newTemp();
-              result = newTemp();
-              genIR(li, 0, $<value.temp>1, temp2);
-              genIR(opdiv, temp2, temp, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>1 == 0){
+                $<value.valType>$ = 1;
+                $<value.temp>$ = 0;
+              }
+              else{
+                temp2 = newTemp();
+                result = newTemp();
+                genIR(li, 0, $<value.temp>1, temp2);
+                genIR(opdiv, temp2, temp, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else if($<value.valType>3 == 1){
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$1);
-              result = newTemp();
-              genIR(opdivi, temp, $<value.temp>3, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>3 == 1){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else if($<value.temp>3 == 0){
+                printf("wrong while do div");
+              }
+              else{
+                result = newTemp();
+                genIR(opdivi, temp, $<value.temp>3, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else{
               int temp1;
@@ -679,19 +714,31 @@ exps      : exps BINARYOP_MUL exps{
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$3);
-              result = newTemp();
-              genIR(addi, temp, $<value.temp>1, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>1 == 0){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else{
+                result = newTemp();
+                genIR(addi, temp, $<value.temp>1, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else if($<value.valType>3 == 1){
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$1);
-              result = newTemp();
-              genIR(addi, temp, $<value.temp>3, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>3 == 0){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else{
+                result = newTemp();
+                genIR(addi, temp, $<value.temp>3, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else{
               int temp1;
@@ -726,10 +773,16 @@ exps      : exps BINARYOP_MUL exps{
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$1);
-              result = newTemp();
-              genIR(subi, temp, $<value.temp>3, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>3 == 0){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else{
+                result = newTemp();
+                genIR(subi, temp, $<value.temp>3, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else{
               int temp1;
@@ -764,10 +817,16 @@ exps      : exps BINARYOP_MUL exps{
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$1);
-              result = newTemp();
-              genIR(shli, temp, $<value.temp>3, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>3 == 0){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else{
+                result = newTemp();
+                genIR(shli, temp, $<value.temp>3, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else{
               int temp1;
@@ -802,10 +861,16 @@ exps      : exps BINARYOP_MUL exps{
               int temp;
               int result;
               temp = normalizeExp((struct NSData *)&$1);
-              result = newTemp();
-              genIR(shri, temp, $<value.temp>3, result);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = result;
+              if($<value.temp>3 == 0){
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
+              }
+              else{
+                result = newTemp();
+                genIR(shri, temp, $<value.temp>3, result);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = result;
+              }
             }
             else{
               int temp1;
@@ -983,6 +1048,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.trueList>$ = makelist(genIRForBranch(je, temp1, temp2, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
+            $<value.valType>$ = 0;
           }
           | exps BINARYOP_NEQ exps {
             if($<value.valType>1 == 1 && $<value.valType>3 == 1){
@@ -1013,6 +1079,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.trueList>$ = makelist(genIRForBranch(jne, temp1, temp2, 0));
               $<value.falseList>$ = makelist(genIRForBranch(jmp, 0, 0, 0));
             }
+            $<value.valType>$ = 0;
           }
           | exps BINARYOP_BAND exps {
             if($<value.valType>1 == 1 && $<value.valType>3 == 1){
@@ -1139,12 +1206,18 @@ exps      : exps BINARYOP_MUL exps{
               if($<value.valType>3 == 1){
                 temp = newTemp();
                 genIR(li, 0, $<value.temp>3, temp);
+                if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
+                else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+                $<value.valType>$ = 1;
+                $<value.temp>$ = $<value.temp>3;
               }
               else{
                 temp = normalizeExp((struct NSData *) &$3);
+                if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
+                else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+                $<value.valType>$ = 2;
+                $<value.temp>$ = temp;
               }
-              if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
-              else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
             }
             else {
               printf("wrong while assign!\n");
@@ -1167,6 +1240,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1189,6 +1264,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1211,6 +1288,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1233,6 +1312,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1255,6 +1336,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1277,6 +1360,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1299,6 +1384,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1321,6 +1408,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1343,6 +1432,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
@@ -1365,6 +1456,8 @@ exps      : exps BINARYOP_MUL exps{
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = temp;
             }
             else {
               printf("wrong while assign!\n");
