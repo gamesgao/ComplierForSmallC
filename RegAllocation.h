@@ -137,7 +137,10 @@ int getTR(struct Quad * ptr, int temp){
         }
     }
     else{
-        // push maxReg
+        char *p3 = (char *)malloc(sizeof(char)*80);
+        sprintf(p3, "$t%d", maxReg);
+        CSPush(noneStr, "sw", p3, noneStr, "0($sp)", noneStr);
+        CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
         RSPush(tempReg[maxReg].temp);
         tempReg[maxReg].flag = 1;
         tempReg[maxReg].temp = temp;
@@ -155,7 +158,10 @@ int getTemp(struct Quad * ptr, int temp){
             tempRS = RStop;
             RStop = RStop->next;
             regPosi = getTR(ptr, tempRS->temp);
-            //pop regPosi
+            CSPush(noneStr, "add", "$sp", "$sp", "4", noneStr);
+            char *p3 = (char *)malloc(sizeof(char)*80);
+            sprintf(p3, "$t%d", regPosi);
+            CSPush(noneStr, "lw", p3, noneStr, "0($sp)", noneStr);
             tempReg[regPosi].flag = 1;
             tempReg[regPosi].temp = tempRS->temp;
             free(tempRS);
