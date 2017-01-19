@@ -1559,30 +1559,35 @@ exps      : exps BINARYOP_MUL exps{
             if(strcmp($1, "read") == 0){
               int input = newTemp();
               temp = getNSFromBottom();
-              genIR(read, 0, 0, input);
-              if(temp->valType == 3 || temp->valType == 4){
-                if($<value.valType>1 == 3) genIRForLS(swi, input, temp->offset, temp->id);
-                else genIRForLS(sw, input, temp->offset, temp->id);
-              }
+              if(temp == 0) yyerror("unmatch param\n");
               else {
-                yyerror("wrong while read args!\n");
+                genIR(read, 0, 0, input);
+                if(temp->valType == 3 || temp->valType == 4){
+                  if($<value.valType>1 == 3) genIRForLS(swi, input, temp->offset, temp->id);
+                  else genIRForLS(sw, input, temp->offset, temp->id);
+                }
+                else {
+                  yyerror("wrong while read args!\n");
+                }
               }
             }
             else if(strcmp($1, "write") == 0){
               int output;
               temp = getNSFromBottom();
-              if(temp->valType == 1){
-                output = newTemp();
-                genIR(li, 0, temp->temp, output);
-              } 
-              else{
-                if(temp->valType == 3 || temp->valType == 3){
-                  if(strcmp(getsym(temp->id)->type, "int") != 0) yyerror("wrong while pass parameter\n");
-                }
-                output = normalizeExp(temp);
-              } 
-              
-              genIR(write, 0, 0, output);
+              if(temp == 0) yyerror("unmatch param\n");
+              else {
+                if(temp->valType == 1){
+                  output = newTemp();
+                  genIR(li, 0, temp->temp, output);
+                } 
+                else{
+                  if(temp->valType == 3 || temp->valType == 3){
+                    if(strcmp(getsym(temp->id)->type, "int") != 0) yyerror("wrong while pass parameter\n");
+                  }
+                  output = normalizeExp(temp);
+                } 
+                genIR(write, 0, 0, output);
+              }
             }
             else{
               struct symrec *fun = getsym($1);
@@ -1590,22 +1595,33 @@ exps      : exps BINARYOP_MUL exps{
               if(fun != 0){
                 if(strcmp(getsym($1)->type, "func") != 0) yyerror("must be func!\n");
                 else {
-                  parameter = fun->param;    
-                  for(i=$3-1;i >= 0 ;i--){
-                    temp = getNSFromBottom();
-                    if(temp->valType == 1){
-                      int tempReg = newTemp();
-                      genIR(li, 0, temp->temp, tempReg);
-                      genIRForLS(param, tempReg, 0, parameter->name);
-                    }
-                    else{
-                      if(temp->valType == 3 || temp->valType == 3){
-                        if(strcmp(getsym(temp->id)->type, "int") != 0) yyerror("wrong while pass parameter\n");
+                  parameter = fun->param; 
+                  struct symrec *ptr;
+                  int paramNumber = 0;
+                  for (ptr = parameter; ptr != (struct symrec *)0 && ptr->name != 0; ptr = (struct symrec *)ptr->next){
+                    paramNumber++;
+                  }
+                  if(paramNumber != $3) yyerror("unmatch param\n");
+                  else{ 
+                    for(i=$3-1;i >= 0 ;i--){
+                      temp = getNSFromBottom();
+                      if(temp == 0) yyerror("unmatch param\n");
+                      else{
+                        if(temp->valType == 1){
+                          int tempReg = newTemp();
+                          genIR(li, 0, temp->temp, tempReg);
+                          genIRForLS(param, tempReg, 0, parameter->name);
+                        }
+                        else{
+                          if(temp->valType == 3 || temp->valType == 3){
+                            if(strcmp(getsym(temp->id)->type, "int") != 0) yyerror("wrong while pass parameter\n");
+                          }
+                          int tempReg = normalizeExp(temp);
+                          genIRForLS(param, tempReg, 0, parameter->name);
+                        }
+                        parameter = parameter->next;
                       }
-                      int tempReg = normalizeExp(temp);
-                      genIRForLS(param, tempReg, 0, parameter->name);
                     }
-                    parameter = parameter->next;
                   }
                   int tempReg = newTemp();
                   genIRForBranch(call, tempReg, 0, fun->entry);

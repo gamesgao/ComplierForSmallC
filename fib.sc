@@ -1,5 +1,9 @@
+int foo(int a, int b){
+	return 0;
+}
+
+
 int main(){
-	int x;
-	1 = x;
+	foo(1,2);
 	return 0;
 }
