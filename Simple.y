@@ -119,7 +119,6 @@ TOKENS
 %token BINARYOP_ASSIGN
 %token BINARYOP_MULA
 %token BINARYOP_DIVA
-%token BINARYOP_MODA
 %token BINARYOP_ADDA
 %token BINARYOP_MINA
 %token BINARYOP_BANDA
@@ -150,7 +149,7 @@ TOKENS
 /*=========================================================================
 OPERATOR PRECEDENCE
 /=========================================================================*/
-%right BINARYOP_ASSIGN BINARYOP_MULA BINARYOP_DIVA BINARYOP_MODA BINARYOP_ADDA BINARYOP_MINA BINARYOP_BANDA BINARYOP_BXORA BINARYOP_BORA BINARYOP_SHLA BINARYOP_SHRA
+%right BINARYOP_ASSIGN BINARYOP_MULA BINARYOP_DIVA BINARYOP_ADDA BINARYOP_MINA BINARYOP_BANDA BINARYOP_BXORA BINARYOP_BORA BINARYOP_SHLA BINARYOP_SHRA
 %left BINARYOP_LOR
 %left BINARYOP_LAND
 %left BINARYOP_BOR
@@ -1305,30 +1304,6 @@ exps      : exps BINARYOP_MUL exps{
                 temp = newTemp();
                 temp2 = normalizeExp((struct NSData *) &$3);
                 genIR(opdiv, temp1, temp2, temp);
-              }
-              if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
-              else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
-              $<value.valType>$ = 2;
-              $<value.temp>$ = temp;
-            }
-            else {
-              printf("wrong while assign!\n");
-            }
-          }
-          | exps BINARYOP_MODA exps {
-            if($<value.valType>1 == 3 || $<value.valType>1 == 4){
-              int temp1;
-              int temp2;
-              int temp;
-              temp1 = normalizeExp((struct NSData *) &$1);
-              if($<value.valType>3 == 1){
-                temp = newTemp();
-                genIR(remi, temp1, $<value.temp>3, temp);
-              }
-              else{
-                temp = newTemp();
-                temp2 = normalizeExp((struct NSData *) &$3);
-                genIR(rem, temp1, temp2, temp);
               }
               if($<value.valType>1 == 3) genIRForLS(swi, temp, $<value.offset>1, $<value.id>1);
               else genIRForLS(sw, temp, $<value.offset>1, $<value.id>1);
