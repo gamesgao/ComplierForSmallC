@@ -1263,7 +1263,7 @@ exps      : exps BINARYOP_MUL exps{
               }
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_MULA exps {
@@ -1636,7 +1636,7 @@ exps      : exps BINARYOP_MUL exps{
             else {
               struct symrec * base = getsym(structVar->type);
               if(base == 0) yyerror("wrong while using struct id!\n");
-              else if(base->type, "struct") != 0) yyerror("must be struct!\n");
+              else if((base->type, "struct") != 0) yyerror("must be struct!\n");
               else {
                 os = getsymWithinScope($3, base->scope);
               }
