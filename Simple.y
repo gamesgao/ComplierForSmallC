@@ -192,9 +192,16 @@ extdefs   : /* empty */
 extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是要补的,但是感觉是元规则错了,c语言中int;这是啥啊*/
           | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
-          | TYPE func {genIRForLabel($<funcType.id>2);IR = InterR;genIRForLabel($<funcType.id>2);} stmtblock {
-            registerId($<funcType.id>2, "func", 0, 0, subLevel(), $<funcType.beforeEntry>2->next, $<funcType.param>2);
-          }
+          | TYPE func {
+            genIRForLabel($<funcType.id>2);
+            IR = InterR;
+            genIRForLabel($<funcType.id>2);
+            getsym($<funcType.id>2)->entry = $<funcType.beforeEntry>2->next;
+            getsym($<funcType.id>2)->param = $<funcType.param>2;
+            // registerId($<funcType.id>2, "func", 0, 0, 0, $<funcType.beforeEntry>2->next, $<funcType.param>2);
+            } stmtblock {
+              getsym($<funcType.id>2)->scope = subLevel();
+            }
 ;
 
 sextvars  : sextvars COMMA ID {
@@ -294,24 +301,20 @@ stspec    : STRUCT ID LC {addLevel();} sdefs RC{
           }
 ;
 
-func      : ID LP {addLevel();} paras RP{
-            $<funcType.id>$ = $1;
-            $<funcType.param>$ = sym_table;
-            $<funcType.beforeEntry>$ = InterR->tail;
-          }
-          | ID LP {addLevel();} RP{
+func      : ID {registerId($1, "func", 0, 0, 0, 0, 0);} LP {addLevel();} paras RP{
             $<funcType.id>$ = $1;
             $<funcType.param>$ = sym_table;
             $<funcType.beforeEntry>$ = InterR->tail;
           }
 ;
 
-paras     : paras COMMA TYPE ID{
-            registerId($4, "int", 1, 1, 0, 0, 0);
+paras     : TYPE ID COMMA paras{
+            registerId($2, "int", 1, 1, 0, 0, 0);
           }
           | TYPE ID {
             registerId($2, "int", 1, 1, 0, 0, 0);
           }
+          | /* empty */
 ;
 
 stmtblock : LC {IR = InitR;} defs {IR = InterR;} stmts RC {
@@ -1439,6 +1442,7 @@ exps      : exps BINARYOP_MUL exps{
           | ID LP args RP  {
             int i;
             struct NSData* temp;
+            
             if(strcmp($1, "read") == 0){
               int input = newTemp();
               temp = NSPop();
@@ -1464,8 +1468,9 @@ exps      : exps BINARYOP_MUL exps{
             }
             else{
               struct symrec *fun = getsym($1);
-              struct symrec *parameter = fun->param;
+              struct symrec *parameter;
               if(fun != 0){
+                parameter = fun->param;    
                 for(i=$3-1;i >= 0 ;i--){
                   temp = NSPop();
                   if(temp->valType == 1){
