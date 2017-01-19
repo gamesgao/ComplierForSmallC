@@ -1608,24 +1608,27 @@ exps      : exps BINARYOP_MUL exps{
               struct symrec *fun = getsym($1);
               struct symrec *parameter;
               if(fun != 0){
-                parameter = fun->param;    
-                for(i=$3-1;i >= 0 ;i--){
-                  temp = getNSFromBottom();
-                  if(temp->valType == 1){
-                    int tempReg = newTemp();
-                    genIR(li, 0, temp->temp, tempReg);
-                    genIRForLS(param, tempReg, 0, parameter->name);
+                if(strcmp(getsym($1)->type, "func") != 0) yyerror("must be func!\n");
+                else {
+                  parameter = fun->param;    
+                  for(i=$3-1;i >= 0 ;i--){
+                    temp = getNSFromBottom();
+                    if(temp->valType == 1){
+                      int tempReg = newTemp();
+                      genIR(li, 0, temp->temp, tempReg);
+                      genIRForLS(param, tempReg, 0, parameter->name);
+                    }
+                    else{
+                      int tempReg = normalizeExp(temp);
+                      genIRForLS(param, tempReg, 0, parameter->name);
+                    }
+                    parameter = parameter->next;
                   }
-                  else{
-                    int tempReg = normalizeExp(temp);
-                    genIRForLS(param, tempReg, 0, parameter->name);
-                  }
-                  parameter = parameter->next;
+                  int tempReg = newTemp();
+                  genIRForBranch(call, tempReg, 0, fun->entry);
+                  $<value.valType>$ = 2;
+                  $<value.temp>$ = tempReg;
                 }
-                int tempReg = newTemp();
-                genIRForBranch(call, tempReg, 0, fun->entry);
-                $<value.valType>$ = 2;
-                $<value.temp>$ = tempReg;
               }
               else{
                 yyerror("wrong while call func!\n");
@@ -1633,7 +1636,8 @@ exps      : exps BINARYOP_MUL exps{
             }
           }/*this is func*/
           | ID arrs {
-            if($<value.valType>2 == 1){
+            if(strcmp(getsym($1)->type, "int") != 0) yyerror("must be int array!\n");
+            else if($<value.valType>2 == 1){
               $<value.valType>$ = 3;
               $<value.id>$ = $1;
               $<value.offset>$ = $<value.temp>2;
@@ -1654,7 +1658,8 @@ exps      : exps BINARYOP_MUL exps{
             if(structVar == 0){
               yyerror("wrong while using struct id!\n");
             }
-            else{
+            else if(strcmp(getsym($1)->type, "struct") != 0) yyerror("must be struct!\n");
+            else {
               struct symrec * base = getsym(structVar->type);
               if(base == 0) yyerror("wrong while using struct id!\n");
               else{
