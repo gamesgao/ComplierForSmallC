@@ -319,10 +319,10 @@ paras     : TYPE ID COMMA paras{
 
 stmtblock : LC {IR = InitR;} defs {IR = InterR;} stmts RC {
             $<stmtType.nextList>$ = 0;
-            $<stmtType.continueCount>$ = $<stmtType.continueCount>4;
-            $<stmtType.breakCount>$ = $<stmtType.breakCount>4;
-            $<stmtType.continueList>$ = $<stmtType.continueList>4;
-            $<stmtType.breakList>$ = $<stmtType.breakList>4;
+            $<stmtType.continueCount>$ = $<stmtType.continueCount>5;
+            $<stmtType.breakCount>$ = $<stmtType.breakCount>5;
+            $<stmtType.continueList>$ = $<stmtType.continueList>5;
+            $<stmtType.breakList>$ = $<stmtType.breakList>5;
           }
 ;
 
@@ -356,6 +356,7 @@ stmt      : exp SEMI {
             $<stmtType.breakList>$ = 0;
           }
           | stmtblock {
+            
             $<stmtType.nextList>$ = 0;
             $<stmtType.continueCount>$ = $<stmtType.continueCount>1;
             $<stmtType.breakCount>$ = $<stmtType.breakCount>1;
@@ -389,7 +390,6 @@ stmt      : exp SEMI {
 
           }
           | IF LP exp RP MM stmt {
-            
             backpatch($<value.trueList>3, $5->next);
             $<stmtType.nextList>$ = merge($<value.falseList>3, $<stmtType.nextList>6);
             $<stmtType.continueCount>$ = $<stmtType.continueCount>6;
@@ -401,7 +401,7 @@ stmt      : exp SEMI {
             backpatch($<value.trueList>6, $12->next);
             backpatch($10, $5->next);
             genIRForBranch(jmp, 0, 0, $8->next);
-            backpatch($<stmtType.continueList>13, $5->next);
+            backpatch($<stmtType.continueList>13, $8->next);
             $<stmtType.nextList>$ = merge($<value.falseList>6, $<stmtType.breakList>13);
             $<stmtType.continueCount>$ = 0;
             $<stmtType.continueList>$ = 0;
@@ -414,6 +414,7 @@ stmt      : exp SEMI {
             $<stmtType.breakCount>$ = 0;
             $<stmtType.breakList>$ = 0;
             $<stmtType.nextList>$ = 0;
+            
           }
           | BREAK SEMI {
             $<stmtType.continueCount>$ = 0;

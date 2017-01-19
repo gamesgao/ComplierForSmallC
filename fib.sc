@@ -1,18 +1,8 @@
-
-
-int foo(int y, int x){
-	return x+y;
-}
-
+int x = 5;
 int main(){
-	struct{
-		int a;
-		int b;
-	} c;
-	
-	c.a=1;
-	c.b=20;
-	
-	write(foo(c.a, c.b));
+	for(;x>1;--x){
+		if(x % 2 == 0) break;
+		write(x);
+	}
 	return 0;
 }

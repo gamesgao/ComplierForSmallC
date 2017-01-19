@@ -1,92 +1,60 @@
 Parse Completed
-type:func	name:main	offset:0	entry:6
-===========================================================
-type:4289383	name:c	offset:0
-type:struct	name:4289383	offset:0	width:8
-===========================================================
-type:int	name:b	offset:4	width:1	height:1
-type:int	name:a	offset:0	width:1	height:1
+type:func	name:main	offset:0	entry:1
 ===========================================================
 ===========================================================
-type:func	name:foo	offset:0	entry:1
-===========================================================
-type:int	name:y	offset:4	width:1	height:1
 type:int	name:x	offset:0	width:1	height:1
 ===========================================================
-===========================================================
-###foo:
+###1	li	0	5	0
+2	swi	0	0	x
 main:
-3	end	0	0	0
+4	end	0	0	0
 ===========================================================
-foo:
-###2	lwi	0	0	x
-3	lwi	1	0	y
-4	add	0	1	2
-5	ret	2	0	0
 main:
-###7	li	0	1	3
-8	swi	3	0	c
-9	li	0	20	4
-10	swi	4	4	c
-11	lwi	5	0	c
-12	param	5	0	y
-13	lwi	6	4	c
-14	param	6	0	x
-15	call	7	0	inst1
-###16	write	0	0	7
-17	li	0	0	8
-18	ret	8	0	0
+###2	lwi	1	0	x
+3	jgti	1	1	inst9
+###4	jmp	0	0	inst17
+###5	lwi	2	0	x
+6	subi	2	1	3
+7	swi	3	0	x
+8	jmp	0	0	inst2
+###9	lwi	4	0	x
+10	remi	4	2	5
+11	jei	5	0	inst13
+###12	jmp	0	0	inst14
+###13	jmp	0	0	inst17
+###14	lwi	6	0	x
+15	write	0	0	6
+16	jmp	0	0	inst5
+###17	li	0	0	7
+18	ret	7	0	0
 ###19	end	0	0	0
 ===========================================================
 .data
-foo.x:	.word	0
-foo.y:	.word	0
-main.c:	.word	0
-	.word	0
+__.x:	.word	0
 ===========================================================
 .data
-foo.x:	.word	0
-foo.y:	.word	0
-main.c:	.word	0
-	.word	0
+__.x:	.word	5
 ===========================================================
 .text
-foo:	sw	$ra		0($sp)	
-	add	$sp	$sp	-4	
-l2:	lw	$t0		foo.x+0	
-	lw	$t1		foo.y+0	
-	add	$t2	$t0	$t1	
-	move	$v0	$t2		
-	add	$sp	$sp	4	
-	lw	$ra		0($sp)	
-	jr	$ra			
 main:	sw	$ra		0($sp)	
 	add	$sp	$sp	-4	
-l7:	li	$t3		1	
-	sw	$t3		main.c+0	
-	li	$t4		20	
-	sw	$t4		main.c+4	
-	lw	$t5		main.c+0	
-	lw	$a0		main.c+0	
-	sw	$a0		0($sp)	
-	add	$sp	$sp	-4	
-	lw	$a0		main.c+4	
-	sw	$a0		0($sp)	
-	add	$sp	$sp	-4	
-	sw	$t5		foo.y	
-	lw	$t6		main.c+4	
-	sw	$t6		foo.x	
-	jal			foo	
-	move	$t7	$v0		
-	add	$sp	$sp	4	
-	lw	$a0		0($sp)	
-	sw	$a0		main.c+4	
-	add	$sp	$sp	4	
-	lw	$a0		0($sp)	
-	sw	$a0		main.c+0	
-l16:	move	$a0	$t7		
+l2:	lw	$t0		__.x+0	
+	bgt	$t0	1	l9	
+l4:	j			l17	
+l5:	lw	$t1		__.x+0	
+	sub	$t2	$t1	1	
+	sw	$t2		__.x+0	
+	j			l2	
+l9:	lw	$t3		__.x+0	
+	rem	$t4	$t3	2	
+	beq	$t4	0	l13	
+l12:	j			l14	
+l13:	j			l17	
+l14:	lw	$t5		__.x+0	
+	move	$a0	$t5		
 	li	$v0	1		
 	syscall				
-	li	$t8		0	
+	j			l5	
+l17:	li	$t6		0	
 	li	$v0	10		
 	syscall				
