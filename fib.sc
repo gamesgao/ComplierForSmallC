@@ -1,7 +1,14 @@
-int a = 1;
-int b[2] = {1,2};
+int fib(int x){
+	if(x<=2) return 1;
+	else{
+		return fib(x-1)+fib(x-2);
+	}
+}
+
 
 int main(){
-	int x = 2;
+	int x;
+	read(x);
+	write(fib(x));
 	return 0;
 }

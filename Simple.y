@@ -1788,8 +1788,9 @@ int main( int argc, char *argv[] )
     outputIR(InterR);
     outputDS();
     outputCS();
+    fclose(yyout);
+    fclose(IRout);
   }
-  
   return 0;
 }
 /*=========================================================================
