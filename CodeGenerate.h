@@ -590,7 +590,33 @@ void CodeGenerate(){
             }
             case call:{
                 if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
-                
+                if(funFlag == 0){
+                    struct symrec * funTemp = getsym(prefix)->scope;
+                    for (; funTemp != (struct symrec *)0 && funTemp->name != 0; funTemp = (struct symrec *)funTemp->next){
+                    if(strcmp(funTemp->type, "int") == 0){
+                            int i;
+                            for(i = 0; i<funTemp->width * funTemp->height;i++){
+                                sprintf(p3, "%s+%d", funTemp->name, i*4);        
+                                CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
+                                sprintf(instLabel, "%s", noneStr);
+                                CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
+                                CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
+                            }
+                        } else if(strcmp(funTemp->type, "struct") != 0){
+                            struct symrec *base = getsymWithScope(funTemp->type, getsym(prefix)->scope);
+                            int i;
+                            for(i = 0; i < base->width / 4;i++){
+                                sprintf(p3, "%s+%d", funTemp->name, i*4);        
+                                CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
+                                sprintf(instLabel, "%s", noneStr);
+                                CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
+                                CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
+                            }
+                        }
+                        SSPush(funTemp);
+                    }
+                    funFlag = 1;
+                }
                 sprintf(op, "jal");
                 sprintf(p1, "%s", noneStr);
                 sprintf(p2, "%s", noneStr);
