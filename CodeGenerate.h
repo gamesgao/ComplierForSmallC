@@ -79,6 +79,7 @@ Code Segment
 void CodeGenerate(){
     struct Quad* ptr = InterR->head;
     struct symrec *scope=sym_table;
+    int funFlag = 0;
     char* noneStr = "";
     char *instLabel = (char *)malloc(sizeof(char)*80);
     char *op = (char *)malloc(sizeof(char)*80);
@@ -548,6 +549,36 @@ void CodeGenerate(){
             }
             case param:{
                 if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
+                if(funFlag == 0){
+                    struct symrec * funTemp = getsym(prefix)->scope;
+                    for (; funTemp != (struct symrec *)0 && funTemp->name != 0; funTemp = (struct symrec *)funTemp->next){
+                    if(strcmp(funTemp->type, "int") == 0){
+                            int i;
+                            for(i = 0; i<funTemp->width * funTemp->height;i++){
+                                sprintf(p3, "%s+%d", funTemp->name, i*4);        
+                                CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
+                                sprintf(instLabel, "%s", noneStr);
+                                CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
+                                CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
+                            }
+                        } else if(strcmp(funTemp->type, "struct") != 0){
+                            struct symrec *base = getsym(funTemp->type);
+                            int i;
+                            for(i = 0; i < base->width / 4;i++){
+                                sprintf(p3, "%s+%d", funTemp->name, i*4);        
+                                CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
+                                sprintf(instLabel, "%s", noneStr);
+                                CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
+                                CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
+                            }
+                        }
+                        else{
+                            printf("wrong while do call CG!\n");
+                        }
+                        SSPush(funTemp);
+                    }
+                    funFlag = 1;
+                }
                 // this is an part that are not very smooth in this part!
                 struct Quad* fun = ptr;
                 while(fun->op != call) fun = fun->next;
@@ -561,33 +592,7 @@ void CodeGenerate(){
             }
             case call:{
                 if(ptr->basicBlockFlag == 1 && strcmp(instLabel, noneStr) == 0) sprintf(instLabel, "l%d", ptr->order);
-                struct symrec * funTemp = getsym(prefix)->scope;
-                for (; funTemp != (struct symrec *)0 && funTemp->name != 0; funTemp = (struct symrec *)funTemp->next){
-                   if(strcmp(funTemp->type, "int") == 0){
-                        int i;
-                        for(i = 0; i<funTemp->width * funTemp->height;i++){
-                            sprintf(p3, "%s+%d", funTemp->name, i*4);        
-                            CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
-                            sprintf(instLabel, "%s", noneStr);
-                            CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
-                            CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
-                        }
-                    } else if(strcmp(funTemp->type, "struct") != 0){
-                        struct symrec *base = getsym(funTemp->type);
-                        int i;
-                        for(i = 0; i < base->width / 4;i++){
-                            sprintf(p3, "%s+%d", funTemp->name, i*4);        
-                            CSPush(instLabel, "lw", "$a0", noneStr, p3, prefix);
-                            sprintf(instLabel, "%s", noneStr);
-                            CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
-                            CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
-                        }
-                    }
-                    else{
-                        printf("wrong while do call CG!\n");
-                    }
-                    SSPush(funTemp);
-                }
+                
                 sprintf(op, "jal");
                 sprintf(p1, "%s", noneStr);
                 sprintf(p2, "%s", noneStr);
@@ -622,6 +627,7 @@ void CodeGenerate(){
                     }
                     funTemp = SSPop();
                 }
+                funFlag = 0;
                 break;
             }
             case end:break;
