@@ -19,9 +19,9 @@ foo:
 ###4	jmp	0	0	inst14
 ###5	lwi	1	0	y
 6	subi	1	1	2
-7	li	0	2	3
-8	param	3	0	y
-9	param	2	0	x
+7	param	2	0	y
+8	li	0	2	3
+9	param	3	0	x
 10	call	4	0	inst1
 ###11	lwi	5	0	y
 12	mul	5	4	6
@@ -31,9 +31,9 @@ foo:
 main:
 ###17	read	0	0	8
 18	sw	8	0	x
-19	li	0	2	9
+19	lwi	9	0	x
 20	param	9	0	y
-21	lwi	10	0	x
+21	li	0	2	10
 22	param	10	0	x
 23	call	11	0	inst1
 ###24	write	0	0	11
@@ -59,15 +59,15 @@ l2:	lw	$t0		foo.y+0
 l4:	j			l14	
 l5:	lw	$t1		foo.y+0	
 	sub	$t2	$t1	1	
-	li	$t3		2	
 	lw	$a0		foo.y+0	
 	sw	$a0		0($sp)	
 	add	$sp	$sp	-4	
 	lw	$a0		foo.x+0	
 	sw	$a0		0($sp)	
 	add	$sp	$sp	-4	
-	sw	$t3		foo.y	
-	sw	$t2		foo.x	
+	sw	$t2		foo.y	
+	li	$t3		2	
+	sw	$t3		foo.x	
 	jal			foo	
 	move	$t4	$v0		
 	add	$sp	$sp	4	
@@ -93,12 +93,12 @@ main:	sw	$ra		0($sp)
 	syscall				
 l17:	move	$t8	$v0		
 	sw	$t8		main.x($t0)	
-	li	$t9		2	
+	lw	$t9		main.x+0	
 	lw	$a0		main.x+0	
 	sw	$a0		0($sp)	
 	add	$sp	$sp	-4	
 	sw	$t9		foo.y	
-	lw	$t0		main.x+0	
+	li	$t0		2	
 	sw	$t0		foo.x	
 	jal			foo	
 	move	$t1	$v0		
