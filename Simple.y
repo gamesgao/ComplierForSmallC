@@ -1758,6 +1758,10 @@ int main( int argc, char *argv[] )
   ++argv;
   --argc;
   yyin = fopen(argv[0], "r");
+  ++argv;
+  --argc;
+  yyout = fopen(argv[0], "w");
+  IRout = fopen("InterCode", "w");
   // yydebug = 1;
   errors = 0;
   initInitR();
@@ -1780,6 +1784,10 @@ int main( int argc, char *argv[] )
     patchData();
     printf("%s\n", "===========================================================");
     CodeGenerate();
+
+
+
+
   }
   
   return 0;
