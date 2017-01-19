@@ -427,6 +427,7 @@ stmt      : exp SEMI {
 defs      : /* empty */
           | TYPE decs SEMI defs
           | stspec defsextvars SEMI defs
+          | stspec SEMI defs
 ;
 
 defsextvars  : defsextvars COMMA ID {
@@ -1631,6 +1632,7 @@ int main( int argc, char *argv[] )
     printf("%s\n", "===========================================================");
     patchData();
     printf("%s\n", "===========================================================");
+    
     CodeGenerate();
   }
   

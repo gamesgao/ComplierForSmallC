@@ -5,11 +5,14 @@ int foo(int y, int x){
 }
 
 int main(){
-	int x;
-	int i = 1;
-	int j =2;
-	int ans[2] = {1,2};
-	read(x);
-	write(foo(ans[i-1], ans[j-1]));
+	struct ddd{
+		int a;
+		int b;
+	};
+	struct ddd c;
+	c.a=1;
+	c.b=20;
+	
+	write(foo(c.a, c.b));
 	return 0;
 }

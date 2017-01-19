@@ -1,10 +1,12 @@
 Parse Completed
 type:func	name:main	offset:0	entry:6
 ===========================================================
-type:int	name:ans	offset:12	width:2	height:1
-type:int	name:j	offset:8	width:1	height:1
-type:int	name:i	offset:4	width:1	height:1
-type:int	name:x	offset:0	width:1	height:1
+type:ddd	name:c	offset:0
+type:struct	name:ddd	offset:0	width:8
+===========================================================
+type:int	name:b	offset:4	width:1	height:1
+type:int	name:a	offset:0	width:1	height:1
+===========================================================
 ===========================================================
 type:func	name:foo	offset:0	entry:1
 ===========================================================
@@ -14,15 +16,7 @@ type:int	name:x	offset:0	width:1	height:1
 ===========================================================
 ###foo:
 main:
-3	li	0	1	3
-4	swi	3	0	i
-5	li	0	2	4
-6	swi	4	0	j
-7	li	0	2	5
-8	swi	5	4	ans
-9	li	0	1	6
-10	swi	6	0	ans
-11	end	0	0	0
+3	end	0	0	0
 ===========================================================
 foo:
 ###2	lwi	0	0	x
@@ -30,42 +24,52 @@ foo:
 4	add	0	1	2
 5	ret	2	0	0
 main:
-###7	read	0	0	7
-8	sw	7	0	x
-9	lwi	8	0	i
-10	subi	8	1	9
-11	muli	9	4	10
-12	lwi	11	0	j
-13	subi	11	1	12
-14	muli	12	4	13
-15	lw	14	10	ans
-16	param	14	0	y
-17	lw	15	13	ans
-18	param	15	0	x
-19	call	16	0	inst1
-###20	write	0	0	16
-21	li	0	0	17
-22	ret	17	0	0
-###23	end	0	0	0
+###7	li	0	1	3
+8	swi	3	0	c
+9	li	0	20	4
+10	swi	4	4	c
+11	lwi	5	0	c
+12	param	5	0	y
+13	lwi	6	4	c
+14	param	6	0	x
+15	call	7	0	inst1
+###16	write	0	0	7
+17	li	0	0	8
+18	ret	8	0	0
+###19	end	0	0	0
 ===========================================================
 .data
 foo.x:	.word	0
 foo.y:	.word	0
-main.x:	.word	0
-main.i:	.word	0
-main.j:	.word	0
-main.ans:	.word	0
+main.c:	.word	0
 	.word	0
 ===========================================================
 .data
 foo.x:	.word	0
 foo.y:	.word	0
-main.x:	.word	0
-main.i:	.word	1
-main.j:	.word	2
-main.ans:	.word	1
-	.word	2
+main.c:	.word	0
+	.word	0
 ===========================================================
+now is 1
+now is 2
+now is 3
+now is 4
+now is 5
+now is 6
+now is 7
+now is 8
+now is 9
+now is 10
+now is 11
+now is 12
+now is 13
+now is 14
+now is 15
+wrong while do call CG!
+now is 16
+now is 17
+now is 18
+now is 19
 .text
 foo:	sw	$ra		0($sp)	
 	add	$sp	$sp	-4	
@@ -78,55 +82,31 @@ l2:	lw	$t0		foo.x+0
 	jr	$ra			
 main:	sw	$ra		0($sp)	
 	add	$sp	$sp	-4	
-	li	$v0	5		
-	syscall				
-l7:	move	$t3	$v0		
-	sw	$t3		main.x($t0)	
-	lw	$t4		main.i+0	
-	sub	$t5	$t4	1	
-	mul	$t6	$t5	4	
-	lw	$t7		main.j+0	
-	sub	$t8	$t7	1	
-	mul	$t9	$t8	4	
-	lw	$t0		main.ans($t6)	
-	lw	$a0		main.ans+0	
+l7:	li	$t3		1	
+	sw	$t3		main.c+0	
+	li	$t4		20	
+	sw	$t4		main.c+4	
+	lw	$t5		main.c+0	
+	lw	$a0		main.c+0	
 	sw	$a0		0($sp)	
 	add	$sp	$sp	-4	
-	lw	$a0		main.ans+4	
+	lw	$a0		main.c+4	
 	sw	$a0		0($sp)	
 	add	$sp	$sp	-4	
-	lw	$a0		main.j+0	
-	sw	$a0		0($sp)	
-	add	$sp	$sp	-4	
-	lw	$a0		main.i+0	
-	sw	$a0		0($sp)	
-	add	$sp	$sp	-4	
-	lw	$a0		main.x+0	
-	sw	$a0		0($sp)	
-	add	$sp	$sp	-4	
-	sw	$t0		foo.y	
-	lw	$t1		main.ans($t9)	
-	sw	$t1		foo.x	
+	sw	$t5		foo.y	
+	lw	$t6		main.c+4	
+	sw	$t6		foo.x	
 	jal			foo	
-	move	$t2	$v0		
+	move	$t7	$v0		
 	add	$sp	$sp	4	
 	lw	$a0		0($sp)	
-	sw	$a0		main.x+0	
+	sw	$a0		main.c+4	
 	add	$sp	$sp	4	
 	lw	$a0		0($sp)	
-	sw	$a0		main.i+0	
-	add	$sp	$sp	4	
-	lw	$a0		0($sp)	
-	sw	$a0		main.j+0	
-	add	$sp	$sp	4	
-	lw	$a0		0($sp)	
-	sw	$a0		main.ans+4	
-	add	$sp	$sp	4	
-	lw	$a0		0($sp)	
-	sw	$a0		main.ans+0	
-l20:	move	$a0	$t2		
+	sw	$a0		main.c+0	
+l16:	move	$a0	$t7		
 	li	$v0	1		
 	syscall				
-	li	$t3		0	
+	li	$t8		0	
 	li	$v0	10		
 	syscall				

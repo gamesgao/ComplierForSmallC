@@ -24,7 +24,7 @@ void genDatawithinScope(struct symrec * symPoint){
         } else if(strcmp(ptr->type, "func") == 0){
             SQEnQueue(ptr->scope, ptr->name);
         } else if(strcmp(ptr->type, "struct") != 0){
-            struct symrec *base = getsym(ptr->type);
+            struct symrec *base = getsymWithScope(ptr->type, symPoint);
             int i;
             for(i = 0; i < base->width / 4-1 ;i++){
                 DSPush("", "");
@@ -87,6 +87,7 @@ void CodeGenerate(){
     char *p2 = (char *)malloc(sizeof(char)*80);
     char *p3 = (char *)malloc(sizeof(char)*80);
     char *prefix = (char *)malloc(sizeof(char)*80);
+    
     sprintf(prefix, "%s", "__");
     sprintf(instLabel, "%s", noneStr);
     while(ptr->next != (struct Quad *)0){
@@ -562,7 +563,7 @@ void CodeGenerate(){
                                 CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
                             }
                         } else if(strcmp(funTemp->type, "struct") != 0){
-                            struct symrec *base = getsym(funTemp->type);
+                            struct symrec *base = getsymWithScope(funTemp->type, getsym(prefix)->scope);
                             int i;
                             for(i = 0; i < base->width / 4;i++){
                                 sprintf(p3, "%s+%d", funTemp->name, i*4);        
@@ -571,9 +572,6 @@ void CodeGenerate(){
                                 CSPush(noneStr, "sw", "$a0", noneStr, "0($sp)", noneStr);
                                 CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
                             }
-                        }
-                        else{
-                            printf("wrong while do call CG!\n");
                         }
                         SSPush(funTemp);
                     }
@@ -613,7 +611,7 @@ void CodeGenerate(){
                             CSPush(noneStr, "sw", "$a0", noneStr, p3, prefix);
                         }
                     } else if(strcmp(funTemp->type, "struct") != 0){
-                        struct symrec *base = getsym(funTemp->type);
+                        struct symrec *base = getsymWithScope (funTemp->type, getsym(prefix)->scope);
                         int i;
                         for(i = base->width / 4 - 1; i >= 0 ;i--){
                             CSPush(noneStr, "add", "$sp", "$sp", "4", noneStr);
@@ -621,9 +619,6 @@ void CodeGenerate(){
                             sprintf(p3, "%s+%d", funTemp->name, i*4);
                             CSPush(noneStr, "sw", "$a0", noneStr, p3, prefix);
                         }
-                    }
-                    else{
-                        printf("wrong while do call CG!\n");
                     }
                     funTemp = SSPop();
                 }

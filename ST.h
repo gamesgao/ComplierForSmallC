@@ -146,6 +146,9 @@ void printSTwithinScope(struct symrec * symPoint){
             printf("===========================================================\n");
         } else if(strcmp(ptr->type, "struct") == 0){
             printf("type:%s\tname:%s\toffset:%d\twidth:%d\n", ptr->type, ptr->name, ptr->offset, ptr->width);
+            printf("===========================================================\n");
+            printSTwithinScope(ptr->scope);
+            printf("===========================================================\n");
         }
         else{
             printf("type:%s\tname:%s\toffset:%d\n", ptr->type, ptr->name, ptr->offset);
