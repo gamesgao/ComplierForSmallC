@@ -5,11 +5,11 @@ int foo(int y, int x){
 }
 
 int main(){
-	struct ddd{
+	struct{
 		int a;
 		int b;
-	};
-	struct ddd c;
+	} c;
+	
 	c.a=1;
 	c.b=20;
 	

@@ -1,8 +1,8 @@
 Parse Completed
 type:func	name:main	offset:0	entry:6
 ===========================================================
-type:ddd	name:c	offset:0
-type:struct	name:ddd	offset:0	width:8
+type:4289383	name:c	offset:0
+type:struct	name:4289383	offset:0	width:8
 ===========================================================
 type:int	name:b	offset:4	width:1	height:1
 type:int	name:a	offset:0	width:1	height:1
@@ -50,26 +50,6 @@ foo.y:	.word	0
 main.c:	.word	0
 	.word	0
 ===========================================================
-now is 1
-now is 2
-now is 3
-now is 4
-now is 5
-now is 6
-now is 7
-now is 8
-now is 9
-now is 10
-now is 11
-now is 12
-now is 13
-now is 14
-now is 15
-wrong while do call CG!
-now is 16
-now is 17
-now is 18
-now is 19
 .text
 foo:	sw	$ra		0($sp)	
 	add	$sp	$sp	-4	
