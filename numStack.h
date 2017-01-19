@@ -55,8 +55,27 @@ struct NSData* NSPop(){
     if(NSIsEmpty()) return 0;
     struct NSData* temp = NStop->data;
     struct numStack* tempTop = NStop->next;
-    // free(NStop);
+    free(NStop);
     NStop = tempTop;
+    return temp;
+}
+
+struct NSData* getNSFromBottom(){
+    struct numStack*ptr = NStop;
+    struct numStack*ptrPrev;
+    if(ptr->next == (struct numStack*) 0){
+        NStop = (struct numStack*) 0;
+        struct NSData* temp = ptr->data;
+        free(ptr);
+        return temp;
+    }
+    while(ptr->next != (struct numStack*) 0){
+        ptrPrev = ptr;
+        ptr = ptr->next;
+    }
+    ptrPrev->next = (struct numStack*) 0;
+    struct NSData* temp = ptr->data;
+    free(ptr);
     return temp;
 }
 

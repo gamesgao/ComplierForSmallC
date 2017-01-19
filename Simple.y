@@ -1445,7 +1445,7 @@ exps      : exps BINARYOP_MUL exps{
             
             if(strcmp($1, "read") == 0){
               int input = newTemp();
-              temp = NSPop();
+              temp = getNSFromBottom();
               genIR(read, 0, 0, input);
               if(temp->valType == 3 || temp->valType == 4){
                 if($<value.valType>1 == 3) genIRForLS(swi, input, temp->offset, temp->id);
@@ -1457,7 +1457,7 @@ exps      : exps BINARYOP_MUL exps{
             }
             else if(strcmp($1, "write") == 0){
               int output;
-              temp = NSPop();
+              temp = getNSFromBottom();
               if(temp->valType == 1){
                 output = newTemp();
                 genIR(li, 0, temp->temp, output);
@@ -1472,7 +1472,7 @@ exps      : exps BINARYOP_MUL exps{
               if(fun != 0){
                 parameter = fun->param;    
                 for(i=$3-1;i >= 0 ;i--){
-                  temp = NSPop();
+                  temp = getNSFromBottom();
                   if(temp->valType == 1){
                     int tempReg = newTemp();
                     genIR(li, 0, temp->temp, tempReg);
