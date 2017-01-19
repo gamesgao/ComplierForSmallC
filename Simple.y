@@ -215,7 +215,8 @@ extvars   : extvars COMMA var {
               genIR(li, 0, $<value.temp>5, temp);
               genIRForLS(swi, temp, 0, $3);
             } else {
-              genIRForLS(swi, $<value.temp>5, 0, $3);
+              int temp = normalizeExp((struct NSData *) &$5);
+              genIRForLS(swi, temp, 0, $3);
             }
           }
           | ID BINARYOP_ASSIGN exps {
@@ -225,7 +226,8 @@ extvars   : extvars COMMA var {
               genIR(li, 0, $<value.temp>3, temp);
               genIRForLS(swi, temp, 0, $1);
             } else {
-              genIRForLS(swi, $<value.temp>3, 0, $1);
+              int temp = normalizeExp((struct NSData *) &$3);
+              genIRForLS(swi, temp, 0, $1);
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC {
@@ -240,8 +242,9 @@ extvars   : extvars COMMA var {
                   genIR(li, 0, temp->temp, tempReg);
                   genIRForLS(swi, tempReg, i*4, $<variable.id>3);
                 }
-                else if(temp->valType == 2){
-                  genIRForLS(swi, temp->temp, i*4, $<variable.id>3);
+                else{
+                  int tempReg = normalizeExp(temp);
+                  genIRForLS(swi, tempReg, i*4, $<variable.id>3);
                 }
               }
             }
@@ -261,8 +264,9 @@ extvars   : extvars COMMA var {
                   genIR(li, 0, temp->temp, tempReg);
                   genIRForLS(swi, tempReg, i*4, $<variable.id>1);
                 }
-                else if(temp->valType == 2){
-                  genIRForLS(swi, temp->temp, i*4, $<variable.id>1);
+                else{
+                  int tempReg = normalizeExp(temp);
+                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
                 }
               }
             }
@@ -459,7 +463,8 @@ decs      : var {
               genIR(li, 0, $<value.temp>5, temp);
               genIRForLS(swi, temp, 0, $3);
             } else {
-              genIRForLS(swi, $<value.temp>5, 0, $3);
+              int temp = normalizeExp((struct NSData *) &$5);
+              genIRForLS(swi, temp, 0, $3);
             }
           }
           | ID BINARYOP_ASSIGN exps {
@@ -469,7 +474,8 @@ decs      : var {
               genIR(li, 0, $<value.temp>3, temp);
               genIRForLS(swi, temp, 0, $1);
             } else {
-              genIRForLS(swi, $<value.temp>3, 0, $1);
+              int temp = normalizeExp((struct NSData *) &$3);
+              genIRForLS(swi, temp, 0, $1);
             }
           }
           | decs COMMA varArray BINARYOP_ASSIGN LC args RC {
@@ -484,8 +490,9 @@ decs      : var {
                   genIR(li, 0, temp->temp, tempReg);
                   genIRForLS(swi, tempReg, i*4, $<variable.id>3);
                 }
-                else if(temp->valType == 2){
-                  genIRForLS(swi, temp->temp, i*4, $<variable.id>3);
+                else{
+                  int tempReg = normalizeExp(temp);
+                  genIRForLS(swi, tempReg, i*4, $<variable.id>3);
                 }
               }
             }
@@ -505,8 +512,9 @@ decs      : var {
                   genIR(li, 0, temp->temp, tempReg);
                   genIRForLS(swi, tempReg, i*4, $<variable.id>1);
                 }
-                else if(temp->valType == 2){
-                  genIRForLS(swi, temp->temp, i*4, $<variable.id>1);
+                else{
+                  int tempReg = normalizeExp(temp);
+                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
                 }
               }
             }
@@ -1385,7 +1393,7 @@ exps      : exps BINARYOP_MUL exps{
               temp = normalizeExp((struct NSData*) &$2);
               result = newTemp();
               genIR(addi, temp, 1, result);
-              if($<value.valType>1 == 3) genIRForLS(swi, result, $<value.offset>2, $<value.id>2);
+              if($<value.valType>2 == 3) genIRForLS(swi, result, $<value.offset>2, $<value.id>2);
               else genIRForLS(sw, result, $<value.offset>2, $<value.id>2);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
@@ -1401,7 +1409,7 @@ exps      : exps BINARYOP_MUL exps{
               temp = normalizeExp((struct NSData*) &$2);
               result = newTemp();
               genIR(subi, temp, 1, result);
-              if($<value.valType>1 == 3) genIRForLS(swi, result, $<value.offset>2, $<value.id>2);
+              if($<value.valType>2 == 3) genIRForLS(swi, result, $<value.offset>2, $<value.id>2);
               else genIRForLS(sw, result, $<value.offset>2, $<value.id>2);
               $<value.valType>$ = 2;
               $<value.temp>$ = result;
@@ -1531,14 +1539,12 @@ arrs      : /* empty */{
               $<value.valType>$ = 1;
               $<value.temp>$ = $<value.temp>2*4;
             }
-            else if($<value.valType>2 == 2){
-              $<value.valType>$ = 2;
-              int temp = newTemp();
-              genIR(muli, $<value.temp>2, 4, temp);
-              $<value.temp>$ = temp;
-            }
             else{
-              printf("wrong! while arrs 2\n");
+              $<value.valType>$ = 2;
+              int temp = normalizeExp((struct NSData*) &$2);
+              int result = newTemp();
+              genIR(muli, temp, 4, result);
+              $<value.temp>$ = result;
             }
           }
           | LB exps RB LB exps RB {
@@ -1547,33 +1553,35 @@ arrs      : /* empty */{
               $<value.valType>$ = 1;
               $<value.temp>$ = array->width * $<value.temp>2 * 4 + $<value.temp>5 * 4;
             }
-            else if($<value.valType>2 == 2 && $<value.valType>5 == 2){
-              int temp1 = newTemp();
-              int temp2 = newTemp();
-              int temp3 = newTemp();
-              genIR(muli, $<value.temp>2, array->width * 4, temp1);
-              genIR(muli, $<value.temp>5, 4, temp2);
-              genIR(add, temp1, temp2, temp3);
+            else if($<value.valType>5 == 1){
+              int temp = normalizeExp((struct NSData *) &$2);
+              int midResult = newTemp();
+              int result = newTemp();
+              genIR(muli, temp, array->width * 4, midResult);
+              genIR(addi, midResult, $<value.temp>5 * 4, result);
               $<value.valType>$ = 2;
-              $<value.temp>$ = temp3;
+              $<value.temp>$ = result;
+            }
+            else if($<value.valType>2 == 1){
+              int temp = normalizeExp((struct NSData *) &$5);
+              int midResult = newTemp();
+              int result = newTemp();
+              genIR(muli, temp, 4, midResult);
+              genIR(add, midResult, array->width * 4 * $<value.temp>2, result);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = result;
             }
             else{
-              if($<value.valType>2 == 2){
-                int temp1 = newTemp();
-                int temp3 = newTemp();
-                genIR(muli, $<value.temp>2, array->width * 4, temp1);
-                genIR(addi, temp1, $<value.temp>5 * 4, temp3);
-                $<value.valType>$ = 2;
-                $<value.temp>$ = temp3;
-              }
-              else{
-                int temp2 = newTemp();
-                int temp3 = newTemp();
-                genIR(muli, $<value.temp>5, 4, temp2);
-                genIR(add, temp2, array->width * 4 * $<value.temp>2, temp3);
-                $<value.valType>$ = 2;
-                $<value.temp>$ = temp3;
-              }
+              int temp1 = normalizeExp((struct NSData *) &$2);
+              int temp2 = normalizeExp((struct NSData *) &$5);
+              int midResult1 = newTemp();
+              int midResult2 = newTemp();
+              int result = newTemp();
+              genIR(muli, temp1, array->width * 4, midResult1);
+              genIR(muli, temp2, 4, midResult2);
+              genIR(add, midResult1, midResult2, result);
+              $<value.valType>$ = 2;
+              $<value.temp>$ = result;
             }
           }
 ;
