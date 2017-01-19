@@ -1793,9 +1793,12 @@ int main( int argc, char *argv[] )
     outputIR(InterR);
     outputDS();
     outputCS();
-    fclose(yyout);
-    fclose(IRout);
   }
+  else{
+    fprintf(yyout, "%s\n", "Error.");
+  }
+  fclose(yyout);
+  fclose(IRout);
   return 0;
 }
 /*=========================================================================
