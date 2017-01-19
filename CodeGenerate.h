@@ -207,7 +207,7 @@ void CodeGenerate(){
                 sprintf(op, "lw");
                 sprintf(p1, "$t%d", getTR(ptr, ptr->src1.TIA));
                 sprintf(p2, "%s", noneStr);
-                sprintf(p3, "%s($t%d)", ptr->dest.id, ptr->src2.TIA);
+                sprintf(p3, "%s($t%d)", ptr->dest.id, getTemp(ptr, ptr->src2.TIA));
                 if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
                 else CSPush(instLabel, op, p1, p2, p3, "__");
                 sprintf(instLabel, "%s", noneStr);
@@ -239,7 +239,7 @@ void CodeGenerate(){
                 sprintf(op, "sw");
                 sprintf(p1, "$t%d", getTemp(ptr, ptr->src1.TIA));
                 sprintf(p2, "%s", noneStr);
-                sprintf(p3, "%s($t%d)", ptr->dest.id, ptr->src2.TIA);
+                sprintf(p3, "%s($t%d)", ptr->dest.id, getTemp(ptr, ptr->src2.TIA));
                 if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
                 else CSPush(instLabel, op, p1, p2, p3, "__");
                 sprintf(instLabel, "%s", noneStr);
@@ -450,7 +450,7 @@ void CodeGenerate(){
                 sprintf(op, "rem");
                 sprintf(p1, "$t%d", getTR(ptr, ptr->dest.TIA));
                 sprintf(p2, "$t%d", getTemp(ptr, ptr->src1.TIA));
-                sprintf(p3, "$t%d", ptr->src2.TIA);         
+                sprintf(p3, "%d", ptr->src2.TIA);         
                 CSPush(instLabel, op, p1, p2, p3, noneStr);
                 sprintf(instLabel, "%s", noneStr);
                 break;
@@ -470,7 +470,7 @@ void CodeGenerate(){
                 sprintf(op, "sll");
                 sprintf(p1, "$t%d", getTR(ptr, ptr->dest.TIA));
                 sprintf(p2, "$t%d", getTemp(ptr, ptr->src1.TIA));
-                sprintf(p3, "$t%d", ptr->src2.TIA);         
+                sprintf(p3, "%d", ptr->src2.TIA);         
                 CSPush(instLabel, op, p1, p2, p3, noneStr);
                 sprintf(instLabel, "%s", noneStr);
                 break;
@@ -490,7 +490,7 @@ void CodeGenerate(){
                 sprintf(op, "srl");
                 sprintf(p1, "$t%d", getTR(ptr, ptr->dest.TIA));
                 sprintf(p2, "$t%d", getTemp(ptr, ptr->src1.TIA));
-                sprintf(p3, "$t%d", ptr->src2.TIA);         
+                sprintf(p3, "%d", ptr->src2.TIA);         
                 CSPush(instLabel, op, p1, p2, p3, noneStr);
                 sprintf(instLabel, "%s", noneStr);
                 break;

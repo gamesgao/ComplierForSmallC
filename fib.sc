@@ -1,15 +1,15 @@
 
 
 int foo(int y, int x){
-	if(y>1){
-		return y * foo(y-1 , 2);
-	}
-	return 1;
+	return x+y;
 }
 
 int main(){
 	int x;
+	int i = 1;
+	int j =2;
+	int ans[2] = {1,2};
 	read(x);
-	write(foo(x, 2));
+	write(foo(ans[i-1], ans[j-1]));
 	return 0;
 }
