@@ -36,7 +36,7 @@ void genDatawithinScope(struct symrec * symPoint){
 
 void genData(){
     initSQ();
-    SQEnQueue(sym_table, "");
+    SQEnQueue(sym_table, "__");
     while(!SQIsEmpty()){
         prefix = getPrefixFromTop();
         genDatawithinScope(SQDeQueue());
@@ -47,7 +47,7 @@ void genData(){
 void patchData(){
     struct Quad* ptr = InitR->head;
     int result = 0;
-    prefix = "";
+    prefix = "__";
     while(ptr->next != (struct Quad *)0){
         ptr = ptr->next;
         if(ptr->op == label) prefix = ptr->dest.id;
@@ -86,7 +86,7 @@ void CodeGenerate(){
     char *p2 = (char *)malloc(sizeof(char)*80);
     char *p3 = (char *)malloc(sizeof(char)*80);
     char *prefix = (char *)malloc(sizeof(char)*80);
-    sprintf(prefix, "%s", noneStr);
+    sprintf(prefix, "%s", "__");
     sprintf(instLabel, "%s", noneStr);
     while(ptr->next != (struct Quad *)0){
         ptr = ptr->next;
@@ -197,7 +197,7 @@ void CodeGenerate(){
                 sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s+%d", ptr->dest.id, ptr->src2.TIA);
                 if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
-                else CSPush(instLabel, op, p1, p2, p3, noneStr);
+                else CSPush(instLabel, op, p1, p2, p3, "__");
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }
@@ -208,7 +208,7 @@ void CodeGenerate(){
                 sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s($t%d)", ptr->dest.id, ptr->src2.TIA);
                 if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
-                else CSPush(instLabel, op, p1, p2, p3, noneStr);
+                else CSPush(instLabel, op, p1, p2, p3, "__");
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }
@@ -229,7 +229,7 @@ void CodeGenerate(){
                 sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s+%d", ptr->dest.id, ptr->src2.TIA);
                 if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
-                else CSPush(instLabel, op, p1, p2, p3, noneStr);
+                else CSPush(instLabel, op, p1, p2, p3, "__");
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }
@@ -240,7 +240,7 @@ void CodeGenerate(){
                 sprintf(p2, "%s", noneStr);
                 sprintf(p3, "%s($t%d)", ptr->dest.id, ptr->src2.TIA);
                 if(getsymWithinScope(ptr->dest.id, scope) != (struct symrec *) 0) CSPush(instLabel, op, p1, p2, p3, prefix);
-                else CSPush(instLabel, op, p1, p2, p3, noneStr);
+                else CSPush(instLabel, op, p1, p2, p3, "__");
                 sprintf(instLabel, "%s", noneStr);
                 break;
             }
