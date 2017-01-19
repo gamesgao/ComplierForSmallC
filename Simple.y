@@ -265,7 +265,7 @@ extvars   : extvars COMMA var {
                 }
               }
               else{
-                printf("wrong while init array!\n");
+                yyerror("wrong while init array!\n");
               }
             }
           }
@@ -290,7 +290,7 @@ extvars   : extvars COMMA var {
                 }
               }
               else{
-                printf("wrong while init array!\n");
+                yyerror("wrong while init array!\n");
               }
             }
           }
@@ -541,7 +541,7 @@ decs      : var {
                 }
               }
               else{
-                printf("wrong while init array!\n");
+                yyerror("wrong while init array!\n");
               }
             }
           }
@@ -566,7 +566,7 @@ decs      : var {
                 }
               }
               else{
-                printf("wrong while init array!\n");
+                yyerror("wrong while init array!\n");
               }
             }
           }
@@ -689,7 +689,7 @@ exps      : exps BINARYOP_MUL exps{
                 $<value.temp>$ = temp;
               }
               else if($<value.temp>3 == 0){
-                printf("wrong while do div");
+                yyerror("wrong while do div");
               }
               else{
                 result = newTemp();
@@ -1287,7 +1287,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_DIVA exps {
@@ -1311,7 +1311,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_ADDA exps {
@@ -1335,7 +1335,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_MINA exps {
@@ -1359,7 +1359,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_BANDA exps {
@@ -1383,7 +1383,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_BXORA exps {
@@ -1407,7 +1407,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_BORA exps {
@@ -1431,7 +1431,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_SHLA exps {
@@ -1455,7 +1455,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | exps BINARYOP_SHRA exps {
@@ -1479,7 +1479,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = temp;
             }
             else {
-              printf("wrong while assign!\n");
+              yyerror("wrong while assign!\n");
             }
           }
           | MIN exps %prec UNARYOP_LNOT {
@@ -1516,7 +1516,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = result;
             }
             else {
-              printf("wrong while do ++!\n");
+              yyerror("wrong while do ++!\n");
             }
           }
           | UNARYOP_DECR exps {
@@ -1532,7 +1532,7 @@ exps      : exps BINARYOP_MUL exps{
               $<value.temp>$ = result;
             }
             else {
-              printf("wrong while do ++!\n");
+              yyerror("wrong while do ++!\n");
             }
           }
           | UNARYOP_BNOT exps {
@@ -1565,7 +1565,7 @@ exps      : exps BINARYOP_MUL exps{
                 else genIRForLS(sw, input, temp->offset, temp->id);
               }
               else {
-                printf("wrong while read args!\n");
+                yyerror("wrong while read args!\n");
               }
             }
             else if(strcmp($1, "write") == 0){
@@ -1575,7 +1575,12 @@ exps      : exps BINARYOP_MUL exps{
                 output = newTemp();
                 genIR(li, 0, temp->temp, output);
               } 
-              else output = normalizeExp(temp);
+              else{
+                if(temp->valType == 3 || temp->valType == 3){
+                  if(strcmp(getsym(temp->id)->type, "int") != 0) yyerror("wrong while pass parameter\n");
+                }
+                output = normalizeExp(temp);
+              } 
               
               genIR(write, 0, 0, output);
             }
@@ -1594,6 +1599,9 @@ exps      : exps BINARYOP_MUL exps{
                       genIRForLS(param, tempReg, 0, parameter->name);
                     }
                     else{
+                      if(temp->valType == 3 || temp->valType == 3){
+                        if(strcmp(getsym(temp->id)->type, "int") != 0) yyerror("wrong while pass parameter\n");
+                      }
                       int tempReg = normalizeExp(temp);
                       genIRForLS(param, tempReg, 0, parameter->name);
                     }
@@ -1609,6 +1617,7 @@ exps      : exps BINARYOP_MUL exps{
                 yyerror("wrong while call func!\n");
               }
             }
+            if(!NSIsEmpty()) yyerror("param number unmatch!\n");
           }/*this is func*/
           | ID arrs {
             if(strcmp(getsym($1)->type, "int") != 0) yyerror("must be int array!\n");
