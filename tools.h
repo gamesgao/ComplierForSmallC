@@ -31,14 +31,16 @@ int normalizeExp(struct NSData * exp){
     }
     else if(exp->valType == 3){
         temp = newTemp();
-        genIRForLS(lwi, temp, exp->offset, exp->id);
+        if(getsym(exp->id) == 0) yyerror("wrong while do normalizeExp!\n");
+        else genIRForLS(lwi, temp, exp->offset, exp->id);
     }
     else if(exp->valType == 4){
         temp = newTemp();
-        genIRForLS(lw, temp, exp->offset, exp->id);
+        if(getsym(exp->id) == 0) yyerror("wrong while do normalizeExp!\n");
+        else genIRForLS(lw, temp, exp->offset, exp->id);
     }
     else{
-        printf("wrong while do normalizeExp!\n");
+        yyerror("wrong while do normalizeExp!\n");
     }
     return temp;
 }

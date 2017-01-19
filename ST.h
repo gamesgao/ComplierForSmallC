@@ -178,4 +178,14 @@ void printST(){
         }
     }
 }
+
+int checkST(){
+    struct symrec *ptr;
+    for (ptr = sym_table; ptr != (struct symrec *)0; ptr = (struct symrec *)ptr->next){
+        if(strcmp(ptr->type, "func") == 0){
+            if(strcmp(ptr->name, "main") == 0) return 1;
+        }
+    }
+    return 0;
+}
 /************************** End Symbol Table **************************/

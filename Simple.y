@@ -193,115 +193,139 @@ extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是
           | stspec sextvars SEMI
           | stspec SEMI /*这里是在将sextvars规则转换之后的补充，用于补充empty情况*/
           | TYPE func {
-            genIRForLabel($<funcType.id>2);
-            IR = InterR;
-            genIRForLabel($<funcType.id>2);
-            getsym($<funcType.id>2)->entry = $<funcType.beforeEntry>2->next;
-            getsym($<funcType.id>2)->param = $<funcType.param>2;
-            // registerId($<funcType.id>2, "func", 0, 0, 0, $<funcType.beforeEntry>2->next, $<funcType.param>2);
+              genIRForLabel($<funcType.id>2);
+              IR = InterR;
+              genIRForLabel($<funcType.id>2);
+              getsym($<funcType.id>2)->entry = $<funcType.beforeEntry>2->next;
+              getsym($<funcType.id>2)->param = $<funcType.param>2;
             } stmtblock {
               getsym($<funcType.id>2)->scope = subLevel();
             }
 ;
 
 sextvars  : sextvars COMMA ID {
-            registerId($3, $<id>0, 0, 0, 0, 0, 0);
+            if(getsym($3) != 0) yyerror("wrong while declaration\n");
+            else registerId($3, $<id>0, 0, 0, 0, 0, 0);
           }
           | ID {
-            registerId($1, $<id>0, 0, 0, 0, 0, 0);
+            if(getsym($1) != 0) yyerror("wrong while declaration\n");
+            else registerId($1, $<id>0, 0, 0, 0, 0, 0);
           }
 ;
 
 extvars   : extvars COMMA var {
-            registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
+            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            else registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
           }
           | extvars COMMA ID BINARYOP_ASSIGN exps {
-            registerId($3, "int", 1, 1, 0, 0, 0);
-            if($<value.valType>5 == 1){
-              int temp = newTemp();
-              genIR(li, 0, $<value.temp>5, temp);
-              genIRForLS(swi, temp, 0, $3);
-            } else {
-              int temp = normalizeExp((struct NSData *) &$5);
-              genIRForLS(swi, temp, 0, $3);
+            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($3, "int", 1, 1, 0, 0, 0);
+              if($<value.valType>5 == 1){
+                int temp = newTemp();
+                genIR(li, 0, $<value.temp>5, temp);
+                genIRForLS(swi, temp, 0, $3);
+              } else {
+                int temp = normalizeExp((struct NSData *) &$5);
+                genIRForLS(swi, temp, 0, $3);
+              }
             }
           }
           | ID BINARYOP_ASSIGN exps {
-            registerId($1, "int", 1, 1, 0, 0, 0);
-            if($<value.valType>3 == 1){
-              int temp = newTemp();
-              genIR(li, 0, $<value.temp>3, temp);
-              genIRForLS(swi, temp, 0, $1);
-            } else {
-              int temp = normalizeExp((struct NSData *) &$3);
-              genIRForLS(swi, temp, 0, $1);
+            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($1, "int", 1, 1, 0, 0, 0);
+              if($<value.valType>3 == 1){
+                int temp = newTemp();
+                genIR(li, 0, $<value.temp>3, temp);
+                genIRForLS(swi, temp, 0, $1);
+              } else {
+                int temp = normalizeExp((struct NSData *) &$3);
+                genIRForLS(swi, temp, 0, $1);
+              }
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC {
-            registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
-            int i = 0;
-            struct NSData* temp;
-            if(($<variable.width>3 * $<variable.height>3) >= $6){
-              for(i=$6-1;i >= 0 ;i--){
-                temp = NSPop();
-                if(temp->valType == 1){
-                  int tempReg = newTemp();
-                  genIR(li, 0, temp->temp, tempReg);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>3);
-                }
-                else{
-                  int tempReg = normalizeExp(temp);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>3);
+            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
+              int i = 0;
+              struct NSData* temp;
+              if(($<variable.width>3 * $<variable.height>3) >= $6){
+                for(i=$6-1;i >= 0 ;i--){
+                  temp = NSPop();
+                  if(temp->valType == 1){
+                    int tempReg = newTemp();
+                    genIR(li, 0, temp->temp, tempReg);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>3);
+                  }
+                  else{
+                    int tempReg = normalizeExp(temp);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>3);
+                  }
                 }
               }
-            }
-            else{
-              printf("wrong while init array!\n");
+              else{
+                printf("wrong while init array!\n");
+              }
             }
           }
           | varArray BINARYOP_ASSIGN LC args RC {
-            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
-            int i = 0;
-            struct NSData* temp;
-            if(($<variable.width>1 * $<variable.height>1) >= $4){
-              for(i=$4-1;i >= 0 ;i--){
-                temp = NSPop();
-                if(temp->valType == 1){
-                  int tempReg = newTemp();
-                  genIR(li, 0, temp->temp, tempReg);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
-                }
-                else{
-                  int tempReg = normalizeExp(temp);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
+            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
+              int i = 0;
+              struct NSData* temp;
+              if(($<variable.width>1 * $<variable.height>1) >= $4){
+                for(i=$4-1;i >= 0 ;i--){
+                  temp = NSPop();
+                  if(temp->valType == 1){
+                    int tempReg = newTemp();
+                    genIR(li, 0, temp->temp, tempReg);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>1);
+                  }
+                  else{
+                    int tempReg = normalizeExp(temp);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>1);
+                  }
                 }
               }
-            }
-            else{
-              printf("wrong while init array!\n");
+              else{
+                printf("wrong while init array!\n");
+              }
             }
           }
           | var {
-            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
+            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            else registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
           }
 ;
 
 stspec    : STRUCT ID LC {addLevel();} sdefs RC{
-            registerId($2, "struct", $5, 0, subLevel(), 0, 0);
-            $$ = $2;
+            if(getsym($2) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($2, "struct", $5, 0, subLevel(), 0, 0);
+              $$ = $2;
+            }
           }
           | STRUCT LC {addLevel();} sdefs RC{
             char * tempID = (char *) malloc(sizeof(char)*9);
             sprintf(tempID, "%d", getRandomNumber());
-            registerId(tempID, "struct", $4, 0, subLevel(), 0, 0);
-            $$ = tempID;
+            if(getsym(tempID) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId(tempID, "struct", $4, 0, subLevel(), 0, 0);
+              $$ = tempID;
+            }
           } /*在没有ID的情况下可能需要随机分配一个?*/
           | STRUCT ID {
             $$ = $2;
           }
 ;
 
-func      : ID {registerId($1, "func", 0, 0, 0, 0, 0);} LP {addLevel();} paras RP{
+func      : ID {
+            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            else registerId($1, "func", 0, 0, 0, 0, 0);
+          } LP {addLevel();} paras RP{
             $<funcType.id>$ = $1;
             $<funcType.param>$ = sym_table;
             $<funcType.beforeEntry>$ = InterR->tail;
@@ -309,10 +333,12 @@ func      : ID {registerId($1, "func", 0, 0, 0, 0, 0);} LP {addLevel();} paras R
 ;
 
 paras     : TYPE ID COMMA paras{
-            registerId($2, "int", 1, 1, 0, 0, 0);
+            if(getsym($2) == 0) yyerror("wrong while declaration\n");
+            else registerId($2, "int", 1, 1, 0, 0, 0);
           }
           | TYPE ID {
-            registerId($2, "int", 1, 1, 0, 0, 0);
+            if(getsym($2) == 0) yyerror("wrong while declaration\n");
+            else registerId($2, "int", 1, 1, 0, 0, 0);
           }
           | /* empty */
 ;
@@ -432,10 +458,12 @@ defs      : /* empty */
 ;
 
 defsextvars  : defsextvars COMMA ID {
-            registerId($3, $<id>0, 0, 0, 0, 0, 0);
+            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            else registerId($3, $<id>0, 0, 0, 0, 0, 0);
           }
           | ID {
-            registerId($1, $<id>0, 0, 0, 0, 0, 0);
+            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            else registerId($1, $<id>0, 0, 0, 0, 0, 0);
           }
 ;
 
@@ -448,83 +476,99 @@ sdefs     : sdefs TYPE sdecs SEMI {
 ;
 
 sdecs     : sdecs COMMA ID {
-            registerId($3, "int", 1, 1, 0, 0, 0);
+            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            else registerId($3, "int", 1, 1, 0, 0, 0);
           }
           | ID {
-            registerId($1, "int", 1, 1, 0, 0, 0);
+            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            else registerId($1, "int", 1, 1, 0, 0, 0);
           }
 ;
 
 decs      : var {
-            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
+            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            else registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
           }
           | decs COMMA var {
-            registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
+            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            else registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
           }
           | decs COMMA ID BINARYOP_ASSIGN exps {
-            registerId($3, "int", 1, 1, 0, 0, 0);
-            if($<value.valType>5 == 1){
-              int temp = newTemp();
-              genIR(li, 0, $<value.temp>5, temp);
-              genIRForLS(swi, temp, 0, $3);
-            } else {
-              int temp = normalizeExp((struct NSData *) &$5);
-              genIRForLS(swi, temp, 0, $3);
+            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($3, "int", 1, 1, 0, 0, 0);
+              if($<value.valType>5 == 1){
+                int temp = newTemp();
+                genIR(li, 0, $<value.temp>5, temp);
+                genIRForLS(swi, temp, 0, $3);
+              } else {
+                int temp = normalizeExp((struct NSData *) &$5);
+                genIRForLS(swi, temp, 0, $3);
+              }
             }
           }
           | ID BINARYOP_ASSIGN exps {
-            registerId($1, "int", 1, 1, 0, 0, 0);
-            if($<value.valType>3 == 1){
-              int temp = newTemp();
-              genIR(li, 0, $<value.temp>3, temp);
-              genIRForLS(swi, temp, 0, $1);
-            } else {
-              int temp = normalizeExp((struct NSData *) &$3);
-              genIRForLS(swi, temp, 0, $1);
+            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($1, "int", 1, 1, 0, 0, 0);
+              if($<value.valType>3 == 1){
+                int temp = newTemp();
+                genIR(li, 0, $<value.temp>3, temp);
+                genIRForLS(swi, temp, 0, $1);
+              } else {
+                int temp = normalizeExp((struct NSData *) &$3);
+                genIRForLS(swi, temp, 0, $1);
+              }
             }
           }
           | decs COMMA varArray BINARYOP_ASSIGN LC args RC {
-            registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
-            int i = 0;
-            struct NSData* temp;
-            if(($<variable.width>3 * $<variable.height>3) >= $6){
-              for(i=$6-1;i >= 0 ;i--){
-                temp = NSPop();
-                if(temp->valType == 1){
-                  int tempReg = newTemp();
-                  genIR(li, 0, temp->temp, tempReg);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>3);
-                }
-                else{
-                  int tempReg = normalizeExp(temp);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>3);
+            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
+              int i = 0;
+              struct NSData* temp;
+              if(($<variable.width>3 * $<variable.height>3) >= $6){
+                for(i=$6-1;i >= 0 ;i--){
+                  temp = NSPop();
+                  if(temp->valType == 1){
+                    int tempReg = newTemp();
+                    genIR(li, 0, temp->temp, tempReg);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>3);
+                  }
+                  else{
+                    int tempReg = normalizeExp(temp);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>3);
+                  }
                 }
               }
-            }
-            else{
-              printf("wrong while init array!\n");
+              else{
+                printf("wrong while init array!\n");
+              }
             }
           }
           | varArray BINARYOP_ASSIGN LC args RC {
-            registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
-            int i = 0;
-            struct NSData* temp;
-            if(($<variable.width>1 * $<variable.height>1) >= $4){
-              for(i=$4-1;i >= 0 ;i--){
-                temp = NSPop();
-                if(temp->valType == 1){
-                  int tempReg = newTemp();
-                  genIR(li, 0, temp->temp, tempReg);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
-                }
-                else{
-                  int tempReg = normalizeExp(temp);
-                  genIRForLS(swi, tempReg, i*4, $<variable.id>1);
+            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            else {
+              registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
+              int i = 0;
+              struct NSData* temp;
+              if(($<variable.width>1 * $<variable.height>1) >= $4){
+                for(i=$4-1;i >= 0 ;i--){
+                  temp = NSPop();
+                  if(temp->valType == 1){
+                    int tempReg = newTemp();
+                    genIR(li, 0, temp->temp, tempReg);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>1);
+                  }
+                  else{
+                    int tempReg = normalizeExp(temp);
+                    genIRForLS(swi, tempReg, i*4, $<variable.id>1);
+                  }
                 }
               }
-            }
-            else{
-              printf("wrong while init array!\n");
+              else{
+                printf("wrong while init array!\n");
+              }
             }
           }
 ;
@@ -1537,7 +1581,6 @@ exps      : exps BINARYOP_MUL exps{
           | ID LP args RP  {
             int i;
             struct NSData* temp;
-            
             if(strcmp($1, "read") == 0){
               int input = newTemp();
               temp = getNSFromBottom();
@@ -1590,7 +1633,6 @@ exps      : exps BINARYOP_MUL exps{
             }
           }/*this is func*/
           | ID arrs {
-            // $<value.valType>$ = 2;
             if($<value.valType>2 == 1){
               $<value.valType>$ = 3;
               $<value.id>$ = $1;
@@ -1602,22 +1644,25 @@ exps      : exps BINARYOP_MUL exps{
               $<value.offset>$ = $<value.temp>2;
             }
             else{
-              printf("wrong while array reference\n");
+              yyerror("wrong while array reference\n");
             }
-            // $<value.temp>$ = temp;
           }
           | ID DOT ID{
             struct symrec * os;
             $<value.valType>$ = 3;
             struct symrec * structVar = getsym($1);
-            struct symrec * base = getsym(structVar->type);
-            if(base == 0) printf("not defined type in struct variable!\n");
-            else{
-              os = getsymWithinScope($3, base->scope);
+            if(structVar == 0){
+              yyerror("wrong while using struct id!\n");
             }
-            $<value.id>$ = $1;
-            $<value.offset>$ = os->offset;
-            // genIRForLS(lwi, temp, os->offset, structVar->name);
+            else{
+              struct symrec * base = getsym(structVar->type);
+              if(base == 0) yyerror("wrong while using struct id!\n");
+              else{
+                os = getsymWithinScope($3, base->scope);
+              }
+              $<value.id>$ = $1;
+              $<value.offset>$ = os->offset;
+            }
           }
           | INT {
             $<value.valType>$ = 1;
@@ -1649,7 +1694,8 @@ arrs      : /* empty */{
           }
           | LB exps RB LB exps RB {
             struct symrec * array = getsym($<id>0);
-            if($<value.valType>2 == 1 && $<value.valType>5 == 1){
+            if(array == 0) yyerror("wrong while do arrs\n");
+            else if($<value.valType>2 == 1 && $<value.valType>5 == 1){
               $<value.valType>$ = 1;
               $<value.temp>$ = array->width * $<value.temp>2 * 4 + $<value.temp>5 * 4;
             }
@@ -1713,20 +1759,20 @@ int main( int argc, char *argv[] )
   yyparse();
   endIR(InitR);
   endIR(InterR);
-  printf("Parse Completed\n");
-  printST();
-  markBasicBlock(InterR);
-  printf("%s\n", "===========================================================");
-  printIR(InitR);
-  printf("%s\n", "===========================================================");
-  printIR(InterR);
-  printf("%s\n", "===========================================================");
+  if(checkST() == 0) yyerror("no main function!\n");
   if (errors == 0) {
+    printf("Parse Completed\n");
+    printST();
+    markBasicBlock(InterR);
+    printf("%s\n", "===========================================================");
+    printIR(InitR);
+    printf("%s\n", "===========================================================");
+    printIR(InterR);
+    printf("%s\n", "===========================================================");
     genData();
     printf("%s\n", "===========================================================");
     patchData();
     printf("%s\n", "===========================================================");
-    
     CodeGenerate();
   }
   
