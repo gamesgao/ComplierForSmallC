@@ -601,7 +601,7 @@ void CodeGenerate(){
                 sprintf(p1, "$t%d", getTR(ptr, ptr->src1.TIA));
                 CSPush(noneStr, "move", p1, "$v0", noneStr, noneStr);
                 sprintf(instLabel, "%s", noneStr);
-
+                struct symrec * funTemp;
                 funTemp = SSPop();
                 while(funTemp != (struct symrec *) 0){
                     if(strcmp(funTemp->type, "int") == 0){
