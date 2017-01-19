@@ -1633,11 +1633,11 @@ exps      : exps BINARYOP_MUL exps{
             if(structVar == 0){
               yyerror("wrong while using struct id!\n");
             }
-            else if(strcmp(getsym($1)->type, "struct") != 0) yyerror("must be struct!\n");
             else {
               struct symrec * base = getsym(structVar->type);
               if(base == 0) yyerror("wrong while using struct id!\n");
-              else{
+              else if(base->type, "struct") != 0) yyerror("must be struct!\n");
+              else {
                 os = getsymWithinScope($3, base->scope);
               }
               $<value.id>$ = $1;
