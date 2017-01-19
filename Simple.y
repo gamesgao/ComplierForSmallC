@@ -1585,7 +1585,7 @@ exps      : exps BINARYOP_MUL exps{
                 $<value.temp>$ = tempReg;
               }
               else{
-                printf("wrong while call func!\n");
+                yyerror("wrong while call func!\n");
               }
             }
           }/*this is func*/
