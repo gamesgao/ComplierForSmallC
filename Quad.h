@@ -257,4 +257,20 @@ void endIR(struct IntermediaRepresentation * ir){
     ir->tail->src2.TIA = 0;
     ir->tail->dest.TIA = 0;
 }
+
+    
+
+
+void outputIR(struct IntermediaRepresentation * ir){
+    if(ir == (struct IntermediaRepresentation*)0) return;
+    struct Quad* ptr = ir->head;
+    while(ptr->next != (struct Quad *)0){
+        ptr = ptr->next;
+        if(ptr->basicBlockFlag == 1) fprintf(yyout,"###");
+        if(ptr->op==lw || ptr->op==sw || ptr->op==swi || ptr->op==lwi || ptr->op==param) fprintf(yyout,"%d\t%s\t%d\t%d\t%s\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.id);
+        else if(ptr->op == jmp || ptr->op == jgt || ptr->op == jgti || ptr->op == call || ptr->op == jge || ptr->op == jgei || ptr->op == jlt || ptr->op == jlti || ptr->op == jle || ptr->op == jlei || ptr->op == je || ptr->op == jei || ptr->op == jne || ptr->op == jnei) fprintf(yyout,"%d\t%s\t%d\t%d\tinst%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.addr->order);
+        else if(ptr->op == label) fprintf(yyout,"%s:\n", ptr->dest.id);
+        else fprintf(yyout,"%d\t%s\t%d\t%d\t%d\n", ptr->order, Opstr[ptr->op], ptr->src1.TIA, ptr->src2.TIA, ptr->dest.TIA);
+    }
+}
 /************************** End Quad code **************************/

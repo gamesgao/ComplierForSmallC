@@ -74,12 +74,12 @@ void printCS(){
 
 void outputCS(){
     struct codeSeg* ptr = CStop;
-    printf(".text\n");
+    fprintf(yyout,".text\n");
     while(ptr != (struct codeSeg*) 0){
-        if(strcmp(ptr->label, "") != 0 && strcmp(ptr->prefix, "") != 0) printf("%s:\t%s\t%s\t%s\t%s.%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
-        else if(strcmp(ptr->label, "") != 0) printf("%s:\t%s\t%s\t%s\t%s%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
-        else if(strcmp(ptr->prefix, "") != 0) printf("%s\t%s\t%s\t%s\t%s.%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
-        else printf("%s\t%s\t%s\t%s\t%s%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        if(strcmp(ptr->label, "") != 0 && strcmp(ptr->prefix, "") != 0) fprintf(yyout,"%s:\t%s\t%s\t%s\t%s.%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        else if(strcmp(ptr->label, "") != 0) fprintf(yyout,"%s:\t%s\t%s\t%s\t%s%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        else if(strcmp(ptr->prefix, "") != 0) fprintf(yyout,"%s\t%s\t%s\t%s\t%s.%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
+        else fprintf(yyout,"%s\t%s\t%s\t%s\t%s%s\t\n", ptr->label, ptr->op, ptr->p1, ptr->p2, ptr->prefix, ptr->p3);
         ptr = ptr->next;
     }
 }

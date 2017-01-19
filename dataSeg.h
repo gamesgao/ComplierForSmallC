@@ -63,17 +63,17 @@ struct dataSeg* findDataInst(char *id, char *prefix){
     }
     return 0;
 }
-// struct DSData* DSPop(){
-//     if(DSIsEmpty()) return 0;
-//     struct DSData* temp = DStop->data;
-//     struct dataSeg* tempTop = DStop->next;
-//     // free(DStop);
-//     DStop = tempTop;
-//     return temp;
-// }
 
-
-
+void outputDS(){
+    struct dataSeg* ptr = DStop;
+    fprintf(yyout,".data\n");
+    while(ptr != (struct dataSeg*) 0){
+        if(strcmp(ptr->id, "") != 0 && strcmp(ptr->prefix, "") != 0)fprintf(yyout,"%s.%s:\t.word\t%d\n", ptr->prefix, ptr->id, ptr->data);
+        else if(strcmp(ptr->id, "") != 0) fprintf(yyout,"%s%s:\t.word\t%d\n", ptr->prefix, ptr->id, ptr->data);
+        else fprintf(yyout,"\t.word\t%d\n", ptr->data);
+        ptr = ptr->next;
+    }
+}
 
 
 /************************** End dataSeg code **************************/

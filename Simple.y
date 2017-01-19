@@ -1784,10 +1784,10 @@ int main( int argc, char *argv[] )
     patchData();
     printf("%s\n", "===========================================================");
     CodeGenerate();
-
-
-
-
+    outputIR(InitR);
+    outputIR(InterR);
+    outputDS();
+    outputCS();
   }
   
   return 0;
