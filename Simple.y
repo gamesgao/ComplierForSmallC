@@ -197,8 +197,8 @@ extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是
               genIRForLabel($<funcType.id>2);
               getsym($<funcType.id>2)->entry = $<funcType.beforeEntry>2->next;
               getsym($<funcType.id>2)->param = $<funcType.param>2;
-            } stmtblock {
               registerId("__", "int", 1, 1, 0, 0, 0);
+            } stmtblock { 
               getsym($<funcType.id>2)->scope = subLevel();
               if($<stmtType.continueList>4 != 0 || $<stmtType.breakList>4 != 0 ) yyerror("lack the for loop!\n");
             }
@@ -1565,7 +1565,7 @@ exps      : exps BINARYOP_MUL exps{
               else {
                 genIR(read, 0, 0, input);
                 if(temp->valType == 3 || temp->valType == 4){
-                  if($<value.valType>1 == 3) genIRForLS(swi, input, temp->offset, temp->id);
+                  if(temp->valType == 3) genIRForLS(swi, input, temp->offset, temp->id);
                   else genIRForLS(sw, input, temp->offset, temp->id);
                 }
                 else {
@@ -1628,8 +1628,9 @@ exps      : exps BINARYOP_MUL exps{
                   int tempReg = newTemp();
                   genIRForBranch(call, tempReg, 0, fun->entry);
                   genIRForLS(swi, tempReg, 0, "__");
-                  $<value.valType>$ = 2;
-                  $<value.temp>$ = tempReg;
+                  $<value.valType>$ = 3;
+                  $<value.id>$ = "__";
+                  $<value.offset>$ = 0;
                 }
               }
               else{

@@ -58,3 +58,241 @@ l14:	lw	$t5		__.x+0
 l17:	li	$t6		0	
 	li	$v0	10		
 	syscall				
+Parse Completed
+type:func	name:main	offset:0	entry:22
+===========================================================
+type:int	name:x	offset:4	width:1	height:1
+type:int	name:__	offset:0	width:1	height:1
+===========================================================
+type:func	name:fib	offset:0	entry:1
+===========================================================
+type:int	name:__	offset:4	width:1	height:1
+type:int	name:x	offset:0	width:1	height:1
+===========================================================
+===========================================================
+###fib:
+main:
+3	end	0	0	0
+===========================================================
+fib:
+###2	lwi	0	0	x
+3	jlei	0	2	inst5
+###4	jmp	0	0	inst8
+###5	li	0	1	1
+6	ret	1	0	0
+###7	jmp	0	0	inst22
+###8	lwi	2	0	x
+9	subi	2	1	3
+10	param	3	0	x
+11	call	4	0	inst1
+###12	swi	4	0	__
+13	lwi	5	0	x
+14	subi	5	2	6
+15	param	6	0	x
+16	call	7	0	inst1
+###17	swi	7	0	__
+18	lwi	8	0	__
+19	lwi	9	0	__
+20	add	8	9	10
+21	ret	10	0	0
+main:
+###23	read	0	0	11
+24	sw	11	0	x
+25	lwi	12	0	x
+26	param	12	0	x
+27	call	13	0	inst1
+###28	swi	13	0	__
+29	lwi	14	0	__
+30	write	0	0	14
+31	li	0	0	15
+32	ret	15	0	0
+###33	end	0	0	0
+===========================================================
+.data
+fib.x:	.word	0
+fib.__:	.word	0
+main.__:	.word	0
+main.x:	.word	0
+===========================================================
+.data
+fib.x:	.word	0
+fib.__:	.word	0
+main.__:	.word	0
+main.x:	.word	0
+===========================================================
+wrong while do the reg allocation for 0
+.text
+fib:	sw	$ra		0($sp)	
+	add	$sp	$sp	-4	
+l2:	lw	$t0		fib.x+0	
+	ble	$t0	2	l5	
+l4:	j			l8	
+l5:	li	$t1		1	
+	move	$v0	$t1		
+	add	$sp	$sp	4	
+	lw	$ra		0($sp)	
+	jr	$ra			
+l7:	j			l22	
+l8:	lw	$t2		fib.x+0	
+	sub	$t3	$t2	1	
+	lw	$a0		fib.__+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	lw	$a0		fib.x+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	sw	$t3		fib.x	
+	jal			fib	
+	move	$t4	$v0		
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.x+0	
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.__+0	
+l12:	sw	$t4		fib.__+0	
+	lw	$t5		fib.x+0	
+	sub	$t6	$t5	2	
+	lw	$a0		fib.__+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	lw	$a0		fib.x+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	sw	$t6		fib.x	
+	jal			fib	
+	move	$t7	$v0		
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.x+0	
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.__+0	
+l17:	sw	$t7		fib.__+0	
+	lw	$t8		fib.__+0	
+	lw	$t9		fib.__+0	
+	add	$t0	$t8	$t9	
+	move	$v0	$t0		
+	add	$sp	$sp	4	
+	lw	$ra		0($sp)	
+	jr	$ra			
+main:	sw	$ra		0($sp)	
+	add	$sp	$sp	-4	
+	li	$v0	5		
+	syscall				
+l23:	move	$t1	$v0		
+	sw	$t1		main.x($t40)	
+	lw	$t2		main.x+0	
+	lw	$a0		main.x+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	lw	$a0		main.__+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	sw	$t2		fib.x	
+	jal			fib	
+	move	$t3	$v0		
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		main.__+0	
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		main.x+0	
+l28:	sw	$t3		main.__+0	
+	lw	$t4		main.__+0	
+	move	$a0	$t4		
+	li	$v0	1		
+	syscall				
+	li	$t5		0	
+	li	$v0	10		
+	syscall				
+.data
+fib.x:	.word	0
+fib.__:	.word	0
+main.__:	.word	0
+main.x:	.word	0
+.text
+fib:	sw	$ra		0($sp)	
+	add	$sp	$sp	-4	
+l2:	lw	$t0		fib.x+0	
+	ble	$t0	2	l5	
+l4:	j			l8	
+l5:	li	$t1		1	
+	move	$v0	$t1		
+	add	$sp	$sp	4	
+	lw	$ra		0($sp)	
+	jr	$ra			
+l7:	j			l22	
+l8:	lw	$t2		fib.x+0	
+	sub	$t3	$t2	1	
+	lw	$a0		fib.__+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	lw	$a0		fib.x+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	sw	$t3		fib.x	
+	jal			fib	
+	move	$t4	$v0		
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.x+0	
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.__+0	
+l12:	sw	$t4		fib.__+0	
+	lw	$t5		fib.x+0	
+	sub	$t6	$t5	2	
+	lw	$a0		fib.__+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	lw	$a0		fib.x+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	sw	$t6		fib.x	
+	jal			fib	
+	move	$t7	$v0		
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.x+0	
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		fib.__+0	
+l17:	sw	$t7		fib.__+0	
+	lw	$t8		fib.__+0	
+	lw	$t9		fib.__+0	
+	add	$t0	$t8	$t9	
+	move	$v0	$t0		
+	add	$sp	$sp	4	
+	lw	$ra		0($sp)	
+	jr	$ra			
+main:	sw	$ra		0($sp)	
+	add	$sp	$sp	-4	
+	li	$v0	5		
+	syscall				
+l23:	move	$t1	$v0		
+	sw	$t1		main.x($t40)	
+	lw	$t2		main.x+0	
+	lw	$a0		main.x+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	lw	$a0		main.__+0	
+	sw	$a0		0($sp)	
+	add	$sp	$sp	-4	
+	sw	$t2		fib.x	
+	jal			fib	
+	move	$t3	$v0		
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		main.__+0	
+	add	$sp	$sp	4	
+	lw	$a0		0($sp)	
+	sw	$a0		main.x+0	
+l28:	sw	$t3		main.__+0	
+	lw	$t4		main.__+0	
+	move	$a0	$t4		
+	li	$v0	1		
+	syscall				
+	li	$t5		0	
+	li	$v0	10		
+	syscall				

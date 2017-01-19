@@ -624,6 +624,7 @@ void CodeGenerate(){
                 CSPush(instLabel, op, p1, p2, p3, noneStr);
                 sprintf(p1, "$t%d", getTR(ptr, ptr->src1.TIA));
                 CSPush(noneStr, "move", p1, "$v0", noneStr, noneStr);
+                // CSPush(noneStr, "sw", p1, "$v0", noneStr, noneStr);
                 sprintf(instLabel, "%s", noneStr);
                 struct symrec * funTemp;
                 funTemp = SSPop();
