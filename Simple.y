@@ -213,11 +213,11 @@ sextvars  : sextvars COMMA ID {
 ;
 
 extvars   : extvars COMMA var {
-            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>3) != 0) yyerror("wrong while declaration\n");
             else registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
           }
           | extvars COMMA ID BINARYOP_ASSIGN exps {
-            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($3) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($3, "int", 1, 1, 0, 0, 0);
               if($<value.valType>5 == 1){
@@ -231,7 +231,7 @@ extvars   : extvars COMMA var {
             }
           }
           | ID BINARYOP_ASSIGN exps {
-            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($1) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($1, "int", 1, 1, 0, 0, 0);
               if($<value.valType>3 == 1){
@@ -245,7 +245,7 @@ extvars   : extvars COMMA var {
             }
           }
           | extvars COMMA varArray BINARYOP_ASSIGN LC args RC {
-            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>3) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
               int i = 0;
@@ -270,7 +270,7 @@ extvars   : extvars COMMA var {
             }
           }
           | varArray BINARYOP_ASSIGN LC args RC {
-            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>1) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
               int i = 0;
@@ -295,13 +295,13 @@ extvars   : extvars COMMA var {
             }
           }
           | var {
-            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>1) != 0) yyerror("wrong while declaration\n");
             else registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
           }
 ;
 
 stspec    : STRUCT ID LC {addLevel();} sdefs RC{
-            if(getsym($2) == 0) yyerror("wrong while declaration\n");
+            if(getsym($2) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($2, "struct", $5, 0, subLevel(), 0, 0);
               $$ = $2;
@@ -310,7 +310,7 @@ stspec    : STRUCT ID LC {addLevel();} sdefs RC{
           | STRUCT LC {addLevel();} sdefs RC{
             char * tempID = (char *) malloc(sizeof(char)*9);
             sprintf(tempID, "%d", getRandomNumber());
-            if(getsym(tempID) == 0) yyerror("wrong while declaration\n");
+            if(getsym(tempID) != 0) yyerror("wrong while declaration\n");
             else {
               registerId(tempID, "struct", $4, 0, subLevel(), 0, 0);
               $$ = tempID;
@@ -322,7 +322,7 @@ stspec    : STRUCT ID LC {addLevel();} sdefs RC{
 ;
 
 func      : ID {
-            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($1) != 0) yyerror("wrong while declaration\n");
             else registerId($1, "func", 0, 0, 0, 0, 0);
           } LP {addLevel();} paras RP{
             $<funcType.id>$ = $1;
@@ -332,11 +332,11 @@ func      : ID {
 ;
 
 paras     : TYPE ID COMMA paras{
-            if(getsym($2) == 0) yyerror("wrong while declaration\n");
+            if(getsym($2) != 0) yyerror("wrong while declaration\n");
             else registerId($2, "int", 1, 1, 0, 0, 0);
           }
           | TYPE ID {
-            if(getsym($2) == 0) yyerror("wrong while declaration\n");
+            if(getsym($2) != 0) yyerror("wrong while declaration\n");
             else registerId($2, "int", 1, 1, 0, 0, 0);
           }
           | /* empty */
@@ -457,11 +457,11 @@ defs      : /* empty */
 ;
 
 defsextvars  : defsextvars COMMA ID {
-            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($3) != 0) yyerror("wrong while declaration\n");
             else registerId($3, $<id>0, 0, 0, 0, 0, 0);
           }
           | ID {
-            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($1) != 0) yyerror("wrong while declaration\n");
             else registerId($1, $<id>0, 0, 0, 0, 0, 0);
           }
 ;
@@ -475,25 +475,25 @@ sdefs     : sdefs TYPE sdecs SEMI {
 ;
 
 sdecs     : sdecs COMMA ID {
-            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($3) != 0) yyerror("wrong while declaration\n");
             else registerId($3, "int", 1, 1, 0, 0, 0);
           }
           | ID {
-            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($1) != 0) yyerror("wrong while declaration\n");
             else registerId($1, "int", 1, 1, 0, 0, 0);
           }
 ;
 
 decs      : var {
-            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>1) != 0) yyerror("wrong while declaration\n");
             else registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
           }
           | decs COMMA var {
-            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>3) != 0) yyerror("wrong while declaration\n");
             else registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
           }
           | decs COMMA ID BINARYOP_ASSIGN exps {
-            if(getsym($3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($3) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($3, "int", 1, 1, 0, 0, 0);
               if($<value.valType>5 == 1){
@@ -507,7 +507,7 @@ decs      : var {
             }
           }
           | ID BINARYOP_ASSIGN exps {
-            if(getsym($1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($1) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($1, "int", 1, 1, 0, 0, 0);
               if($<value.valType>3 == 1){
@@ -521,7 +521,7 @@ decs      : var {
             }
           }
           | decs COMMA varArray BINARYOP_ASSIGN LC args RC {
-            if(getsym($<variable.id>3) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>3) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($<variable.id>3, "int", $<variable.width>3, $<variable.height>3, 0, 0, 0);
               int i = 0;
@@ -546,7 +546,7 @@ decs      : var {
             }
           }
           | varArray BINARYOP_ASSIGN LC args RC {
-            if(getsym($<variable.id>1) == 0) yyerror("wrong while declaration\n");
+            if(getsym($<variable.id>1) != 0) yyerror("wrong while declaration\n");
             else {
               registerId($<variable.id>1, "int", $<variable.width>1, $<variable.height>1, 0, 0, 0);
               int i = 0;

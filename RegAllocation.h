@@ -138,6 +138,7 @@ int getTR(struct Quad * ptr, int temp){
     }
     else{
         char *p3 = (char *)malloc(sizeof(char)*80);
+        char* noneStr = "";
         sprintf(p3, "$t%d", maxReg);
         CSPush(noneStr, "sw", p3, noneStr, "0($sp)", noneStr);
         CSPush(noneStr, "add", "$sp", "$sp", "-4", noneStr);
@@ -149,6 +150,7 @@ int getTR(struct Quad * ptr, int temp){
 }
 
 int getTemp(struct Quad * ptr, int temp){
+    char* noneStr = "";
     int regPosi = findTemp(temp);
     if(regPosi < 10) return regPosi;
     struct regStack* reg = findTempInStack(temp);
