@@ -1,9 +1,7 @@
-int foo(int a, int b){
-	return 0;
-}
-
+int a = 1;
+int b[2] = {1,2};
 
 int main(){
-	foo(1,2);
+	int x = 2;
 	return 0;
 }

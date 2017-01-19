@@ -199,7 +199,7 @@ extdef    : TYPE extvars SEMI /*但是这里理论上按照原来的规则也是
               getsym($<funcType.id>2)->param = $<funcType.param>2;
             } stmtblock {
               getsym($<funcType.id>2)->scope = subLevel();
-              if($<stmtType.continueList>3 != 0 || $<stmtType.breakList>3 != 0 ) yyerror("lack the for loop!\n");
+              if($<stmtType.continueList>4 != 0 || $<stmtType.breakList>4 != 0 ) yyerror("lack the for loop!\n");
             }
 ;
 
