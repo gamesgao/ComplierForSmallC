@@ -1,29 +1,6 @@
-# README #
+# Complier for Small C #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+small C is the simplified C language, this project use yacc and flex as the tools to construct the complier for small C language.
 
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+it use the three address code as the IR.
+translate the program to the MIPS code.
